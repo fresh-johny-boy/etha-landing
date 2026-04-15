@@ -203,22 +203,6 @@ export default function Rituals(): React.ReactElement {
 
       {/* ── AUBERGINE STRIP: Pull Quote ── */}
       <div className="relative bg-aubergine px-6 py-20 md:px-12 md:py-28">
-        {/* Quote aura — cream, flowing behind */}
-        <svg
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[200%] w-[60vw] -translate-x-1/2 -translate-y-1/2 overflow-visible"
-          viewBox="0 0 600 300"
-          fill="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M50,150 C100,50 200,20 300,80 C400,140 500,40 550,150 C500,260 400,280 300,220 C200,160 100,250 50,150"
-            stroke="rgba(255,239,222,0.06)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </svg>
-
         <div
           ref={quoteRef}
           className="relative z-10 mx-auto max-w-3xl text-center"

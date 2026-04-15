@@ -97,23 +97,6 @@ export default function Community(): React.ReactElement {
       ref={sectionRef}
       className="relative bg-cream px-6 py-24 md:px-12 md:py-32"
     >
-      {/* Large relaxed aura — background embrace */}
-      <svg
-        className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[120%] w-[80vw] -translate-x-1/2 -translate-y-1/2 overflow-visible"
-        viewBox="0 0 800 600"
-        fill="none"
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden="true"
-      >
-        <path
-          d="M400,30 C580,20 750,100 760,250 C770,400 680,520 520,560 C360,600 180,570 80,450 C-20,330 20,160 120,80 C220,0 320,35 400,30"
-          stroke="rgba(61,35,59,0.05)"
-          strokeWidth="2"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </svg>
-
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Header */}
         <div className="mb-16 md:mb-24">

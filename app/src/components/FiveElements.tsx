@@ -42,8 +42,6 @@ const elements = [
 export default function FiveElements(): React.ReactElement {
   const sectionRef = useRef<HTMLElement>(null);
   const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
-  const auraRef = useRef<SVGPathElement>(null);
-
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -51,25 +49,6 @@ export default function FiveElements(): React.ReactElement {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
-      // Aura thread draws as you scroll through the section
-      if (auraRef.current) {
-        const length = auraRef.current.getTotalLength();
-        gsap.set(auraRef.current, {
-          strokeDasharray: length,
-          strokeDashoffset: length,
-        });
-        gsap.to(auraRef.current, {
-          strokeDashoffset: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 60%",
-            end: "bottom 40%",
-            scrub: 1,
-          },
-        });
-      }
-
       // Each panel fades in from its image side
       panelsRef.current.forEach((panel, i) => {
         if (!panel) return;
@@ -125,24 +104,6 @@ export default function FiveElements(): React.ReactElement {
           When they&apos;re in rhythm, you feel you again.
         </p>
       </div>
-
-      {/* Energised aura thread — weaves through the section */}
-      <svg
-        className="pointer-events-none absolute left-1/2 top-0 z-0 h-full w-[80vw] -translate-x-1/2 overflow-visible"
-        viewBox="0 0 800 2400"
-        fill="none"
-        preserveAspectRatio="xMidYMid slice"
-        aria-hidden="true"
-      >
-        <path
-          ref={auraRef}
-          d="M700,20 C620,80 200,120 150,300 C100,480 650,420 680,600 C710,780 180,750 120,950 C60,1150 700,1100 720,1300 C740,1500 150,1450 100,1650 C50,1850 600,1800 650,2000 C700,2200 300,2250 250,2380"
-          stroke="rgba(255,239,222,0.12)"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </svg>
 
       {/* Element panels */}
       <div className="relative z-10 space-y-16 md:space-y-24">

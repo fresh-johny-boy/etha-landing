@@ -10,8 +10,6 @@ gsap.registerPlugin(ScrollTrigger);
 export default function Closure(): React.ReactElement {
   const sectionRef = useRef<HTMLElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const auraRef = useRef<SVGPathElement>(null);
-
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -33,24 +31,6 @@ export default function Closure(): React.ReactElement {
           },
         });
       }
-
-      // Closing aura draws its final stroke
-      if (auraRef.current) {
-        const length = auraRef.current.getTotalLength();
-        gsap.set(auraRef.current, {
-          strokeDasharray: length,
-          strokeDashoffset: length,
-        });
-        gsap.to(auraRef.current, {
-          strokeDashoffset: 0,
-          duration: 2,
-          ease: "power1.inOut",
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 60%",
-          },
-        });
-      }
     }, sectionRef);
 
     return () => ctx.revert();
@@ -60,24 +40,6 @@ export default function Closure(): React.ReactElement {
     <section ref={sectionRef} className="relative">
       {/* ── CREAM: Closing text + CTA ── */}
       <div className="relative bg-cream px-6 pb-16 pt-32 md:px-12 md:pb-24 md:pt-40">
-        {/* Closing aura — balanced oval completing its loop */}
-        <svg
-          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[400px] w-[500px] -translate-x-1/2 -translate-y-1/2 overflow-visible md:h-[500px] md:w-[650px]"
-          viewBox="0 0 500 350"
-          fill="none"
-          preserveAspectRatio="xMidYMid meet"
-          aria-hidden="true"
-        >
-          <path
-            ref={auraRef}
-            d="M250,25 C340,18 430,60 460,130 C490,200 455,270 380,310 C305,350 200,345 130,305 C60,265 15,200 25,130 C35,60 110,20 175,18 C210,17 235,22 250,25"
-            stroke="rgba(61,35,59,0.12)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            fill="none"
-          />
-        </svg>
-
         <div
           ref={textRef}
           className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center"

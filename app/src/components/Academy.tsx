@@ -115,22 +115,6 @@ export default function Academy(): React.ReactElement {
       ref={sectionRef}
       className="relative bg-aubergine px-6 py-24 md:px-12 md:py-32"
     >
-      {/* Restrained aura — barely visible single line */}
-      <svg
-        className="pointer-events-none absolute right-[10%] top-0 z-0 h-full w-[40vw] overflow-visible"
-        viewBox="0 0 400 1200"
-        fill="none"
-        aria-hidden="true"
-      >
-        <path
-          d="M350,0 C320,100 280,200 300,400 C320,600 280,800 260,1000 C240,1200 300,1100 280,1200"
-          stroke="rgba(255,239,222,0.04)"
-          strokeWidth="1"
-          strokeLinecap="round"
-          fill="none"
-        />
-      </svg>
-
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Header */}
         <div ref={headerRef} className="mb-16 max-w-2xl md:mb-20">
