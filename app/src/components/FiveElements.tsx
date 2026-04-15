@@ -44,7 +44,6 @@ export default function FiveElements(): React.ReactElement {
   const panelsRef = useRef<(HTMLDivElement | null)[]>([]);
   const auraRef = useRef<SVGPathElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -107,7 +106,6 @@ export default function FiveElements(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section ref={sectionRef} className="relative bg-aubergine py-24 md:py-32">

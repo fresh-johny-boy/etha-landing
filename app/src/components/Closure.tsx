@@ -12,7 +12,6 @@ export default function Closure(): React.ReactElement {
   const textRef = useRef<HTMLDivElement>(null);
   const auraRef = useRef<SVGPathElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -56,7 +55,6 @@ export default function Closure(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section ref={sectionRef} className="relative">

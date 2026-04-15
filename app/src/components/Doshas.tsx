@@ -63,7 +63,6 @@ export default function Doshas(): React.ReactElement {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const diagramRef = useRef<HTMLDivElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -118,7 +117,6 @@ export default function Doshas(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section

@@ -83,7 +83,6 @@ export default function ThreePillars(): React.ReactElement {
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const ctaRef = useRef<HTMLDivElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -122,7 +121,6 @@ export default function ThreePillars(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section

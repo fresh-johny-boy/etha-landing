@@ -20,7 +20,6 @@ export default function Rituals(): React.ReactElement {
   const quoteRef = useRef<HTMLDivElement>(null);
   const trioRef = useRef<HTMLDivElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -105,7 +104,6 @@ export default function Rituals(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section ref={sectionRef} className="relative">

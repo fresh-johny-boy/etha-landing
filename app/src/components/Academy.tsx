@@ -38,7 +38,6 @@ export default function Academy(): React.ReactElement {
   const guruRowRef = useRef<HTMLDivElement>(null);
   const topicGridRef = useRef<HTMLDivElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -110,7 +109,6 @@ export default function Academy(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section

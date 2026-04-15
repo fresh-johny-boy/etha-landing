@@ -47,7 +47,6 @@ export default function Community(): React.ReactElement {
   const testimonialsRef = useRef<(HTMLDivElement | null)[]>([]);
   const statsRef = useRef<HTMLDivElement>(null);
 
-  /* ANIMATIONS DISABLED FOR FIGMA EXPORT
   useEffect(() => {
     const prefersReduced = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
@@ -92,7 +91,6 @@ export default function Community(): React.ReactElement {
 
     return () => ctx.revert();
   }, []);
-  */
 
   return (
     <section
