@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Next.js
+**/.next/
+**/out/
+
+# Build
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+~$*
+.playwright-cli/
+
+# IDE
+.vscode/
+.idea/
+
+# Adobe Illustrator source files
+*.ai
+
+# MCP guide (large reference, not needed in repo)
+mcp-server-guide-main/
+
+# Claude local state
+.claude/
+
+# Font alias
+Etha-knowledge alias
