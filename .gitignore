@@ -16,6 +16,23 @@ Thumbs.db
 ~$*
 .playwright-cli/
 
+# Source video files (optimized copies in app/public/)
+*.mp4
+!app/public/hero-video.mp4
+
+# Generated/temp images at root
+*.png
+!app/public/**/*.png
+Gemini*.png
+
+# Screenshots and temp output
+app/final-*.png
+app/mobile-*
+
+# Plans and scratch docs
+plan.md
+Gemini.md
+
 # IDE
 .vscode/
 .idea/

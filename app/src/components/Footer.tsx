@@ -1,4 +1,11 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const navLinks = [
   { label: "SHOP", href: "#" },
@@ -15,13 +22,41 @@ const socialLinks = [
 ];
 
 export default function Footer(): React.ReactElement {
+  const footerRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    if (prefersReduced) return;
+
+    const ctx = gsap.context(() => {
+      if (contentRef.current) {
+        gsap.from(contentRef.current.children, {
+          y: 20,
+          opacity: 0,
+          duration: 0.7,
+          stagger: 0.1,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: footerRef.current,
+            start: "top 85%",
+          },
+        });
+      }
+    }, footerRef);
+
+    return () => ctx.revert();
+  }, []);
+
   return (
-    <footer className="bg-aubergine px-6 py-16 md:px-12 md:py-20">
-      <div className="mx-auto max-w-6xl">
+    <footer ref={footerRef} className="relative bg-aubergine px-6 py-16 md:px-12 md:py-20">
+      <div ref={contentRef} className="mx-auto max-w-6xl">
         {/* Logo */}
         <div className="mb-10 flex justify-center">
           <Image
-            src="/images/etha-logo-light.png"
+            src="/images/etha-logo-light.webp"
             alt="ETHA"
             width={100}
             height={32}

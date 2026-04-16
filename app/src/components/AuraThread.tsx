@@ -17,6 +17,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const AUBERGINE = "#3D233B";
 const CREAM = "#FFEFDE";
+const WHITE = "#FFFFFF";
 
 /** Check if a background color is dark (aubergine-like). */
 function isDarkBg(color: string): boolean {
@@ -50,7 +51,7 @@ function getStrokeColorFromDOM(): string {
   const el = document.elementFromPoint(x, y);
   if (svgEl) svgEl.style.display = "";
   const bg = getEffectiveBg(el);
-  return isDarkBg(bg) ? CREAM : AUBERGINE;
+  return isDarkBg(bg) ? WHITE : AUBERGINE;
 }
 
 export default function AuraThread(): React.ReactElement {
@@ -111,9 +112,9 @@ export default function AuraThread(): React.ReactElement {
       }
       svg!.style.opacity = "1";
 
-      // Update stroke color based on actual background at viewport center
-      const color = getStrokeColorFromDOM();
-      path!.setAttribute("stroke", color);
+      // Force white always
+      path!.setAttribute("stroke", "#FFFFFF");
+      path!.setAttribute("stroke-opacity", "1");
     }
 
     onScroll();
@@ -125,7 +126,7 @@ export default function AuraThread(): React.ReactElement {
     <svg
       ref={svgRef}
       data-aura-thread
-      className="pointer-events-none fixed inset-0 z-[5] h-dvh w-full"
+      className="pointer-events-none fixed inset-0 z-[50] h-dvh w-full"
       viewBox="0 0 1440 1200"
       fill="none"
       preserveAspectRatio="none"
@@ -134,149 +135,130 @@ export default function AuraThread(): React.ReactElement {
       <path
         ref={pathRef}
         d={[
-          // ═══ HERO (cream) — enters top-right, balanced loop ═══
+          // ═══ HERO (0-1200) — Calm, balanced, enters top-right ═══
           "M1380,30",
           "C1300,80 1150,100 1050,180",
-          "C950,260 880,350 820,450",
-          // Balanced loop — imperfect oval (Etha_Loop_Balanced style)
-          "C760,540 680,520 640,480",
-          "C600,440 560,400 540,450",
-          "C520,500 560,560 620,580",
-          "C680,600 740,570 780,530",
-          // Sweep down toward Five Elements
-          "C820,490 800,550 720,650",
-          "C640,750 500,820 380,920",
+          // Balanced loop: imperfect oval
+          "C900,300 800,450 720,400",
+          "C640,350 700,250 820,300",
+          "C940,350 880,500 780,600",
+          "C680,700 500,800 380,920",
           "C260,1020 200,1080 180,1150",
 
-          // ═══ FIVE ELEMENTS (aubergine) — energised sweep with crossing ═══
+          // ═══ FIVE ELEMENTS (1200-2400) — Energised, active, crossings ═══
           "C160,1220 220,1300 340,1380",
           "C460,1460 650,1500 840,1520",
-          // Vata-style angular crossing
+          // Angular Vata-style knot
           "C960,1540 1080,1500 1120,1440",
           "C1160,1380 1100,1320 1020,1340",
           "C940,1360 920,1420 980,1480",
-          "C1040,1540 1140,1560 1200,1600",
-          // Wide sweep through elements
-          "C1260,1640 1280,1720 1240,1820",
-          "C1200,1920 1100,2000 960,2080",
-          // Relaxed loop-back
-          "C820,2160 740,2200 720,2280",
-          "C700,2360 740,2420 800,2440",
-          "C860,2460 900,2420 880,2360",
+          "C1040,1540 1140,1560 1200,1650",
+          "C1260,1740 1280,1820 1240,1920",
+          "C1200,2020 1100,2080 960,2150",
+          "C820,2220 740,2250 720,2300",
+          "C700,2350 740,2380 800,2390",
+          "C860,2400 900,2380 880,2340",
           "C860,2300 800,2280 740,2320",
-          // Exit toward Doshas
-          "C680,2360 600,2440 520,2560",
-          "C440,2680 380,2760 340,2860",
+          // Sweeping down to Doshas
+          "C680,2360 600,2450 520,2560",
+          "C440,2670 380,2770 340,2880",
 
-          // ═══ DOSHAS (cream) — the line threads through all 3 dosha forms ═══
+          // ═══ DOSHAS (~2900-4100) — 3 Columns ═══
+          // Vata (Energised, Left)
+          "C300,2960 260,3020 240,3080",
+          "C220,3140 180,3160 160,3120", 
+          "C140,3080 120,3040 160,3000",
+          "C200,2960 280,2980 320,3040",
+          "C360,3100 340,3160 280,3180",
+          "C220,3200 180,3240 200,3300",
+          "C220,3360 280,3380 340,3360",
+          // Moving to Pitta (Balanced, Center)
+          "C400,3340 480,3300 560,3280",
+          "C620,3260 660,3240 700,3220",
+          "C740,3200 800,3180 860,3200",
+          "C920,3220 960,3280 960,3340",
+          "C960,3400 920,3460 860,3480",
+          "C800,3500 740,3500 680,3480",
+          "C620,3460 580,3400 580,3340",
+          "C580,3280 620,3230 680,3220",
+          "C700,3215 710,3220 720,3240",
+          // Moving to Kapha (Relaxed, Right)
+          "C740,3280 800,3320 880,3360",
+          "C960,3400 1020,3420 1060,3440",
+          "C1100,3460 1160,3500 1200,3560",
+          "C1240,3620 1260,3700 1240,3760",
+          "C1220,3820 1160,3860 1100,3850",
+          "C1040,3840 1020,3790 1060,3750",
+          "C1100,3710 1160,3720 1180,3760",
+          "C1200,3800 1180,3850 1140,3880",
+          "C1100,3910 1040,3940 980,3960",
+          "C920,3980 860,4000 800,4040",
 
-          // Approach Vata column (left ~200-400)
-          "C300,2940 260,3000 240,3060",
+          // ═══ RITUALS (~4200-5800) — Relaxed, floating waves ═══
+          "C700,4080 600,4120 520,4180",
+          "C440,4240 420,4280 440,4320",
+          "C460,4360 540,4380 640,4380",
+          "C780,4380 900,4400 980,4440",
+          "C1060,4480 1120,4540 1120,4600",
+          "C1120,4660 1060,4700 980,4700",
+          "C900,4700 860,4660 880,4600",
+          "C900,4540 960,4520 1000,4540",
+          "C1020,4580 980,4640 900,4720",
+          "C800,4800 680,4880 560,4980",
+          "C480,5060 420,5120 400,5180",
+          // Angular element in dark band
+          "C380,5240 420,5220 460,5160",
+          "C500,5100 480,5180 440,5240",
+          "C400,5300 400,5360 440,5420",
+          "C480,5480 560,5520 680,5540",
+          "C800,5560 920,5600 1000,5680",
+          "C1080,5760 1120,5860 1100,5960",
 
-          // ── VATA (Energised) — angular knot with self-crossings ──
-          // The line enters from top-left, makes angular direction changes
-          // and crosses itself twice, creating a restless knot
-          "C220,3120 180,3140 160,3100",  // sharp upward jolt
-          "C140,3060 120,3020 160,2980",  // angular reversal
-          "C200,2940 280,2960 320,3020",  // cross back rightward
-          "C360,3080 340,3140 280,3160",  // second crossing
-          "C220,3180 180,3220 200,3280",  // exit downward
-          "C220,3340 280,3360 340,3340",  // stabilise
+          // ═══ ACADEMY & COMMUNITY (~6000-8800) — Grand sweeping curves ═══
+          "C1080,6060 1000,6140 880,6200",
+          "C760,6260 620,6300 500,6380",
+          "C380,6460 300,6560 280,6680",
+          // Wide relaxed loop
+          "C260,6800 320,6900 440,6940",
+          "C560,6980 680,6940 740,6860",
+          "C800,6780 760,6700 680,6680",
+          "C600,6660 540,6720 560,6800",
+          "C580,6880 660,6940 740,6960",
+          "C820,6980 940,7040 1060,7140",
+          "C1180,7240 1260,7360 1280,7500",
+          "C1300,7640 1260,7720 1180,7740",
+          "C1100,7760 1080,7720 1120,7680",
+          "C1160,7640 1200,7680 1180,7740",
+          "C1160,7800 1080,7840 960,7860",
+          // Community embrace
+          "C840,7880 700,7920 580,8000",
+          "C460,8080 360,8180 320,8300",
+          "C280,8420 320,8520 420,8560",
+          "C520,8600 620,8560 660,8480",
+          "C700,8400 660,8340 600,8340",
+          "C540,8340 520,8400 560,8460",
+          "C600,8520 680,8540 760,8520",
+          "C840,8500 900,8540 920,8620",
+          "C940,8700 900,8740 860,8760",
 
-          // ── Traverse to Pitta column (center ~600-800) ──
-          "C400,3320 480,3280 560,3260",
-          "C620,3240 660,3220 700,3200",
-
-          // ── PITTA (Balanced) — smooth organic oval, nearly closed ──
-          // Calm, focused, precise — a single imperfect ellipse
-          "C740,3180 800,3160 860,3180",
-          "C920,3200 960,3260 960,3320",
-          "C960,3380 920,3440 860,3460",
-          "C800,3480 740,3480 680,3460",
-          "C620,3440 580,3380 580,3320",
-          "C580,3260 620,3210 680,3200",
-          // Gap — the oval doesn't fully close (brand rule)
-          "C700,3195 710,3200 720,3220",
-
-          // ── Traverse to Kapha column (right ~1000-1200) ──
-          "C740,3260 800,3300 880,3340",
-          "C960,3380 1020,3400 1060,3420",
-
-          // ── KAPHA (Relaxed) — flowing blob with internal loop ──
-          // Grounded, steady — wider form with a small loop-back
-          "C1100,3440 1160,3480 1200,3540",
-          "C1240,3600 1260,3680 1240,3740",
-          // Internal loop — the line circles back on itself
-          "C1220,3800 1160,3840 1100,3830",
-          "C1040,3820 1020,3770 1060,3730",
-          "C1100,3690 1160,3700 1180,3740",
-          "C1200,3780 1180,3830 1140,3860",
-          // Exit the kapha form flowing down
-          "C1100,3890 1040,3920 980,3940",
-          "C920,3960 860,3980 800,4020",
-          // Gentle descent out of Doshas
-          "C700,4060 600,4100 520,4160",
-          "C440,4220 420,4260 440,4300",
-
-          // ═══ RITUALS cream — organic drift with loop ═══
-          "C460,4340 540,4360 640,4360",
-          "C780,4360 900,4380 980,4420",
-          // Relaxed loop around ritual images
-          "C1060,4460 1120,4520 1120,4580",
-          "C1120,4640 1060,4680 980,4680",
-          "C900,4680 860,4640 880,4580",
-          "C900,4520 960,4500 1000,4520",
-          // Drift toward aubergine strip
-          "C1020,4560 980,4620 900,4700",
-          "C800,4780 680,4860 560,4960",
-
-          // ═══ RITUALS aubergine strip — tight energised moment ═══
-          "C480,5040 420,5100 400,5160",
-          // Angular Vata-style crossing in the dark strip
-          "C380,5220 420,5200 460,5140",
-          "C500,5080 480,5160 440,5220",
-          "C400,5280 400,5340 440,5400",
-
-          // ═══ RITUALS cream lower ═══
-          "C480,5460 560,5500 680,5520",
-          "C800,5540 920,5580 1000,5660",
-          "C1080,5740 1120,5840 1100,5940",
-          "C1080,6040 1000,6120 880,6180",
-
-          // ═══ ACADEMY (aubergine) — grand sweeping curves ═══
-          "C760,6240 620,6280 500,6360",
-          "C380,6440 300,6540 280,6660",
-          // Wide relaxed loop (big one design element style)
-          "C260,6780 320,6880 440,6920",
-          "C560,6960 680,6920 740,6840",
-          "C800,6760 760,6680 680,6660",
-          "C600,6640 540,6700 560,6780",
-          "C580,6860 660,6920 740,6940",
-          // Continue sweeping right
-          "C820,6960 940,7020 1060,7120",
-          "C1180,7220 1260,7340 1280,7480",
-          // Small curlicue
-          "C1300,7620 1260,7700 1180,7720",
-          "C1100,7740 1080,7700 1120,7660",
-          "C1160,7620 1200,7660 1180,7720",
-          // Flow toward Community
-          "C1160,7780 1080,7820 960,7840",
-
-          // ═══ COMMUNITY (cream) — embracing form ═══
-          "C840,7860 700,7900 580,7980",
-          "C460,8060 360,8160 320,8280",
-          // Embracing loop
-          "C280,8400 320,8500 420,8540",
-          "C520,8580 620,8540 660,8460",
-          "C700,8380 660,8320 600,8320",
-          "C540,8320 520,8380 560,8440",
-          "C600,8500 680,8520 760,8500",
-          "C840,8480 900,8520 920,8600",
-          "C940,8680 900,8720 860,8740",
+          // ═══ CLOSURE (8800-10000) — Balanced closing flow ═══
+          "C820,8780 740,8800 640,8840",
+          "C540,8880 440,8940 380,9040",
+          "C320,9140 300,9260 360,9360",
+          "C420,9460 520,9520 620,9500",
+          "C720,9480 800,9400 840,9300",
+          // Final soft loop back 
+          "C880,9200 860,9100 780,9080",
+          "C700,9060 660,9140 680,9220",
+          "C700,9300 760,9360 840,9420",
+          "C920,9480 1020,9540 1080,9640",
+          "C1140,9740 1180,9840 1140,9940",
+          // Taper out at the very end
+          "C1100,10040 1000,10080 900,10100"
         ].join(" ")}
-        stroke="#3D233B"
-        strokeOpacity="0.30"
-        strokeWidth="3"
+        stroke="#FFFFFF"
+        strokeOpacity="1"
+        strokeWidth="4"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"

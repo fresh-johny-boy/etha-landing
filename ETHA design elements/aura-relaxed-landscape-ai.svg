@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 350" fill="none">
+  <path 
+    d="M 80,180 
+       C 80,100 180,40 250,100 
+       C 320,160 380,80 480,80 
+       C 580,80 580,240 500,300 
+       C 420,360 350,220 280,260 
+       C 210,300 120,350 60,300 
+       C 0,250 80,260 80,180" 
+    stroke="#3D233B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

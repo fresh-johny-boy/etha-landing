@@ -44,6 +44,7 @@ const stats = [
 
 export default function Community(): React.ReactElement {
   const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const testimonialsRef = useRef<(HTMLDivElement | null)[]>([]);
   const statsRef = useRef<HTMLDivElement>(null);
 
@@ -54,6 +55,21 @@ export default function Community(): React.ReactElement {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
+      // Section header floats in
+      if (headerRef.current) {
+        gsap.from(headerRef.current.children, {
+          y: 25,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top 80%",
+          },
+        });
+      }
+
       // Testimonials stagger in from slightly different directions
       testimonialsRef.current.forEach((el, i) => {
         if (!el) return;
@@ -99,7 +115,7 @@ export default function Community(): React.ReactElement {
     >
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Header */}
-        <div className="mb-16 md:mb-24">
+        <div ref={headerRef} className="mb-16 md:mb-24">
           <p className="mb-4 font-serif text-sm italic text-aubergine/50">
             — Our Community
           </p>
@@ -127,7 +143,7 @@ export default function Community(): React.ReactElement {
             >
               <div className="flex flex-col gap-5 md:flex-row md:items-start md:gap-6">
                 {/* Image */}
-                <div className="relative h-[160px] w-[140px] shrink-0 overflow-hidden md:h-[180px] md:w-[150px]">
+                <div className="relative z-10 h-[160px] w-[140px] shrink-0 overflow-hidden md:h-[180px] md:w-[150px]">
                   <div className="absolute inset-0 bg-gradient-to-b from-aubergine/[0.06] via-aubergine/[0.02] to-aubergine/[0.04]" />
                   <p className="font-label absolute bottom-2 left-2 text-[7px] text-aubergine/15">
                     {t.imageHint}

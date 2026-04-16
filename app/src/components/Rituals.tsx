@@ -15,6 +15,7 @@ const ritualMoments = [
 
 export default function Rituals(): React.ReactElement {
   const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const morningRef = useRef<HTMLDivElement>(null);
   const eveningRef = useRef<HTMLDivElement>(null);
   const quoteRef = useRef<HTMLDivElement>(null);
@@ -27,6 +28,21 @@ export default function Rituals(): React.ReactElement {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
+      // Section header floats in
+      if (headerRef.current) {
+        gsap.from(headerRef.current.children, {
+          y: 25,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top 80%",
+          },
+        });
+      }
+
       // Morning row — image from left, text from right
       if (morningRef.current) {
         const img = morningRef.current.querySelector(".ritual-image");
@@ -111,7 +127,7 @@ export default function Rituals(): React.ReactElement {
       <div className="bg-cream px-6 py-24 md:px-12 md:py-32">
         <div className="mx-auto max-w-7xl">
           {/* Section header */}
-          <div className="mb-16 max-w-xl md:mb-24">
+          <div ref={headerRef} className="mb-16 max-w-xl md:mb-24">
             <p className="mb-4 font-serif text-sm italic text-aubergine/50">
               — Rituals
             </p>
@@ -130,7 +146,7 @@ export default function Rituals(): React.ReactElement {
             ref={morningRef}
             className="mb-16 flex flex-col gap-8 md:mb-24 md:flex-row md:items-center md:gap-12"
           >
-            <div className="ritual-image relative h-[45vh] w-full overflow-hidden md:w-[60%]">
+            <div className="ritual-image relative z-10 h-[45vh] w-full overflow-hidden md:w-[60%]">
               <div className="absolute inset-0 bg-gradient-to-br from-aubergine/[0.07] via-aubergine/[0.02] to-aubergine/[0.05]" />
               {/* Relaxed aura wrapping from image edge */}
               <svg
@@ -177,7 +193,7 @@ export default function Rituals(): React.ReactElement {
                 done. No more giving, no more noise. Small ritual. Deep release.
               </p>
             </div>
-            <div className="ritual-image relative h-[40vh] w-full overflow-hidden md:w-[55%]">
+            <div className="ritual-image relative z-10 h-[40vh] w-full overflow-hidden md:w-[55%]">
               <div className="absolute inset-0 bg-gradient-to-bl from-aubergine/[0.07] via-aubergine/[0.02] to-aubergine/[0.05]" />
               <svg
                 className="pointer-events-none absolute -left-12 -top-6 h-[110%] w-[45%] overflow-visible"
@@ -225,7 +241,7 @@ export default function Rituals(): React.ReactElement {
             <div key={moment.label} className="ritual-moment relative">
               {/* Image with aura frame */}
               <div className="relative mb-4">
-                <div className="relative h-[280px] w-full overflow-hidden">
+                <div className="relative z-10 h-[280px] w-full overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-b from-aubergine/[0.05] via-aubergine/[0.02] to-aubergine/[0.04]" />
                   <p className="font-label absolute bottom-3 left-3 text-[8px] text-aubergine/20">
                     {moment.imageHint}

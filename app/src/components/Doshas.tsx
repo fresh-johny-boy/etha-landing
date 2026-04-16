@@ -60,6 +60,7 @@ const doshas = [
 
 export default function Doshas(): React.ReactElement {
   const sectionRef = useRef<HTMLElement>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
   const diagramRef = useRef<HTMLDivElement>(null);
 
@@ -70,6 +71,21 @@ export default function Doshas(): React.ReactElement {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
+      // Section header floats in
+      if (headerRef.current) {
+        gsap.from(headerRef.current.children, {
+          y: 25,
+          opacity: 0,
+          duration: 0.8,
+          stagger: 0.12,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top 80%",
+          },
+        });
+      }
+
       // Diagram animation
       if (diagramRef.current) {
         gsap.from(diagramRef.current, {
@@ -124,7 +140,7 @@ export default function Doshas(): React.ReactElement {
       className="relative bg-cream px-6 py-24 md:px-12 md:py-32"
     >
       {/* Section header */}
-      <div className="mx-auto max-w-3xl pb-16 md:pb-24">
+      <div ref={headerRef} className="mx-auto max-w-3xl pb-16 md:pb-24">
         <p className="mb-4 font-serif text-sm italic text-aubergine/50">
           — The Three Doshas
         </p>

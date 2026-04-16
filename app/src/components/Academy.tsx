@@ -135,7 +135,7 @@ export default function Academy(): React.ReactElement {
         {/* Video placeholder */}
         <div
           ref={videoRef}
-          className="relative mb-20 aspect-video w-full overflow-hidden md:mb-24 md:w-[85%] md:mx-auto"
+          className="relative z-10 mb-20 aspect-video w-full overflow-hidden md:mb-24 md:w-[85%] md:mx-auto"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-cream/[0.04] via-cream/[0.01] to-cream/[0.03]" />
           {/* Play button */}
@@ -180,7 +180,7 @@ export default function Academy(): React.ReactElement {
             {gurus.map((guru) => (
               <div key={guru.name} className="guru-card">
                 {/* Sharp rectangular portrait */}
-                <div className="relative mb-4 h-[300px] w-full overflow-hidden md:h-[340px]">
+                <div className="relative z-10 mb-4 h-[300px] w-full overflow-hidden md:h-[340px]">
                   <div className="absolute inset-0 bg-gradient-to-b from-cream/[0.04] via-cream/[0.01] to-cream/[0.03]" />
                   <p className="font-label absolute bottom-3 left-3 text-[8px] text-cream/15">
                     {guru.imageHint}

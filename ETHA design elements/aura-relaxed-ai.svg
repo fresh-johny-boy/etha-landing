@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" fill="none">
+  <!-- 
+    RELAXED AURA
+    A friendly, calm line. Rounded soft curves yielding a flowing aesthetic.
+    Features the recognizable "waist/pinch" and an internal crossing loop.
+  -->
+  <path 
+    d="M 180,50 
+       C 280,20 340,100 320,180 
+       C 300,260 180,240 180,320 
+       C 180,400 300,420 280,460 
+       C 260,500 80,480 80,380 
+       C 80,280 160,300 200,260 
+       C 240,220 250,180 200,160 
+       C 150,140 100,180 100,120 
+       C 100,60 140,60 180,50" 
+    stroke="#3D233B" 
+    stroke-width="3" 
+    stroke-linecap="round" 
+    stroke-linejoin="round" 
+  />
+</svg>

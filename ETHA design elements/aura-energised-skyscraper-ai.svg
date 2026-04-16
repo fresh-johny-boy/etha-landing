@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 800" fill="none">
+  <path 
+    d="M 100,80 
+       C 150,50 220,100 180,200 
+       C 140,300 50,400 80,500 
+       C 110,600 200,750 150,750 
+       C 100,750 80,680 120,600 
+       C 160,520 220,450 150,300 
+       C 80,150 50,110 100,80" 
+    stroke="#3D233B" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { plantin, brandon } from "./fonts";
+import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,7 +25,10 @@ export default function RootLayout({
       lang="en"
       className={`${plantin.variable} ${brandon.variable} antialiased`}
     >
-      <body>{children}</body>
+      <body>
+        <SmoothScroll />
+        {children}
+      </body>
     </html>
   );
 }

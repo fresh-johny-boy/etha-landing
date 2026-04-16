@@ -69,7 +69,7 @@ export default function Closure(): React.ReactElement {
       </div>
 
       {/* ── NATURE IMAGE ECHO ── */}
-      <div className="relative h-[35vh] w-full overflow-hidden md:h-[40vh]">
+      <div className="relative z-10 h-[35vh] w-full overflow-hidden md:h-[40vh]">
         <div
           className="absolute inset-0"
           style={{

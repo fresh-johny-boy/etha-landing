@@ -18,6 +18,23 @@ The most distinctive decorative element is "The Aura" — organic, hand-drawn li
 - Nature photography (landscapes, textures, water) as background imagery
 - "Perfectly Imperfect" — no rigid geometry, embrace organic irregularity
 
+### Visual DNA
+
+Etha's visual identity is not "pretty wellness branding." It is a controlled expression of natural energy.
+
+**Principles:**
+- Organic, imperfect forms (no hard geometry, no symmetry obsession)
+- Motion over stillness (nothing feels static, frozen, or posed)
+- Nature as force, not decoration
+- Restraint: few elements, never crowded, never ornamental
+
+**Everything should feel:** Alive. In motion. Temporarily captured.
+
+**This is why:**
+- Flat lays are avoided
+- Studio perfection is rejected
+- Over-designed layouts feel wrong
+
 ## 2. Color Palette & Roles
 
 ### Masterbrand
