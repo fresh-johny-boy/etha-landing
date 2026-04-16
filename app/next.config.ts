@@ -1,10 +1,17 @@
 import type { NextConfig } from "next";
 
+const basePath =
+  process.env.GITHUB_PAGES === "true" ? "/etha-landing" : "";
+
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: process.env.GITHUB_PAGES === "true" ? "/etha-landing" : "",
+  basePath,
+  assetPrefix: basePath,
   images: {
     unoptimized: true,
+  },
+  env: {
+    NEXT_PUBLIC_BASE_PATH: basePath,
   },
 };
 

@@ -16,7 +16,7 @@ export default function Nav(): React.ReactElement {
       {/* Center — Logo */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <Image
-          src="/images/etha-logo-dark.svg"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/etha-logo-dark.svg`}
           alt="ĒTHA"
           width={100}
           height={32}

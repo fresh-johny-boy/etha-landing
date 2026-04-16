@@ -131,7 +131,7 @@ export default function Hero(): React.ReactElement {
           style={{ clipPath: "url(#hero-aura-clip)" }}
         >
           <img
-            src="/images/hero-section.webp"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/hero-section.webp`}
             alt=""
             className="absolute inset-0 h-full w-full object-cover"
           />

@@ -56,7 +56,7 @@ export default function Footer(): React.ReactElement {
         {/* Logo */}
         <div className="mb-10 flex justify-center">
           <Image
-            src="/images/etha-logo-light.webp"
+            src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/etha-logo-light.webp`}
             alt="ETHA"
             width={100}
             height={32}
