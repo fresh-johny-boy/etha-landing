@@ -78,14 +78,17 @@ export default function Hero(): React.ReactElement {
         });
 
         // --- Scroll expansion: aura → full viewport ---
+        // Pin the hero for extra scroll distance so mask can expand
+        // smoothly. When pin releases, next section is flush — no gap.
         gsap.to(clipPath, {
           attr: { d: FULL_RECT },
-          ease: "power1.inOut",
+          ease: "power2.inOut",
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: "55% top",
-            scrub: 0.3,
+            end: "+=40%",
+            pin: true,
+            scrub: 1.2,
             onUpdate: (self) => {
               if (self.progress > 0.03) floatTl.pause();
               else floatTl.resume();
@@ -110,8 +113,8 @@ export default function Hero(): React.ReactElement {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-[115vh] bg-cream md:h-[140vh]">
-      <div className="sticky top-0 h-dvh overflow-hidden">
+    <section ref={sectionRef} className="relative h-dvh bg-cream">
+      <div className="h-full overflow-hidden">
         {/* SVG clipPath — GSAP morphs the d attribute */}
         <svg className="absolute h-0 w-0" aria-hidden="true">
           <defs>
