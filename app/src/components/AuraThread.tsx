@@ -104,6 +104,13 @@ export default function AuraThread(): React.ReactElement {
       );
       svg!.setAttribute("viewBox", `0 ${viewY} 1440 ${viewSlice}`);
 
+      // Hide in footer region
+      if (scrollFraction > 0.88) {
+        svg!.style.opacity = "0";
+        return;
+      }
+      svg!.style.opacity = "1";
+
       // Update stroke color based on actual background at viewport center
       const color = getStrokeColorFromDOM();
       path!.setAttribute("stroke", color);
@@ -265,20 +272,7 @@ export default function AuraThread(): React.ReactElement {
           "C540,8320 520,8380 560,8440",
           "C600,8500 680,8520 760,8500",
           "C840,8480 900,8520 920,8600",
-          "C940,8680 900,8760 840,8820",
-
-          // ═══ CLOSURE (cream) — closing spiral ═══
-          "C780,8880 720,8920 680,8980",
-          "C640,9040 640,9100 680,9140",
-          // Final spiral inward
-          "C720,9180 760,9160 770,9120",
-          "C780,9080 750,9060 720,9080",
-          "C690,9100 700,9130 730,9130",
-
-          // ═══ FOOTER (aubergine) — fading trail ═══
-          "C740,9140 720,9200 700,9300",
-          "C680,9400 660,9520 650,9640",
-          "C640,9760 640,9880 640,10000",
+          "C940,8680 900,8720 860,8740",
         ].join(" ")}
         stroke="#3D233B"
         strokeOpacity="0.30"
