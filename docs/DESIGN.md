@@ -204,6 +204,46 @@ The main CTA uses the Balanced Aura shape as its border instead of a rectangular
 - Example: `— *Vata*`, `— *Pitta*`, `— *Kapha*`
 - Used on product cards, packaging displays, and section dividers
 
+### Section Transitions (Organic Wave Dividers)
+
+**"There are no straight lines in nature."** Every colour transition between sections uses an organic SVG wave divider instead of a hard horizontal edge. These waves are the architectural expression of the Aura system — continuous, flowing, cubic-bezier curves that echo the brand's core principle of organic imperfection.
+
+**Implementation:** `SectionDivider.tsx` — a reusable component with 5 unique wave path variants. Each variant uses multiple cubic bezier (`C`) curves across a `viewBox="0 0 1440 120"` SVG, stretched full-width with `preserveAspectRatio="none"`.
+
+**Technique:** The wave SVG is positioned at the **top** of each incoming section (`position: absolute; top: 0; z-index: 20`). It fills with the **previous section's background colour**, creating an organic overhang where the old colour flows into the new. The wave's bottom edge is the visible organic transition; its flat top edge is hidden behind the preceding section.
+
+**Special case — Hero → Five Elements:** Because the Hero uses a GSAP ScrollTrigger pin (mask expansion animation), the divider uses the **inverse approach**: an aubergine wave extends **upward** from Five Elements into the Hero image. The SVG is flipped vertically (`-scale-y-100`) and translated above the section (`-translate-y-full`). The aubergine blends with the Hero's dark bottom gradient, creating a seamless organic edge without a visible colour band.
+
+**Responsive sizing:**
+| Breakpoint | Wave height |
+|-----------|-------------|
+| Mobile (<768px) | 50px |
+| Tablet (768px+) | 70px |
+| Desktop (1024px+) | 90px |
+
+All heights fit within each section's top padding (96–128px desktop, 48–64px mobile), so content is never obscured.
+
+**Transition map:**
+
+| From → To | Fill colour | Variant | Notes |
+|-----------|------------|---------|-------|
+| Hero (cream) → Five Elements (aubergine) | Aubergine `#3D233B` | 0 (flipped Y) | Extends upward into hero image |
+| Five Elements (aubergine) → Doshas (cream) | Aubergine `#3D233B` | 1 (asymmetric sweep) | Standard top-of-section |
+| Rituals cream → Rituals aubergine strip | Cream `#FFEFDE` | 2 (deep curve) | Internal section transition |
+| Rituals aubergine strip → Rituals cream | Aubergine `#3D233B` | 3 (gentle, flipped X) | Internal section transition |
+| Rituals (cream) → Academy (aubergine) | Cream `#FFEFDE` | 4 (balanced contour) | Standard top-of-section |
+| Academy (aubergine) → Community (cream) | Aubergine `#3D233B` | 0 (triple roll, flipped X) | Standard top-of-section |
+| Closure nature image → Footer (aubergine) | Aubergine `#3D233B` | Custom inline | Bottom-anchored, bridges gradient to solid |
+
+**Wave path construction rules:**
+- Visible edge: **only cubic bezier curves** (`C` commands) — consistent with the Aura SVG rules
+- Hidden edges (top/sides): straight lines (`L`) are acceptable since they're obscured
+- Each variant uses 2–4 `C` curves for the organic edge, creating different rhythms (gentle rolls, asymmetric sweeps, deep single curves)
+- `flipX` (horizontal mirror via `-scale-x-100`) doubles the effective variety to 10 shapes
+- Paths never repeat between adjacent transitions
+
+**Elevation on waves:** The dividers use `z-20` to sit above section background content but below section foreground content (`z-10` on content wrappers). The Hero → Five Elements wave uses `z-30` to ensure visibility during GSAP pin release.
+
 ## 5. Layout Principles
 
 ### Spacing System
@@ -222,7 +262,7 @@ The main CTA uses the Balanced Aura shape as its border instead of a rectangular
 - **Generous and intentional**: ĒTHA uses abundant whitespace to create calm, breathing room that mirrors the wellness ethos. Sections are never crowded.
 - **Asymmetric balance**: Layouts often use off-center placement — a headline left with imagery right, text that staggers across grid lines. This reflects the "Perfectly Imperfect" principle.
 - **Nature as texture**: Large nature photography (water, landscapes, botanical textures) serves as section backgrounds, with headlines overlaid in white Plantin. The Aura line art weaves through these images.
-- **Dark/light rhythm**: Cream sections alternate with aubergine sections (or Dosha-coloured sections), creating a rich tonal cadence.
+- **Dark/light rhythm**: Cream sections alternate with aubergine sections (or Dosha-coloured sections), creating a rich tonal cadence. Every colour change uses an organic SVG wave divider — never a straight horizontal edge.
 
 ### Border Radius Scale
 - 0px everywhere. ĒTHA uses sharp, architectural corners on all UI elements (buttons, cards, inputs, containers). The organic quality comes from the Aura line art and nature imagery, not from rounded UI chrome.
@@ -265,6 +305,7 @@ The main CTA uses the Balanced Aura shape as its border instead of a rectangular
 - Don't break The Aura's path — lines must always be continuous and joined
 - Don't use the logo smaller than 40px in digital
 - Don't use geometric circles or straight lines for decorative elements — keep shapes organic
+- Don't use straight horizontal edges between sections with different background colours — always use organic wave dividers (`SectionDivider` component)
 
 ## 8. Responsive Behavior
 

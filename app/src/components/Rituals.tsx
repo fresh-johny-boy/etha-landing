@@ -125,7 +125,7 @@ export default function Rituals(): React.ReactElement {
     <section ref={sectionRef} className="relative">
       {/* ── CREAM SECTION: Morning & Evening ── */}
       <div className="bg-cream px-6 py-24 md:px-12 md:py-32">
-        <div className="mx-auto max-w-7xl">
+        <div className="relative z-10 mx-auto max-w-7xl">
           {/* Section header */}
           <div ref={headerRef} className="mb-16 max-w-xl md:mb-24">
             <p className="mb-4 font-serif text-sm italic text-aubergine/50">

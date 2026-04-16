@@ -113,7 +113,7 @@ export default function Hero(): React.ReactElement {
   }, []);
 
   return (
-    <section ref={sectionRef} className="relative h-dvh bg-cream">
+    <section ref={sectionRef} className="relative z-[6] h-dvh bg-cream" data-aura-stroke="#FFFFFF">
       <div className="h-full overflow-hidden">
         {/* SVG clipPath — GSAP morphs the d attribute */}
         <svg className="absolute h-0 w-0" aria-hidden="true">

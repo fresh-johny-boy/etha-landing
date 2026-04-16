@@ -52,7 +52,7 @@ export default function Footer(): React.ReactElement {
 
   return (
     <footer ref={footerRef} className="relative bg-aubergine px-6 py-16 md:px-12 md:py-20">
-      <div ref={contentRef} className="mx-auto max-w-6xl">
+      <div ref={contentRef} className="relative z-10 mx-auto max-w-6xl">
         {/* Logo */}
         <div className="mb-10 flex justify-center">
           <Image

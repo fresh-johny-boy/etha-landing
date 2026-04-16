@@ -50,8 +50,18 @@ function getStrokeColorFromDOM(): string {
   if (svgEl) svgEl.style.display = "none";
   const el = document.elementFromPoint(x, y);
   if (svgEl) svgEl.style.display = "";
+  // Check for explicit override (e.g. Hero image sections)
+  let node: Element | null = el;
+  while (node && node !== document.documentElement) {
+    if (node instanceof HTMLElement && node.dataset.auraStroke) {
+      return node.dataset.auraStroke;
+    }
+    node = node.parentElement;
+  }
+
+  // Auto: aubergine bg → cream stroke, cream bg → aubergine stroke
   const bg = getEffectiveBg(el);
-  return isDarkBg(bg) ? WHITE : AUBERGINE;
+  return isDarkBg(bg) ? CREAM : AUBERGINE;
 }
 
 export default function AuraThread(): React.ReactElement {
@@ -112,9 +122,8 @@ export default function AuraThread(): React.ReactElement {
       }
       svg!.style.opacity = "1";
 
-      // Force white always
-      path!.setAttribute("stroke", "#FFFFFF");
-      path!.setAttribute("stroke-opacity", "1");
+      // Dynamic color per section
+      path!.setAttribute("stroke", getStrokeColorFromDOM());
     }
 
     onScroll();
@@ -126,7 +135,7 @@ export default function AuraThread(): React.ReactElement {
     <svg
       ref={svgRef}
       data-aura-thread
-      className="pointer-events-none fixed inset-0 z-[50] h-dvh w-full"
+      className="pointer-events-none fixed inset-0 z-[5] h-dvh w-full"
       viewBox="0 0 1440 1200"
       fill="none"
       preserveAspectRatio="none"
