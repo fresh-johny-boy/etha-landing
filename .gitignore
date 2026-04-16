@@ -16,20 +16,26 @@ Thumbs.db
 ~$*
 .playwright-cli/
 
-# Source video files (optimized copies in app/public/)
+# Source video files (large, not needed in repo)
 *.mp4
-!app/public/hero-video.mp4
+assets/stock-video/
+
+# Unused assets from rituals sub-page (not part of landing page)
+assets/unused-rituals-page/
 
 # Generated/temp images at root
 *.png
+!assets/**/*.png
 !app/public/**/*.png
-Gemini*.png
 
 # Screenshots and temp output
 app/final-*.png
 app/mobile-*
+hero-70-scroll
+hero-boundary
+hero-mid-scroll
 
-# Plans and scratch docs
+# Scratch docs
 plan.md
 Gemini.md
 

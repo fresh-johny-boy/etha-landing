@@ -8,32 +8,40 @@ ETHA landing page — a single-page site for an Ayurvedic wellness brand ("the A
 
 ## Repository Structure
 
-This is a two-layer repo: **design assets at root**, **Next.js app inside `app/`**.
-
 ```
-etha-landing/                      # Design docs + brand assets (NOT a Node project)
-├── DESIGN.md                      # Visual design system — THE source of truth
-├── SECTIONS.md                    # Section-by-section creative direction + layouts
-├── landing-brief.md               # Condensed brief (mobile-first, single CTA focus)
-├── design_brief.md                # 94-slide agency brief (emotional direction per section)
-├── brand-guide.md                 # Mother London brand guide (text-extracted, 134 pages)
-├── guides.md                      # Awwwards best practices + animation library guidance
-├── .claude/rules/aura-svg.md      # Aura SVG generation rules (3 states, color logic, animation)
-├── Etha fonts/                    # Source OTF files (Plantin + Brandon Grotesque)
-├── ETHA logo/                     # SVG + PNG logos
-├── ETHA design elements/          # Additional design assets
-└── app/                           # Next.js 16 application
-    ├── CLAUDE.md                  # App-specific guidance (commands, stack, anti-patterns)
-    ├── AGENTS.md                  # Next.js 16 breaking changes warning
+etha-landing/
+├── CLAUDE.md                          # This file
+├── docs/                              # Design & brand documentation
+│   ├── DESIGN.md                      # Visual design system — THE source of truth
+│   ├── SECTIONS.md                    # Section-by-section creative direction + layouts
+│   ├── landing-brief.md               # Condensed brief (mobile-first, single CTA focus)
+│   ├── design_brief.md                # 94-slide agency brief (emotional direction)
+│   ├── brand-guide.md                 # Mother London brand guide (134 pages)
+│   ├── guides.md                      # Awwwards best practices + animation guidance
+│   ├── CREATIVE-TECH.md               # Creative + tech roadmap (prioritized enhancements)
+│   ├── CLAUDE_FIGMA_SKILL.md          # Figma MCP server usage guide
+│   └── PERFORMANCE.md                 # Animation performance audit + fixes
+├── assets/                            # Source brand assets (not served by Next.js)
+│   ├── fonts/                         # Source OTF files (Plantin + Brandon Grotesque)
+│   ├── logos/                         # SVG + PNG logo variants
+│   ├── design-elements/               # Aura SVG references (balanced, relaxed, energised)
+│   │   └── extra-auras/               # Additional aura explorations
+│   ├── stock-video/                   # Raw video files (not deployed)
+│   └── unused-rituals-page/           # Assets from a rituals sub-page (not part of landing)
+├── .claude/rules/aura-svg.md          # Aura SVG generation rules
+├── .github/workflows/deploy.yml       # GitHub Pages deployment
+└── app/                               # Next.js 16 application
+    ├── CLAUDE.md                      # App-specific guidance (commands, stack, anti-patterns)
+    ├── AGENTS.md                      # Next.js 16 breaking changes warning
     ├── src/
     │   ├── app/
-    │   │   ├── layout.tsx         # Root layout — loads fonts via CSS variables
-    │   │   ├── fonts.ts           # Plantin + Brandon Grotesque (next/font/local)
-    │   │   ├── globals.css        # Tailwind v4 @theme inline tokens + utility classes
-    │   │   └── page.tsx           # All sections composed here
-    │   ├── fonts/                 # OTF files for next/font/local
-    │   └── components/            # One component per section + shared components
-    └── public/images/             # etha-logo-dark.svg, etha-logo-light.png
+    │   │   ├── layout.tsx             # Root layout — loads fonts via CSS variables
+    │   │   ├── fonts.ts               # Plantin + Brandon Grotesque (next/font/local)
+    │   │   ├── globals.css            # Tailwind v4 @theme inline tokens + utility classes
+    │   │   └── page.tsx               # All sections composed here
+    │   ├── fonts/                     # OTF files for next/font/local
+    │   └── components/                # One component per section + shared components
+    └── public/images/                 # Deployed images (webp + svg)
 ```
 
 ## Commands
@@ -47,7 +55,7 @@ npm run build    # Production build
 npm run lint     # ESLint (flat config, Next.js core-web-vitals + TS)
 ```
 
-No test framework is configured. No Lenis JS initialization exists yet (only CSS rules in globals.css).
+No test framework is configured.
 
 ## Next.js 16 Breaking Changes
 
@@ -61,9 +69,9 @@ Read `node_modules/next/dist/docs/` before writing code. Key changes from traini
 
 ## Current State
 
-**Animations are disabled.** Every component has GSAP animations wrapped in `/* ANIMATIONS DISABLED FOR FIGMA EXPORT */` comments. All GSAP + ScrollTrigger code is written but commented out. The only active GSAP is the AuraButton hover distortion and MobileCTA scroll visibility.
+**Animations are live.** Lenis smooth scroll + GSAP ScrollTrigger power all scroll animations. The Hero uses a pinned aura-to-fullscreen mask expansion. AuraThread draws a continuous SVG line across the full page. FiveElements blobs morph from seed. See `docs/PERFORMANCE.md` for known issues and optimization plan.
 
-**Image placeholders everywhere.** No real photography exists. Every section has gradient placeholders with descriptive hints (e.g., `"Landscape — rock formations, raw earth texture"`). The `image-placeholder` CSS class is defined in globals.css.
+**Real images for Hero + Five Elements.** WebP images at 1200px wide in `app/public/images/`. Dosha section and Rituals section still use gradient placeholders.
 
 **All sections are implemented** as components: Nav, Hero, ThreePillars, FiveElements, Doshas, Rituals, Academy, Community, Closure, Footer, MobileCTA.
 
@@ -86,11 +94,16 @@ All brand tokens defined in `globals.css` via `@theme inline {}`:
 
 `@/*` resolves to `./src/*` (tsconfig paths).
 
+### GitHub Pages Deployment
+
+Static export to GitHub Pages at `/etha-landing/`. All image `src` attributes must use `process.env.NEXT_PUBLIC_BASE_PATH` prefix (set via `next.config.ts` + `GITHUB_PAGES` env var in CI). The deploy workflow is in `.github/workflows/deploy.yml`.
+
 ### Shared Components
 
 - **AuraButton** (`AuraButton.tsx`): Primary CTA with organic Balanced Aura SVG border. Mouse-directional morph using GSAP — the stroke deforms toward cursor position using a raised-cosine falloff. 22 control points decomposed from a balanced oval.
 - **MobileCTA** (`MobileCTA.tsx`): Fixed bottom bar (mobile only). Appears after 400px scroll. Auto-flips colors (aubergine ↔ cream) when overlapping `bg-aubergine` sections via ScrollTrigger.
-- **AuraSvg** (`AuraSvg.tsx`): Background SVG with radial gradient blurs on aubergine — currently unused in any section.
+- **AuraThread** (`AuraThread.tsx`): Full-page continuous aura line. Fixed SVG that pans its viewBox with scroll. Stroke draws via GSAP scrub. See `docs/PERFORMANCE.md` for optimization notes.
+- **SmoothScroll** (`SmoothScroll.tsx`): Lenis smooth scroll init + GSAP ticker integration.
 
 ### Section Pattern
 
@@ -98,7 +111,7 @@ Every section component follows the same structure:
 1. `"use client"` directive (GSAP requires client-side)
 2. GSAP + ScrollTrigger import and registration
 3. `useRef` for animated elements
-4. Commented-out `useEffect` with all scroll animations
+4. `useEffect` with scroll animations (some sections still have animations commented out)
 5. JSX with: background aura SVG → content → optional CTA (hidden on mobile, MobileCTA handles it)
 
 ### The Aura System
@@ -121,28 +134,18 @@ Rules: always `fill: none`, stroke-only, continuous path, cubic bezier curves on
 - Antidote colors (Citrine, Aquamarine, Carnelian) are **decorative only** — never used for text
 
 **Landing brief conflicts to be aware of:**
-- `landing-brief.md` specifies a single CTA ("Begin your remembering") and wants Rituals/Academy stats removed. The current implementation has multiple CTAs and all sections present. These represent two different creative directions that haven't been reconciled.
-
-## Figma MCP Server Rules
-
-Reference guide: `mcp-server-guide-main/` (skills, steering docs, power workflows).
-
-**When implementing FROM Figma (design-to-code):** Follow the 7-step workflow — parse URL, `get_design_context`, `get_screenshot` (once per task), download assets, translate to ETHA tokens, build, validate. Use `get_metadata` first for large designs. Use `get_variable_defs` for token extraction. Use `search_design_system` before recreating components.
-
-**When writing TO Figma (code-to-design):** Use `generate_figma_design` to capture running pages into Figma files. Use `use_figma` for creating/modifying native Figma content (frames, components, variables, auto layout). Use `create_new_file` to create blank Figma files.
-
-**Asset rules:**
-- If MCP returns `localhost` source for images/SVGs, use directly — no placeholders, no new icon packages
-- All assets come from the Figma payload, not external sources
+- `docs/landing-brief.md` specifies a single CTA ("Begin your remembering") and wants Rituals/Academy stats removed. The current implementation has multiple CTAs and all sections present. These represent two different creative directions that haven't been reconciled.
 
 ## Key Reference Docs
 
 | Doc | Use For |
 |-----|---------|
-| `DESIGN.md` | Visual system: colors, typography, components, spacing, Tailwind tokens |
-| `SECTIONS.md` | Creative direction per section: layouts, aura behavior, image placement |
+| `docs/DESIGN.md` | Visual system: colors, typography, components, spacing, Tailwind tokens |
+| `docs/SECTIONS.md` | Creative direction per section: layouts, aura behavior, image placement |
 | `.claude/rules/aura-svg.md` | Generating new Aura SVG paths: states, colors, animation patterns |
-| `landing-brief.md` | Condensed brief: mobile-first, single CTA, what to remove |
-| `design_brief.md` | Emotional direction per section from agency slides |
-| `brand-guide.md` | Full Mother London brand identity (art direction, dos/don'ts, Dosha materials) |
-| `guides.md` | Awwwards animation best practices, GSAP/Lenis/Playwright guidance |
+| `docs/landing-brief.md` | Condensed brief: mobile-first, single CTA, what to remove |
+| `docs/design_brief.md` | Emotional direction per section from agency slides |
+| `docs/brand-guide.md` | Full Mother London brand identity (art direction, dos/don'ts, Dosha materials) |
+| `docs/guides.md` | Awwwards animation best practices, GSAP/Lenis/Playwright guidance |
+| `docs/PERFORMANCE.md` | Animation performance audit, known issues, optimization plan |
+| `docs/CREATIVE-TECH.md` | Creative + tech roadmap (prioritized enhancements) |
