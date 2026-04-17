@@ -3,8 +3,22 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import AuraButton from "./AuraButton";
+import BlobImage from "./BlobImage";
+import SectionDivider from "./SectionDivider";
+import {
+  SEED,
+  SHAPE_DIVIDER,
+  SHAPE_GURU_A,
+  SHAPE_GURU_B,
+  SHAPE_GURU_C,
+  SHAPE_PLAY,
+  SHAPE_VIDEO,
+} from "./auraShapes";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const GURU_SHAPES = [SHAPE_GURU_A, SHAPE_GURU_B, SHAPE_GURU_C];
 
 const gurus = [
   {
@@ -37,6 +51,10 @@ export default function Academy(): React.ReactElement {
   const videoRef = useRef<HTMLDivElement>(null);
   const guruRowRef = useRef<HTMLDivElement>(null);
   const topicGridRef = useRef<HTMLDivElement>(null);
+  const playFillRef = useRef<SVGPathElement>(null);
+  const playStrokeRef = useRef<SVGPathElement>(null);
+  const playBtnRef = useRef<HTMLButtonElement>(null);
+  const dividerPathRef = useRef<SVGPathElement>(null);
 
   useEffect(() => {
     const prefersReduced = window.matchMedia(
@@ -45,7 +63,7 @@ export default function Academy(): React.ReactElement {
     if (prefersReduced) return;
 
     const ctx = gsap.context(() => {
-      // Header — text slides up, hr draws across
+      // Header — text slides up
       if (headerRef.current) {
         gsap.from(headerRef.current.children, {
           y: 30,
@@ -53,6 +71,22 @@ export default function Academy(): React.ReactElement {
           duration: 0.7,
           stagger: 0.1,
           ease: "power2.out",
+          scrollTrigger: {
+            trigger: headerRef.current,
+            start: "top 80%",
+          },
+        });
+      }
+
+      // Organic divider line — draws in via strokeDashoffset
+      if (dividerPathRef.current) {
+        const path = dividerPathRef.current;
+        const len = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+        gsap.to(path, {
+          strokeDashoffset: 0,
+          duration: 1.2,
+          ease: "power1.inOut",
           scrollTrigger: {
             trigger: headerRef.current,
             start: "top 80%",
@@ -74,6 +108,52 @@ export default function Academy(): React.ReactElement {
         });
       }
 
+      // Play button — fill and stroke both morph from seed → blob on scroll
+      if (playFillRef.current) {
+        gsap.fromTo(
+          playFillRef.current,
+          { attr: { d: SEED } },
+          {
+            attr: { d: SHAPE_PLAY },
+            ease: "none",
+            scrollTrigger: {
+              trigger: videoRef.current,
+              start: "top 85%",
+              end: "top 45%",
+              scrub: 0.4,
+            },
+          }
+        );
+      }
+      if (playStrokeRef.current) {
+        gsap.fromTo(
+          playStrokeRef.current,
+          { attr: { d: SEED }, strokeOpacity: 0 },
+          {
+            attr: { d: SHAPE_PLAY },
+            strokeOpacity: 0.65,
+            ease: "none",
+            scrollTrigger: {
+              trigger: videoRef.current,
+              start: "top 85%",
+              end: "top 45%",
+              scrub: 0.4,
+            },
+          }
+        );
+      }
+
+      // Gentle breathing for the play button
+      if (playBtnRef.current) {
+        gsap.to(playBtnRef.current, {
+          scale: 1.04,
+          duration: 3.2,
+          ease: "sine.inOut",
+          yoyo: true,
+          repeat: -1,
+        });
+      }
+
       // Guru portraits stagger
       if (guruRowRef.current) {
         const portraits = guruRowRef.current.querySelectorAll(".guru-card");
@@ -90,7 +170,7 @@ export default function Academy(): React.ReactElement {
         });
       }
 
-      // Topic cards stagger — crisper, shorter duration
+      // Stats stagger
       if (topicGridRef.current) {
         const cards = topicGridRef.current.querySelectorAll(".topic-card");
         gsap.from(cards, {
@@ -115,13 +195,30 @@ export default function Academy(): React.ReactElement {
       ref={sectionRef}
       className="relative bg-aubergine px-6 py-24 md:px-12 md:py-32"
     >
+      <SectionDivider fill="cream" variant={4} />
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Header */}
         <div ref={headerRef} className="mb-16 max-w-2xl md:mb-20">
           <p className="font-label mb-6 text-[11px] tracking-[0.3em] text-cream/40">
             ETHA ACADEMY
           </p>
-          <div className="mb-6 h-[1px] w-[100px] bg-cream/20" />
+          {/* Organic aura divider — replaces 1px rectangular line */}
+          <svg
+            className="mb-6 h-3 w-[120px] overflow-visible"
+            viewBox="0 0 100 8"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              ref={dividerPathRef}
+              d={SHAPE_DIVIDER}
+              stroke="#FFEFDE"
+              strokeOpacity="0.35"
+              strokeWidth="1"
+              strokeLinecap="round"
+              fill="none"
+            />
+          </svg>
           <h2 className="mb-6 font-serif text-[clamp(1.75rem,4.5vw,3.25rem)] font-semibold leading-[1.0] text-cream">
             5,000 years of wisdom can feel like a lot
           </h2>
@@ -132,43 +229,62 @@ export default function Academy(): React.ReactElement {
           </p>
         </div>
 
-        {/* Video placeholder */}
+        {/* Video — blob-masked frame with blob-shaped play button inside */}
         <div
           ref={videoRef}
-          className="relative z-10 mb-20 aspect-video w-full overflow-hidden md:mb-24 md:w-[85%] md:mx-auto"
+          className="relative z-10 mb-20 aspect-video w-full md:mb-24 md:w-[85%] md:mx-auto"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-cream/[0.04] via-cream/[0.01] to-cream/[0.03]" />
-          {/* Play button */}
-          <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-3">
-            <div className="flex h-14 w-14 items-center justify-center border border-cream/30">
+          <BlobImage
+            shape={SHAPE_VIDEO}
+            variant="on-aubergine"
+            breathDir="right"
+            className="h-full w-full"
+          />
+          {/* Blob-shaped play button — sits above the video blob */}
+          <div className="absolute left-1/2 top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center gap-4">
+            <button
+              ref={playBtnRef}
+              type="button"
+              aria-label="Watch introduction"
+              className="group relative flex h-[88px] w-[88px] items-center justify-center will-change-transform"
+            >
+              <svg
+                className="absolute inset-0 h-full w-full overflow-visible"
+                viewBox="0 0 1 1"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  ref={playFillRef}
+                  d={SEED}
+                  fill="rgba(255,239,222,0.10)"
+                  stroke="none"
+                  className="transition-[fill] duration-300 ease-out group-hover:[fill:rgba(255,239,222,0.18)]"
+                />
+                <path
+                  ref={playStrokeRef}
+                  d={SEED}
+                  fill="none"
+                  stroke="#FFEFDE"
+                  strokeWidth="0.008"
+                  strokeOpacity="0"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               <svg
                 viewBox="0 0 24 24"
-                className="ml-1 h-5 w-5 text-cream/60"
+                className="relative z-10 ml-1 h-5 w-5 text-cream/90 transition-colors duration-300 group-hover:text-cream"
                 fill="currentColor"
+                aria-hidden="true"
               >
                 <polygon points="5,3 19,12 5,21" />
               </svg>
-            </div>
-            <span className="font-label text-[10px] text-cream/40">
+            </button>
+            <span className="font-label text-[10px] text-cream/60">
               WATCH INTRODUCTION
             </span>
           </div>
-          {/* Subtle aura tracing top edge */}
-          <svg
-            className="pointer-events-none absolute -top-2 left-0 h-8 w-full overflow-visible"
-            viewBox="0 0 1000 30"
-            fill="none"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M0,15 C200,5 400,25 600,10 C800,-5 1000,20 1000,15"
-              stroke="rgba(255,239,222,0.08)"
-              strokeWidth="0.75"
-              strokeLinecap="round"
-              fill="none"
-            />
-          </svg>
         </div>
 
         {/* Guru row */}
@@ -177,15 +293,16 @@ export default function Academy(): React.ReactElement {
             Learn from the source
           </p>
           <div className="grid gap-8 md:grid-cols-3 md:gap-10">
-            {gurus.map((guru) => (
+            {gurus.map((guru, i) => (
               <div key={guru.name} className="guru-card">
-                {/* Sharp rectangular portrait */}
-                <div className="relative z-10 mb-4 h-[300px] w-full overflow-hidden md:h-[340px]">
-                  <div className="absolute inset-0 bg-gradient-to-b from-cream/[0.04] via-cream/[0.01] to-cream/[0.03]" />
-                  <p className="font-label absolute bottom-3 left-3 text-[8px] text-cream/15">
-                    {guru.imageHint}
-                  </p>
-                </div>
+                <BlobImage
+                  shape={GURU_SHAPES[i]}
+                  variant="on-aubergine"
+                  placeholderHint={guru.imageHint}
+                  breathDir={i % 2 === 0 ? "right" : "left"}
+                  breathDelay={i * 0.3}
+                  className="mb-4 h-[300px] w-full md:h-[340px]"
+                />
                 <p className="mb-1 font-serif text-[18px] text-cream">
                   {guru.name}
                 </p>
@@ -222,14 +339,11 @@ export default function Academy(): React.ReactElement {
           </p>
         </div>
 
-        {/* CTA — hidden on mobile */}
+        {/* CTA — aura border replaces rectangular button, hidden on mobile */}
         <div className="mt-16 hidden justify-center md:mt-20 md:flex">
-          <a
-            href="#academy"
-            className="font-label group relative inline-flex items-center justify-center border border-cream/30 px-8 py-4 text-[11px] text-cream transition-colors duration-300 hover:bg-cream/[0.06]"
-          >
+          <AuraButton href="#academy" className="text-cream">
             EXPLORE THE ACADEMY
-          </a>
+          </AuraButton>
         </div>
       </div>
     </section>

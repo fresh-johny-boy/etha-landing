@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import SectionDivider from "./SectionDivider";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -113,6 +114,7 @@ export default function Community(): React.ReactElement {
       ref={sectionRef}
       className="relative bg-cream px-6 py-24 md:px-12 md:py-32"
     >
+      <SectionDivider fill="aubergine" variant={0} />
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Header */}
         <div ref={headerRef} className="mb-16 md:mb-24">

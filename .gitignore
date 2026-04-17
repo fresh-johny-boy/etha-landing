@@ -52,5 +52,8 @@ mcp-server-guide-main/
 # Claude local state
 .claude/
 
+# Pilot worktrees (parallel work copies)
+.worktrees/
+
 # Font alias
 Etha-knowledge alias

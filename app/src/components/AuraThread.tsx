@@ -17,7 +17,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 const AUBERGINE = "#3D233B";
 const CREAM = "#FFEFDE";
-const WHITE = "#FFFFFF";
 
 /** Check if a background color is dark (aubergine-like). */
 function isDarkBg(color: string): boolean {
@@ -28,11 +27,21 @@ function isDarkBg(color: string): boolean {
   return luminance < 0.4;
 }
 
-/** Walk up the DOM from an element to find the first visible background color. */
+/** Find the nearest ancestor <section> — inner blobs/overlays should not
+ *  influence stroke color, only the section's own background. */
+function getOwningSection(el: Element | null): HTMLElement | null {
+  let node: Element | null = el;
+  while (node && node !== document.documentElement) {
+    if (node instanceof HTMLElement && node.tagName === "SECTION") return node;
+    node = node.parentElement;
+  }
+  return null;
+}
+
+/** Find the first non-transparent bg walking up from an element. */
 function getEffectiveBg(el: Element | null): string {
   while (el && el !== document.documentElement) {
     const bg = getComputedStyle(el).backgroundColor;
-    // Skip transparent / rgba with 0 alpha
     if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") {
       return bg;
     }
@@ -41,7 +50,7 @@ function getEffectiveBg(el: Element | null): string {
   return "rgb(255, 239, 222)"; // default cream
 }
 
-/** Sample the background at the viewport center and return the contrasting stroke color. */
+/** Sample section-level bg at viewport center and return contrasting stroke. */
 function getStrokeColorFromDOM(): string {
   const x = window.innerWidth / 2;
   const y = window.innerHeight / 2;
@@ -50,7 +59,8 @@ function getStrokeColorFromDOM(): string {
   if (svgEl) svgEl.style.display = "none";
   const el = document.elementFromPoint(x, y);
   if (svgEl) svgEl.style.display = "";
-  // Check for explicit override (e.g. Hero image sections)
+
+  // Explicit override wins (e.g. Hero image sections)
   let node: Element | null = el;
   while (node && node !== document.documentElement) {
     if (node instanceof HTMLElement && node.dataset.auraStroke) {
@@ -59,8 +69,10 @@ function getStrokeColorFromDOM(): string {
     node = node.parentElement;
   }
 
-  // Auto: aubergine bg → cream stroke, cream bg → aubergine stroke
-  const bg = getEffectiveBg(el);
+  // Use nearest <section> bg — prevents inner dark blobs/overlays from
+  // flipping the stroke color (the old "white line on cream" bug).
+  const section = getOwningSection(el);
+  const bg = section ? getEffectiveBg(section) : getEffectiveBg(el);
   return isDarkBg(bg) ? CREAM : AUBERGINE;
 }
 
@@ -77,46 +89,22 @@ export default function AuraThread(): React.ReactElement {
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
-    // Draw animation — line draws to ~65% ahead of viewport
-    if (!prefersReduced) {
-      const length = path.getTotalLength();
-      gsap.set(path, {
-        strokeDasharray: length,
-        strokeDashoffset: length,
-      });
-
-      gsap.to(path, {
-        strokeDashoffset: 0,
-        ease: "none",
-        scrollTrigger: {
-          trigger: document.body,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.2,
-        },
-      });
-    }
-
-    // Pan viewBox + update stroke color on scroll
     const totalViewHeight = 10000;
     const viewSlice = 1200;
     // Offset: line draws ~65% ahead. We shift the viewBox window back
     // so the drawn tip stays in the lower portion of the viewport.
     const lookAhead = viewSlice * 0.35;
 
-    function onScroll(): void {
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
-      const scrollFraction = maxScroll > 0 ? window.scrollY / maxScroll : 0;
-
+    function applyProgress(progress: number): void {
       // Pan viewBox
       const viewY = Math.max(
         0,
-        scrollFraction * (totalViewHeight - viewSlice) - lookAhead
+        progress * (totalViewHeight - viewSlice) - lookAhead
       );
       svg!.setAttribute("viewBox", `0 ${viewY} 1440 ${viewSlice}`);
 
       // Hide in footer region
-      if (scrollFraction > 0.88) {
+      if (progress > 0.88) {
         svg!.style.opacity = "0";
         return;
       }
@@ -126,9 +114,33 @@ export default function AuraThread(): React.ReactElement {
       path!.setAttribute("stroke", getStrokeColorFromDOM());
     }
 
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    // Draw animation + viewBox pan share one ScrollTrigger so they stay
+    // on the same clock as Lenis-smoothed scroll.
+    const length = path.getTotalLength();
+    if (!prefersReduced) {
+      gsap.set(path, {
+        strokeDasharray: length,
+        strokeDashoffset: length,
+      });
+    }
+
+    const trigger = ScrollTrigger.create({
+      trigger: document.body,
+      start: "top top",
+      end: "bottom bottom",
+      scrub: 0.2,
+      onUpdate: (self) => {
+        if (!prefersReduced) {
+          path!.style.strokeDashoffset = String(length * (1 - self.progress));
+        }
+        applyProgress(self.progress);
+      },
+    });
+
+    applyProgress(0);
+    return () => {
+      trigger.kill();
+    };
   }, []);
 
   return (
@@ -265,7 +277,7 @@ export default function AuraThread(): React.ReactElement {
           // Taper out at the very end
           "C1100,10040 1000,10080 900,10100"
         ].join(" ")}
-        stroke="#FFFFFF"
+        stroke="#3D233B"
         strokeOpacity="1"
         strokeWidth="4"
         strokeLinecap="round"

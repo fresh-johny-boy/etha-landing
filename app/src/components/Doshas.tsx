@@ -1,19 +1,22 @@
 import AuraButton from "./AuraButton";
+import BlobImage from "./BlobImage";
 import SectionDivider from "./SectionDivider";
+import {
+  SHAPE_FIRE,
+  SHAPE_EARTH,
+  SHAPE_SPACE,
+  SHAPE_AIR,
+  SHAPE_WATER,
+} from "./auraShapes";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-// Element blob shapes — organic forms for clip-path masks
-// objectBoundingBox coords (0-1)
 const ELEMENT_SHAPES: Record<string, string> = {
-  Fire: "M0.52,0.08 C0.64,0.08 0.76,0.16 0.84,0.28 C0.90,0.38 0.88,0.46 0.86,0.52 C0.84,0.58 0.88,0.66 0.84,0.76 C0.78,0.88 0.66,0.94 0.52,0.94 C0.38,0.94 0.26,0.88 0.20,0.76 C0.16,0.66 0.18,0.58 0.16,0.52 C0.14,0.46 0.14,0.38 0.20,0.28 C0.28,0.16 0.40,0.08 0.52,0.08 Z",
-  Earth:
-    "M0.12,0.40 C0.14,0.26 0.26,0.16 0.40,0.14 C0.52,0.12 0.60,0.16 0.68,0.12 C0.78,0.10 0.88,0.18 0.92,0.32 C0.94,0.44 0.90,0.56 0.88,0.66 C0.86,0.78 0.76,0.88 0.62,0.90 C0.50,0.92 0.40,0.88 0.30,0.90 C0.20,0.92 0.10,0.84 0.08,0.72 C0.06,0.60 0.10,0.50 0.12,0.40 Z",
-  Space:
-    "M0.54,0.06 C0.68,0.04 0.84,0.14 0.90,0.26 C0.96,0.38 0.88,0.46 0.92,0.54 C0.96,0.64 0.90,0.78 0.78,0.86 C0.66,0.94 0.52,0.92 0.42,0.96 C0.30,1.00 0.16,0.90 0.10,0.76 C0.04,0.64 0.10,0.54 0.06,0.44 C0.02,0.34 0.08,0.20 0.22,0.12 C0.34,0.06 0.44,0.08 0.54,0.06 Z",
-  Air: "M0.58,0.10 C0.72,0.08 0.86,0.18 0.90,0.30 C0.94,0.42 0.86,0.50 0.88,0.58 C0.92,0.68 0.82,0.80 0.70,0.84 C0.58,0.88 0.46,0.82 0.36,0.86 C0.24,0.92 0.12,0.82 0.08,0.68 C0.04,0.56 0.12,0.46 0.08,0.36 C0.04,0.26 0.14,0.14 0.30,0.10 C0.42,0.08 0.50,0.12 0.58,0.10 Z",
-  Water:
-    "M0.10,0.42 C0.10,0.28 0.20,0.18 0.32,0.16 C0.42,0.14 0.48,0.20 0.56,0.16 C0.64,0.12 0.76,0.14 0.86,0.24 C0.94,0.34 0.94,0.46 0.90,0.56 C0.86,0.66 0.78,0.74 0.68,0.80 C0.58,0.86 0.50,0.82 0.42,0.86 C0.32,0.90 0.20,0.86 0.12,0.76 C0.06,0.66 0.06,0.54 0.10,0.42 Z",
+  Fire: SHAPE_FIRE,
+  Earth: SHAPE_EARTH,
+  Space: SHAPE_SPACE,
+  Air: SHAPE_AIR,
+  Water: SHAPE_WATER,
 };
 
 // Element images — same photos from Five Elements section
@@ -84,92 +87,6 @@ const doshas = [
 ];
 
 // --- Blob components ---
-
-/** Image clipped to organic blob shape */
-function ImageBlob({
-  shape,
-  clipId,
-  imageSrc,
-  imageAlt,
-  imagePosition,
-  size,
-}: {
-  shape: string;
-  clipId: string;
-  imageSrc: string;
-  imageAlt: string;
-  imagePosition?: string;
-  size: string;
-}): React.ReactElement {
-  return (
-    <div className={`relative ${size}`}>
-      <svg className="absolute h-0 w-0" aria-hidden="true">
-        <defs>
-          <clipPath id={clipId} clipPathUnits="objectBoundingBox">
-            <path d={shape} />
-          </clipPath>
-        </defs>
-      </svg>
-
-      {/* Shadow layers */}
-      <svg
-        className="pointer-events-none absolute inset-[-4%] h-[108%] w-[108%] translate-x-[1.5%] translate-y-[2%]"
-        viewBox="0 0 1 1"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path d={shape} fill="rgba(0,0,0,0.08)" stroke="none" />
-      </svg>
-      <svg
-        className="pointer-events-none absolute inset-[-4%] h-[108%] w-[108%] translate-x-[3%] translate-y-[4%] blur-[6px]"
-        viewBox="0 0 1 1"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path d={shape} fill="rgba(0,0,0,0.05)" stroke="none" />
-      </svg>
-
-      {/* Clipped image */}
-      <div
-        className="absolute inset-[-4%]"
-        style={{ clipPath: `url(#${clipId})` }}
-      >
-        <img
-          src={imageSrc}
-          alt={imageAlt}
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{ objectPosition: imagePosition ?? "center center" }}
-        />
-        <div className="absolute inset-0 bg-black/[0.10]" />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(ellipse at center, transparent 40%, rgba(61,35,59,0.30) 100%)",
-          }}
-        />
-      </div>
-
-      {/* Edge stroke */}
-      <svg
-        className="pointer-events-none absolute inset-[-4%] h-[108%] w-[108%]"
-        viewBox="0 0 1 1"
-        preserveAspectRatio="none"
-        aria-hidden="true"
-      >
-        <path
-          d={shape}
-          fill="none"
-          stroke="#FFEFDE"
-          strokeWidth="0.003"
-          strokeOpacity="0.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
-  );
-}
 
 /** Gradient-filled blob with shadow and vignette */
 function GradientBlob({
@@ -287,13 +204,15 @@ export default function Doshas(): React.ReactElement {
                 <div className="mb-3 flex items-start gap-3 md:mb-5 md:gap-5">
                   {/* Element A */}
                   <div className="flex flex-col items-center">
-                    <ImageBlob
+                    <BlobImage
                       shape={ELEMENT_SHAPES[dosha.elementA]}
-                      clipId={`dosha-el-a-${i}`}
-                      imageSrc={elA.src}
-                      imageAlt={dosha.elementA}
-                      imagePosition={elA.position}
-                      size="h-[80px] w-[80px] md:h-[120px] md:w-[120px]"
+                      image={elA.src}
+                      alt={dosha.elementA}
+                      imageStyle={{ objectPosition: elA.position }}
+                      variant="on-cream"
+                      breathDir="right"
+                      breathDelay={i * 0.25}
+                      className="h-[80px] w-[80px] md:h-[120px] md:w-[120px]"
                     />
                     <p className="mt-2 font-serif text-[11px] italic text-aubergine/60 md:text-[12px]">
                       {dosha.elementA}
@@ -307,13 +226,15 @@ export default function Doshas(): React.ReactElement {
 
                   {/* Element B */}
                   <div className="flex flex-col items-center">
-                    <ImageBlob
+                    <BlobImage
                       shape={ELEMENT_SHAPES[dosha.elementB]}
-                      clipId={`dosha-el-b-${i}`}
-                      imageSrc={elB.src}
-                      imageAlt={dosha.displayB}
-                      imagePosition={elB.position}
-                      size="h-[80px] w-[80px] md:h-[120px] md:w-[120px]"
+                      image={elB.src}
+                      alt={dosha.displayB}
+                      imageStyle={{ objectPosition: elB.position }}
+                      variant="on-cream"
+                      breathDir="left"
+                      breathDelay={i * 0.25 + 0.1}
+                      className="h-[80px] w-[80px] md:h-[120px] md:w-[120px]"
                     />
                     <p className="mt-2 font-serif text-[11px] italic text-aubergine/60 md:text-[12px]">
                       {dosha.displayB}
