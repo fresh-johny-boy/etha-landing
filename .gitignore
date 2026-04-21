@@ -57,3 +57,22 @@ mcp-server-guide-main/
 
 # Font alias
 Etha-knowledge alias
+
+# Local design assets & tools (not deployed)
+.codegraph/
+.nvmrc
+assets/design-elements/auras/
+assets/design-elements/doshas/
+assets/design-elements/elements/
+assets/design-elements/ingredients/
+assets/design-elements/narration/
+assets/design-elements/source/
+assets/design-elements/ui/
+assets/design-elements/live-site-bottom
+assets/design-elements/live-site-top
+assets/design-elements/rituals-section
+brand-kit/
+app/public/svgs/
+quiz-landing-after
+docs/ICONOGRAPHY.md
+*.docx
