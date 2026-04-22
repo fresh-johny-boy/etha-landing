@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 
-const WAVE_D = "M 0,5 C 80,3.5 150,6.5 280,5 C 420,3.5 530,6.5 650,5 C 750,3.5 840,6.5 900,5 C 935,4 965,6 1000,5";
+/* Journey-shape wave: starts low (y=7), ascends through the middle (y=3 at 55%)
+   and settles at y=4. Reads as ascent, not flat timeline. pathLength="1"
+   keeps the progress-dasharray math unchanged. */
+const WAVE_D = "M 0,7 C 100,7.5 200,5.5 300,5 C 380,4.5 470,3.2 550,3 C 620,2.8 700,4.5 750,5 C 840,5.5 930,3.8 1000,4";
 
 const SECTION_ICONS = {
   BODY: {
@@ -166,8 +169,8 @@ export default function Nav({
                 const cur       = quizMilestones.currentLayer;
                 const isCurrent = layer === cur;
                 const isDone    = layer < cur;
-                const iconOp    = isCurrent ? 0.85 : isDone ? 0.45 : 0.2;
-                const textOp    = isCurrent ? 0.7  : isDone ? 0.38 : 0.2;
+                const iconOp    = isCurrent ? 0.85 : isDone ? 0.60 : 0.2;
+                const textOp    = isCurrent ? 0.7  : isDone ? 0.52 : 0.2;
                 const icon      = SECTION_ICONS[name];
 
                 return (

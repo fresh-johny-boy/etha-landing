@@ -1,13 +1,22 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "gsap";
-import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
+import QuizEmailGate from "./QuizEmailGate";
+import QuizInterstitial from "./QuizInterstitial";
+import { useQuizData } from "./QuizDataProvider";
 
-const AIR  = "expo.out";
-const FIRE = "power4.in";
+/* Easing vocabulary:
+   AIR   — entrances (default)
+   FIRE  — exits
+   WATER — SPIRIT-layer entrances + late-quiz tempo shifts
+   EARTH — layer-reveal + grounding moments */
+const AIR   = "expo.out";
+const FIRE  = "power4.in";
+const WATER = "sine.inOut";
+const EARTH = "power1.out";
 
 /* ── Aura geometry ── */
 type Pt = [number, number];
@@ -108,7 +117,8 @@ type Scale2Q = { kind: "question"; qtype: "scale2";  layer: 1|2|3; q: string; po
 type Scale3Q = { kind: "question"; qtype: "scale3";  layer: 1|2|3; q: string; poleA: string; middle: string; poleB: string };
 type OpenQ   = { kind: "question"; qtype: "open";    layer: 1|2|3; q: string; placeholder: string; bonus?: { q: string; placeholder: string } };
 type Question = ChoiceQ | VisualQ | Scale2Q | Scale3Q | OpenQ;
-type Step     = LayerScreen | Question;
+type InterstitialStep = { kind: "interstitial"; id: string; text: string; layer: 1|2|3; variant: "reassure" | "tempo" };
+type Step     = LayerScreen | Question | InterstitialStep;
 
 /* ── Layer BG paths — distinct aura silhouette per section ── */
 const LAYER_BG: Record<1|2|3, string> = {
@@ -134,7 +144,7 @@ const QS: Question[] = [
   ]},
   { kind: "question", layer: 1, q: "My skin tends to be…", options: [
     { id: "a", text: "Dry, thin, and rough — cool to the touch." },
-    { id: "b", text: "Warm, flushed, sensitive — prone to redness or inflammation." },
+    { id: "b", text: "Warm, flushed, sensitive — quick to redden when things heat up." },
     { id: "c", text: "Thick, smooth, oily — cool and moist." },
   ]},
   { kind: "question", layer: 1, q: "My hair is naturally…", options: [
@@ -179,18 +189,18 @@ const QS: Question[] = [
     { id: "c", text: "Soft, full, holds moisture easily." },
   ]},
   { kind: "question", layer: 1, q: "When illness comes, it tends toward…", options: [
-    { id: "a", text: "Anxiety, nervous exhaustion, dry and cold conditions." },
-    { id: "b", text: "Fever, inflammation, or infection." },
-    { id: "c", text: "Congestion, excess mucus, and heaviness." },
+    { id: "a", text: "Restlessness, nervous exhaustion, dryness and cold." },
+    { id: "b", text: "Fever, heat, and things that flare up fast." },
+    { id: "c", text: "Heaviness, thickness in the chest, and anything that lingers." },
   ]},
   /* open */
   { kind: "question", qtype: "open", layer: 1, q: "One sentence, or skip. What does your body most need right now that it is not getting?",
     placeholder: "rest, warmth, stillness, to be seen",
   },
-  { kind: "question", layer: 1, q: "My elimination is…", options: [
-    { id: "a", text: "Irregular — prone to constipation or inconsistency." },
-    { id: "b", text: "Regular and sometimes loose — occasionally urgent." },
-    { id: "c", text: "Heavy and regular — well-formed and predictable." },
+  { kind: "question", layer: 1, q: "My body's daily rhythm of release is…", options: [
+    { id: "a", text: "Uneven — some days light and easy, other days held back." },
+    { id: "b", text: "Frequent and quick — sometimes urgent when things move fast." },
+    { id: "c", text: "Heavy and steady — predictable like clockwork." },
   ]},
   { kind: "question", layer: 1, q: "My voice naturally is…", options: [
     { id: "a", text: "Quick, high-pitched, variable — I speak fast." },
@@ -199,7 +209,7 @@ const QS: Question[] = [
   ]},
   { kind: "question", layer: 1, q: "My lips tend to be…", options: [
     { id: "a", text: "Thin, dry, frequently chapped." },
-    { id: "b", text: "Medium, sometimes sensitive or prone to sores." },
+    { id: "b", text: "Medium, quick to chap or crack when I run hot." },
     { id: "c", text: "Full, soft, and well-defined." },
   ]},
 
@@ -300,9 +310,9 @@ const QS: Question[] = [
     { id: "c", text: "Excessive — I sleep long but still wake feeling tired." },
   ]},
   { kind: "question", layer: 3, q: "My digestion lately is…", options: [
-    { id: "a", text: "Bloated, gassy, and inconsistent." },
-    { id: "b", text: "Acidic — heartburn, loose, reactive." },
-    { id: "c", text: "Sluggish and heavy — slow to clear." },
+    { id: "a", text: "Bloated, unsettled, never quite the same two days in a row." },
+    { id: "b", text: "Sharp and burning — quick to turn on me." },
+    { id: "c", text: "Sluggish and heavy — slow to move through." },
   ]},
   { kind: "question", layer: 3, q: "The emotion I'm most sitting with…", options: [
     { id: "a", text: "Fear, anxiety, or a sense of being unmoored." },
@@ -316,8 +326,8 @@ const QS: Question[] = [
   ]},
   { kind: "question", layer: 3, q: "My body lately has been…", options: [
     { id: "a", text: "Dry, stiff, cold — hard to warm." },
-    { id: "b", text: "Hot, inflamed, and reactive." },
-    { id: "c", text: "Heavy, congested, and slow to recover." },
+    { id: "b", text: "Hot, flushed, and quick to react." },
+    { id: "c", text: "Heavy, thick, and slow to recover." },
   ]},
   /* scale2 */
   { kind: "question", qtype: "scale2", layer: 3, q: "When something ends. A chapter, a relationship, a phase. How do you leave?",
@@ -381,22 +391,63 @@ const LAYER_ICONS: Record<1|2|3, { viewBox: string; paths: { d: string; sw: numb
   },
 };
 
-/* ── Build step sequence ── */
+/* ── Build step sequence ──
+   Interstitials are injected before each new layer (except the first) — a
+   reassurance beat between BODY→MIND and MIND→SPIRIT. One more interstitial
+   (tempo) lands before the final 5 questions to shift the rhythm. */
+const REASSURE_COPY: Record<1|2|3, string | null> = {
+  1: null,
+  2: "Your body has shown us its rhythm. Now — your mind.",
+  3: "We see you. One more pass, softer this time.",
+};
+const TEMPO_COPY = "We have almost finished mapping your rhythm.";
+
 function buildSteps(): Step[] {
   const steps: Step[] = [];
+  const tempoAt = QS.length - 5; // first of the last 5 questions (in QS)
   let lastLayer = 0;
-  for (const q of QS) {
+  QS.forEach((q, qi) => {
     if (q.layer !== lastLayer) {
-      steps.push(LAYER_DEF[q.layer as 1 | 2 | 3]);
+      const nextLayer = q.layer as 1 | 2 | 3;
+      const copy = REASSURE_COPY[nextLayer];
+      if (copy) {
+        steps.push({
+          kind: "interstitial",
+          id: `reassure-${nextLayer}`,
+          text: copy,
+          layer: nextLayer,
+          variant: "reassure",
+        });
+      }
+      steps.push(LAYER_DEF[nextLayer]);
       lastLayer = q.layer;
     }
+    if (qi === tempoAt) {
+      steps.push({
+        kind: "interstitial",
+        id: "tempo-final",
+        text: TEMPO_COPY,
+        layer: q.layer as 1 | 2 | 3,
+        variant: "tempo",
+      });
+    }
     steps.push(q);
-  }
+  });
   return steps;
 }
 
 const STEPS = buildSteps();
 const TOTAL  = STEPS.length;
+
+/* TEMPO-1 — last 5 questions get a slower, softer entry cadence. */
+const LATE_TEMPO_SET: Set<number> = (() => {
+  const s = new Set<number>();
+  let count = 0;
+  for (let i = STEPS.length - 1; i >= 0 && count < 5; i--) {
+    if (STEPS[i].kind === "question") { s.add(i); count++; }
+  }
+  return s;
+})();
 
 /* Where each layer begins in STEPS (derived, not hardcoded) */
 const LAYER_START: Record<1|2|3, number> = { 1: 0, 2: 0, 3: 0 };
@@ -408,7 +459,8 @@ const LAYER_POS: Record<1|2|3, number> = { 1: 1/6, 2: 1/2, 3: 5/6 };
 function calcProgress(stepIdx: number, layer: 1|2|3): number {
   const start  = LAYER_START[layer];
   const end    = layer < 3 ? LAYER_START[(layer + 1) as 2|3] : TOTAL;
-  const within = (stepIdx - start) / (end - start);
+  /* Clamp — reassurance interstitials sit one step before a layer's start. */
+  const within = Math.max(0, Math.min(1, (stepIdx - start) / (end - start)));
   const from   = LAYER_POS[layer];
   const to     = layer < 3 ? LAYER_POS[(layer + 1) as 2|3] : 1;
   return from + within * (to - from);
@@ -422,15 +474,19 @@ function BgAura({ layer }: { layer: 1 | 2 | 3 }) {
 
   useEffect(() => {
     if (!svgRef.current) return;
+    /* Single shared-clock timeline — scale and rotation ride the same 22s loop
+       with an intentional phase offset so peaks don't coincide. */
     const ctx = gsap.context(() => {
-      gsap.to(svgRef.current, {
-        scale: 1.05, duration: 7, ease: "sine.inOut",
-        yoyo: true, repeat: -1, transformOrigin: "center center",
-      });
-      gsap.to(svgRef.current, {
-        rotation: 8, duration: 22, ease: "sine.inOut",
-        yoyo: true, repeat: -1, transformOrigin: "center center",
-      });
+      const tl = gsap.timeline({ repeat: -1, defaults: { ease: WATER, transformOrigin: "center center" } });
+      tl
+        .fromTo(svgRef.current, { scale: 1 },        { scale: 1.05, duration: 3.5 }, 0)
+        .to   (svgRef.current,                        { scale: 1,    duration: 3.5 }, 3.5)
+        .fromTo(svgRef.current, { scale: 1 },        { scale: 1.05, duration: 3.5 }, 7)
+        .to   (svgRef.current,                        { scale: 1,    duration: 4.0 }, 10.5)
+        .fromTo(svgRef.current, { scale: 1 },        { scale: 1.05, duration: 3.5 }, 14.5)
+        .to   (svgRef.current,                        { scale: 1,    duration: 4.0 }, 18.0)
+        .fromTo(svgRef.current, { rotation: 0 },     { rotation: 8,  duration: 11 }, 0)
+        .to   (svgRef.current,                        { rotation: 0, duration: 11 }, 11);
     });
     return () => ctx.revert();
   }, []);
@@ -463,12 +519,12 @@ function LayerView({ step, onSkip, entryDelay = 0 }: { step: LayerScreen; onSkip
       tl
         .fromTo(iconRef.current,
           { opacity: 0, scale: 0.85 },
-          { opacity: 1, scale: 1, duration: 0.9, ease: AIR },
+          { opacity: 1, scale: 1, duration: 0.9, ease: EARTH },
           0,
         )
         .fromTo(titleRef.current,
           { opacity: 0, scale: 1.07, y: 12 },
-          { opacity: 1, scale: 1, y: 0, duration: 1.15, ease: AIR },
+          { opacity: 1, scale: 1, y: 0, duration: 1.15, ease: EARTH },
           0.25,
         );
     });
@@ -629,13 +685,18 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
     if (!wrap || chosen === null) return;
     const isSelected = chosen === opt.id;
 
-    gsap.to(wrap, { opacity: isSelected ? 1 : 0.12, duration: 0.38, ease: "power2.out", overwrite: true });
+    gsap.to(wrap, { opacity: isSelected ? 1 : 0.12, duration: 0.38, ease: "power2.out", overwrite: "auto" });
 
     if (isSelected && path) {
       gsap.killTweensOf(path);
       const len = path.getTotalLength();
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0.22 });
       gsap.to(path, { strokeDashoffset: 0, strokeOpacity: 0.88, duration: 0.9, ease: "power2.inOut" });
+      /* One-beat confirmation — sensory, not a tick */
+      gsap.fromTo(wrap,
+        { scale: 1 },
+        { scale: 1.02, duration: 0.2, ease: "sine.out", yoyo: true, repeat: 1, delay: 0.3, transformOrigin: "center center" },
+      );
     } else if (path) {
       gsap.to(path, { strokeOpacity: 0.05, duration: 0.22, overwrite: true });
     }
@@ -711,12 +772,17 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
     const path = pathRef.current;
     if (!wrap || chosen === null) return;
     const isSelected = chosen === opt.id;
-    gsap.to(wrap, { opacity: isSelected ? 1 : 0.18, duration: 0.35, ease: "power2.out", overwrite: true });
+    gsap.to(wrap, { opacity: isSelected ? 1 : 0.18, duration: 0.35, ease: "power2.out", overwrite: "auto" });
     if (isSelected && path) {
       gsap.killTweensOf(path);
       const len = path.getTotalLength();
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0 });
       gsap.to(path, { strokeDashoffset: 0, strokeOpacity: 0.9, duration: 0.85, ease: "power2.inOut" });
+      /* One-beat confirmation */
+      gsap.fromTo(wrap,
+        { scale: 1 },
+        { scale: 1.02, duration: 0.2, ease: "sine.out", yoyo: true, repeat: 1, delay: 0.3, transformOrigin: "center center" },
+      );
     } else if (path) {
       gsap.to(path, { strokeOpacity: 0.14, duration: 0.2, overwrite: true });
     }
@@ -858,6 +924,9 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
   const poleARef   = useRef<HTMLParagraphElement>(null);
   const poleBRef   = useRef<HTMLParagraphElement>(null);
   const poleMRef   = useRef<HTMLParagraphElement>(null);
+  /* Bucket-zone tick marks (scale3 only) — placed after dim track mounts */
+  const tick1Ref   = useRef<SVGLineElement>(null);
+  const tick2Ref   = useRef<SVGLineElement>(null);
 
   const posRef      = useRef(0.5);
   const dragging    = useRef(false);
@@ -868,6 +937,9 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
   const [placed, setPlaced] = useState(false);
 
   const isS3 = step.qtype === "scale3";
+  /* Bucket centers — where the handle snaps after drop. Matches the scoring
+     boundaries in onUp (scale3: <0.33 / 0.33–0.67 / >0.67). */
+  const bucketCenters = isS3 ? [1/6, 0.5, 5/6] : [0.25, 0.75];
 
   const applyPos = (pos: number) => {
     const dim = dimRef.current;
@@ -886,11 +958,13 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
     }
   };
 
+  /* Pulse range — wider than before so the handle reads as the
+     interactive element while the user hasn't dragged yet. */
   const startBreathing = () => {
     if (!auraRef.current) return;
     gsap.killTweensOf(auraRef.current);
     gsap.set(auraRef.current, { attr: { strokeDasharray: "none", strokeDashoffset: 0, strokeOpacity: 0.55 } });
-    gsap.to(auraRef.current, { attr: { strokeOpacity: 0.18 }, duration: 3.0, ease: "sine.inOut", yoyo: true, repeat: -1 });
+    gsap.to(auraRef.current, { attr: { strokeOpacity: 0.85 }, duration: 2.0, ease: WATER, yoyo: true, repeat: -1 });
   };
 
   useEffect(() => {
@@ -898,6 +972,20 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
     if (!dim) return;
     lenRef.current = dim.getTotalLength();
     applyPos(0.5);
+    /* Place scale3 bucket-zone ticks at the 0.33 / 0.67 boundaries */
+    if (isS3 && tick1Ref.current && tick2Ref.current) {
+      const len = lenRef.current;
+      const p1 = dim.getPointAtLength(len * 0.333);
+      const p2 = dim.getPointAtLength(len * 0.667);
+      const place = (el: SVGLineElement, p: { x: number; y: number }) => {
+        el.setAttribute("x1", p.x.toFixed(1));
+        el.setAttribute("x2", p.x.toFixed(1));
+        el.setAttribute("y1", (p.y - 7).toFixed(1));
+        el.setAttribute("y2", (p.y + 7).toFixed(1));
+      };
+      place(tick1Ref.current, p1);
+      place(tick2Ref.current, p2);
+    }
     const ctx = gsap.context(() => {
       gsap.fromTo(wrapRef.current,
         { opacity: 0, y: 18 },
@@ -907,8 +995,8 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
       gsap.to(handleGRef.current, { opacity: 1, duration: 0.55, ease: AIR, delay: entryDelay + 0.45 });
       gsap.set(auraRef.current, { attr: { strokeOpacity: 0.55 } });
       gsap.to(auraRef.current, {
-        attr: { strokeOpacity: 0.18 },
-        duration: 3.0, ease: "sine.inOut",
+        attr: { strokeOpacity: 0.85 },
+        duration: 2.0, ease: WATER,
         yoyo: true, repeat: -1,
         delay: entryDelay + 1.0,
       });
@@ -919,10 +1007,13 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
 
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (submitted.current) return;
-    /* Re-drag after placing — reset and restart breathing */
+    /* Re-drag after placing — kill any in-flight tweens (aura draw, snap)
+       before restarting breathing so we don't get animation seams. */
     if (placedIdRef.current !== null) {
       placedIdRef.current = null;
       setPlaced(false);
+      if (auraRef.current) gsap.killTweensOf(auraRef.current);
+      gsap.killTweensOf(posRef);
       startBreathing();
     }
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -948,6 +1039,18 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
     if (!dragging.current || submitted.current) return;
     dragging.current = false;
     if (svgRef.current) svgRef.current.style.cursor = "grab";
+    const pos = posRef.current;
+    const id  = isS3 ? (pos < 0.33 ? "a" : pos > 0.67 ? "c" : "b") : (pos < 0.5 ? "a" : "b");
+    /* Soft snap to bucket centre — eases perceived precision (200ms) */
+    const targetIdx = isS3 ? (id === "a" ? 0 : id === "c" ? 2 : 1) : (id === "a" ? 0 : 1);
+    const target    = bucketCenters[targetIdx];
+    gsap.killTweensOf(posRef);
+    gsap.to(posRef, {
+      current: target,
+      duration: 0.2,
+      ease: WATER,
+      onUpdate: () => applyPos(posRef.current),
+    });
     /* Aura ring draws to confirm placement — CONTINUE button then appears */
     if (auraRef.current) {
       gsap.killTweensOf(auraRef.current);
@@ -955,8 +1058,6 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
       gsap.set(auraRef.current, { attr: { strokeDasharray: al, strokeDashoffset: al, strokeOpacity: 0.3 } });
       gsap.to(auraRef.current, { attr: { strokeDashoffset: 0, strokeOpacity: 0.88 }, duration: 0.55, ease: "power2.inOut" });
     }
-    const pos = posRef.current;
-    const id  = isS3 ? (pos < 0.33 ? "a" : pos > 0.67 ? "c" : "b") : (pos < 0.5 ? "a" : "b");
     placedIdRef.current = id;
     setPlaced(true);
   };
@@ -986,6 +1087,16 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
           stroke="#FFEFDE" strokeWidth="1.15" strokeOpacity="0.14"
           strokeLinecap="round" strokeLinejoin="round"
         />
+        {/* Bucket-zone ticks — scale3 only. Mark the boundaries so the user can
+            see the three zones before dropping. Positions set in useEffect. */}
+        {isS3 && (
+          <>
+            <line ref={tick1Ref} stroke="#FFEFDE" strokeWidth="0.85"
+              strokeOpacity="0.28" strokeLinecap="round" />
+            <line ref={tick2Ref} stroke="#FFEFDE" strokeWidth="0.85"
+              strokeOpacity="0.28" strokeLinecap="round" />
+          </>
+        )}
         <path ref={litRef} d={SLIDER_TRACK}
           stroke="#FFEFDE" strokeWidth="1.15" strokeOpacity="0.7"
           strokeLinecap="round" strokeLinejoin="round"
@@ -1000,33 +1111,56 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
         </g>
       </svg>
 
-      <div className="flex gap-5 mt-5">
+      {/* Secondary cue — sits directly under the handle/track */}
+      <p
+        className="font-label text-[8px] text-center mt-2"
+        style={{
+          letterSpacing: "0.3em",
+          color: "rgba(255,239,222,1)",
+          opacity: placed ? 0 : 0.6,
+          transition: "opacity 0.3s ease",
+          pointerEvents: "none",
+        }}
+      >
+        DRAG TO PLACE
+      </p>
+
+      <div className="flex gap-5 mt-5 justify-between">
         <p ref={poleARef} className="font-serif text-cream leading-snug"
-           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: isS3 ? "30%" : "44%", opacity: 0.78 }}>
+           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: isS3 ? "26%" : "40%", opacity: 0.78 }}>
           {step.poleA}
         </p>
-        {isS3 && (
-          <p ref={poleMRef} className="font-serif text-cream leading-snug text-center"
-             style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", flex: 1, minWidth: 0, opacity: 0.5 }}>
-            {(step as Scale3Q).middle}
-          </p>
-        )}
         <p ref={poleBRef} className="font-serif text-cream leading-snug text-right"
-           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: isS3 ? "30%" : "44%", opacity: 0.46 }}>
+           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: isS3 ? "26%" : "40%", opacity: 0.46 }}>
           {step.poleB}
         </p>
       </div>
-
-      {/* Hint fades out; CONTINUE fades in after first placement */}
-      <div className="relative mt-10" style={{ minHeight: 80 }}>
-        <p className="font-label text-[8px] text-center absolute inset-x-0 top-7"
-           style={{ letterSpacing: "0.3em", color: "rgba(255,239,222,1)", opacity: placed ? 0 : 1, transition: "opacity 0.3s ease", pointerEvents: "none" }}>
-          DRAG TO PLACE
+      {isS3 && (
+        <p ref={poleMRef} className="font-serif text-cream leading-snug text-center mx-auto mt-4 italic"
+           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: "80%", opacity: 0.5 }}>
+          {(step as Scale3Q).middle}
         </p>
-        <div className="absolute inset-x-0 top-0"
-             style={{ opacity: placed ? 1 : 0, pointerEvents: placed ? "auto" : "none", transition: "opacity 0.35s ease" }}>
-          <QuizCTAButton label="CONTINUE" onClick={onContinue} />
-        </div>
+      )}
+
+      {/* CONTINUE — always rendered, disabled until the user drops.
+         Post-drop button uses revealMode="draw" so the aura traces itself
+         alongside the slider's placement ring draw. */}
+      <div className="relative mt-10">
+        {placed ? (
+          <QuizCTAButton
+            key="cta-placed"
+            label="CONTINUE"
+            onClick={onContinue}
+            revealMode="draw"
+          />
+        ) : (
+          <QuizCTAButton
+            key="cta-disabled"
+            label="CONTINUE"
+            onClick={() => {}}
+            disabled
+          />
+        )}
       </div>
     </div>
   );
@@ -1048,11 +1182,25 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
   const [bonus, setBonus]         = useState("");
   const [mainFocus, setMainFocus] = useState(false);
   const [bonusFocus, setBonusFocus] = useState(false);
+  const [compact, setCompact]     = useState(false);
+  /* Once user has ever typed, bonus stays mounted for the lifetime of this question. */
+  const [bonusRevealed, setBonusRevealed] = useState(false);
   const qRef         = useRef<HTMLHeadingElement>(null);
   const areaRef      = useRef<HTMLDivElement>(null);
   const mainAuraRef  = useRef<SVGPathElement>(null);
   const bonusAuraRef = useRef<SVGPathElement>(null);
-  const showBonus = step.bonus && val.trim().length > 0;
+  const bonusBlockRef = useRef<HTMLDivElement>(null);
+  const continueRef   = useRef<HTMLButtonElement>(null);
+  const hasContent = val.trim().length > 0;
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mq = window.matchMedia("(max-height: 700px)");
+    const update = () => setCompact(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -1079,19 +1227,50 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
     gsap.to(bonusAuraRef.current, { strokeOpacity: bonusFocus ? 0.58 : 0.2, duration: 0.45, ease: "power2.out" });
   }, [bonusFocus]);
 
+  /* OPEN-3: Smooth height + opacity reveal when the bonus block first mounts. */
+  useEffect(() => {
+    const el = bonusBlockRef.current;
+    if (!bonusRevealed || !el) return;
+    const h = el.scrollHeight;
+    gsap.fromTo(el,
+      { height: 0, opacity: 0 },
+      {
+        height: h,
+        opacity: 1,
+        duration: 0.6,
+        ease: AIR,
+        onComplete: () => { el.style.height = "auto"; el.style.overflow = "visible"; },
+      },
+    );
+  }, [bonusRevealed]);
+
+  /* OPEN-4: CONTINUE soft reveal + dim on empty (never unmount). */
+  useEffect(() => {
+    const btn = continueRef.current;
+    if (!btn) return;
+    gsap.to(btn, {
+      opacity: hasContent ? 1 : 0,
+      y: hasContent ? 0 : 8,
+      duration: 0.3,
+      ease: AIR,
+      overwrite: true,
+    });
+    btn.style.pointerEvents = hasContent ? "auto" : "none";
+  }, [hasContent]);
+
   return (
     <div className="w-full max-w-2xl px-8 sm:px-10">
       <h2
         ref={qRef}
         className="font-serif text-cream mb-10 leading-snug"
-        style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}
+        style={{ fontSize: "clamp(1.6rem, 5vw, 3.5rem)", opacity: 0 }}
       >
         {step.q}
       </h2>
 
       <div ref={areaRef} style={{ opacity: 0 }}>
         {/* Tall aura-bordered textarea — organic frame instead of CSS border */}
-        <div className="relative">
+        <div className="relative" style={{ maxHeight: "calc(100dvh - 420px)" }}>
           <svg
             className="pointer-events-none absolute overflow-visible"
             viewBox="0 0 360 205"
@@ -1112,23 +1291,32 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
           </svg>
           <textarea
             value={val}
-            onChange={e => setVal(e.target.value)}
+            onChange={e => {
+              const v = e.target.value;
+              setVal(v);
+              /* OPEN-3: once the user has ever typed, bonus stays mounted. */
+              if (!bonusRevealed && v.trim().length > 0 && step.bonus) setBonusRevealed(true);
+            }}
             onFocus={() => setMainFocus(true)}
             onBlur={() => setMainFocus(false)}
             placeholder={step.placeholder}
-            rows={7}
+            rows={compact ? 5 : 7}
             className={[
               "w-full bg-transparent resize-none outline-none",
               "font-serif text-cream leading-relaxed",
               "placeholder:text-cream/25 placeholder:italic",
-              "px-4 py-5",
+              "px-4 py-5 overflow-y-auto",
             ].join(" ")}
             style={{ fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)" }}
           />
         </div>
 
-        {showBonus && step.bonus && (
-          <div className="mt-10">
+        {bonusRevealed && step.bonus && (
+          <div
+            ref={bonusBlockRef}
+            className="mt-10"
+            style={{ overflow: "hidden" }}
+          >
             <p className="font-label text-[9px] text-cream/32 mb-5">{step.bonus.q}</p>
             <div className="relative">
               <svg
@@ -1172,7 +1360,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
           {/* SKIP — small aura pill, consistent with button system */}
           <button
             onClick={onAdvance}
-            className="relative font-label text-[9px] text-cream/38 hover:text-cream/62 transition-colors cursor-pointer min-h-[48px] px-7 py-4"
+            className="relative font-label text-[9px] text-cream/62 hover:text-cream/85 focus-visible:text-cream/85 transition-colors cursor-pointer min-h-[48px] px-7 py-4"
           >
             <svg
               className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
@@ -1185,7 +1373,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
                 d={OPEN_SKIP_AURA}
                 stroke="#FFEFDE"
                 strokeWidth="0.7"
-                strokeOpacity="0.22"
+                strokeOpacity="0.38"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -1193,29 +1381,32 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
             <span className="relative z-10">SKIP</span>
           </button>
 
-          {val.trim().length > 0 && (
-            <button
-              onClick={() => { quizSounds.play("openSubmit"); onAdvance(); }}
-              className="relative font-label text-[9px] text-cream cursor-pointer min-h-[48px] px-8 py-4"
+          {/* OPEN-4: always mounted; fade + y-shift driven by hasContent. */}
+          <button
+            ref={continueRef}
+            onClick={() => { if (!hasContent) return; quizSounds.play("openSubmit"); onAdvance(); }}
+            className="relative font-label text-[9px] text-cream cursor-pointer min-h-[48px] px-8 py-4"
+            style={{ opacity: 0, transform: "translateY(8px)", pointerEvents: "none" }}
+            aria-hidden={!hasContent}
+            tabIndex={hasContent ? 0 : -1}
+          >
+            <svg
+              className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
+              viewBox="0 0 200 48"
+              preserveAspectRatio="none"
+              fill="none"
+              aria-hidden="true"
             >
-              <svg
-                className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
-                viewBox="0 0 200 48"
-                preserveAspectRatio="none"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M 98,4 C 136,1 170,3 186,10 C 198,16 200,28 196,38 C 190,46 158,50 100,51 C 42,51 8,46 4,38 C 0,28 4,16 16,10 C 32,3 62,1 98,4"
-                  stroke="#FFEFDE"
-                  strokeWidth="0.75"
-                  strokeOpacity="0.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <span className="relative z-10">CONTINUE</span>
-            </button>
-          )}
+              <path
+                d="M 98,4 C 136,1 170,3 186,10 C 198,16 200,28 196,38 C 190,46 158,50 100,51 C 42,51 8,46 4,38 C 0,28 4,16 16,10 C 32,3 62,1 98,4"
+                stroke="#FFEFDE"
+                strokeWidth="0.75"
+                strokeOpacity="0.5"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span className="relative z-10">CONTINUE</span>
+          </button>
         </div>
       </div>
     </div>
@@ -1330,7 +1521,18 @@ const DEV_JUMPS = (() => {
       });
       return;
     }
-    const t = (step as Question).qtype || "choice";
+    if (step.kind === "interstitial") {
+      if (!seenTypes.has(`i-${step.variant}`)) {
+        seenTypes.add(`i-${step.variant}`);
+        jumps.push({
+          label: step.variant === "tempo" ? "TEMPO" : `→L${step.layer}`,
+          idx,
+          color: "#fde68a",
+        });
+      }
+      return;
+    }
+    const t = step.qtype || "choice";
     if (!seenTypes.has(t)) {
       seenTypes.add(t);
       const colors: Record<string, string> = {
@@ -1348,10 +1550,11 @@ const DEV_JUMPS = (() => {
 export default function QuizBody() {
   const [stepIdx, setStepIdx] = useState(0);
   const [chosen,  setChosen]  = useState<string | null>(null);
+  const [gateOpen, setGateOpen] = useState(false);
   const contentRef   = useRef<HTMLDivElement>(null);
   const advancingRef = useRef(false);
   const stepIdxRef   = useRef(0);
-  const router = useRouter();
+  const data = useQuizData();
 
   useEffect(() => { stepIdxRef.current = stepIdx; });
 
@@ -1363,7 +1566,7 @@ export default function QuizBody() {
     const isLast  = stepIdxRef.current >= TOTAL - 1;
 
     const next = () => {
-      if (isLast) { router.push("/quiz/result"); return; }
+      if (isLast) { setGateOpen(true); return; }
       advancingRef.current = false;
       setChosen(null);
       setStepIdx((s) => s + 1);
@@ -1371,7 +1574,7 @@ export default function QuizBody() {
 
     if (!content) { next(); return; }
     gsap.to(content, { opacity: 0, y: -24, duration: 0.3, ease: FIRE, onComplete: next });
-  }, [router]);
+  }, []);
 
   /* Per-step enter animation + layer auto-advance */
   useEffect(() => {
@@ -1379,29 +1582,37 @@ export default function QuizBody() {
     if (!content) return;
     // On the very first step, hold until nav animation completes (~2.55s)
     const isFirstLayer = stepIdx === 0;
+    const isLateTempo = LATE_TEMPO_SET.has(stepIdx);
     const ctx = gsap.context(() => {
       if (isFirstLayer) {
         gsap.set(content, { opacity: 0, y: 0 });
         gsap.to(content, { opacity: 1, duration: 0.01, delay: 2.55 });
       } else {
+        /* TEMPO-1: last 5 questions use WATER easing + 1.4s duration. */
         gsap.fromTo(content,
           { opacity: 0, y: 32 },
-          { opacity: 1, y: 0, duration: 1.0, ease: AIR, delay: 0.04 },
+          {
+            opacity: 1, y: 0,
+            duration: isLateTempo ? 1.4 : 1.0,
+            ease: isLateTempo ? WATER : AIR,
+            delay: 0.04,
+          },
         );
       }
     });
     let t: ReturnType<typeof setTimeout> | undefined;
-    if (STEPS[stepIdx].kind === "layer") t = setTimeout(advance, isFirstLayer ? 5600 : 2800);
+    if (STEPS[stepIdx].kind === "layer") t = setTimeout(advance, isFirstLayer ? 5600 : 4200);
     return () => { ctx.revert(); clearTimeout(t); };
   }, [stepIdx, advance]);
 
   /* Answer selection → auto-advance after aura starts drawing */
   const handlePick = useCallback((id: string) => {
     if (chosen || advancingRef.current) return;
+    data.recordAnswer(stepIdxRef.current, id);
     quizSounds.play(id === "a" ? "chimeA" : id === "b" ? "chimeB" : "chimeC");
     setChosen(id);
-    setTimeout(advance, 460);
-  }, [chosen, advance]);
+    setTimeout(advance, 760);
+  }, [chosen, advance, data]);
 
   /* Dev: jump to any step instantly */
   const handleDevJump = useCallback((idx: number) => {
@@ -1412,8 +1623,14 @@ export default function QuizBody() {
 
   /* Derived */
   const step         = STEPS[stepIdx];
-  const currentLayer = (step.kind === "layer" ? step.layer : (step as Question).layer) as 1 | 2 | 3;
+  const currentLayer = (
+    step.kind === "layer"        ? step.layer :
+    step.kind === "interstitial" ? step.layer :
+                                    (step as Question).layer
+  ) as 1 | 2 | 3;
   const progress = calcProgress(stepIdx, currentLayer);
+
+  if (gateOpen) return <QuizEmailGate />;
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-aubergine select-none">
@@ -1435,6 +1652,8 @@ export default function QuizBody() {
         <div key={stepIdx} className="w-full flex justify-center">
           {step.kind === "layer" ? (
             <LayerView step={step} onSkip={advance} entryDelay={stepIdx === 0 ? 2.55 : 0} />
+          ) : step.kind === "interstitial" ? (
+            <QuizInterstitial text={step.text} onAdvance={advance} />
           ) : (
             <QuestionView
               step={step}
@@ -1462,6 +1681,13 @@ export default function QuizBody() {
               {j.label}
             </button>
           ))}
+          <button
+            onClick={() => setGateOpen(true)}
+            style={{ color: "#f472b6", borderColor: "#f472b655", fontSize: 10 }}
+            className="px-2 py-1 border hover:opacity-70 transition-opacity font-mono cursor-pointer"
+          >
+            → GATE
+          </button>
           <span style={{ color: "#666", fontSize: 10 }} className="self-center ml-auto font-mono">
             {stepIdx}/{TOTAL - 1} · L{currentLayer}
           </span>

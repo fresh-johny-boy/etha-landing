@@ -37,12 +37,41 @@ export function distortBtn(nx: number, ny: number): string {
   );
 }
 
-export function QuizCTAButton({ label, onClick }: { label: string; onClick: () => void }) {
+export function QuizCTAButton({
+  label,
+  onClick,
+  disabled = false,
+  revealMode = "fade",
+}: {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  revealMode?: "fade" | "draw";
+}) {
   const pathRef = useRef<SVGPathElement>(null);
   const btnRef  = useRef<HTMLButtonElement>(null);
   const rafRef  = useRef(0);
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  /* Reveal animation on mount — "draw" traces the aura outline; "fade" is CSS-only */
+  useEffect(() => {
+    if (disabled) return;
+    const path = pathRef.current;
+    if (!path) return;
+    if (revealMode === "draw") {
+      const len = path.getTotalLength();
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0 });
+      gsap.to(path, {
+        strokeDashoffset: 0,
+        strokeOpacity: 0.4,
+        duration: 0.6,
+        ease: "power2.inOut",
+      });
+    }
+  // Reveal fires once on mount for the intended variant
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const distortFromPoint = useCallback((clientX: number, clientY: number) => {
     if (!btnRef.current || !pathRef.current) return;
@@ -56,11 +85,15 @@ export function QuizCTAButton({ label, onClick }: { label: string; onClick: () =
     });
   }, []);
 
-  const onMove  = useCallback((e: React.MouseEvent<HTMLButtonElement>) => distortFromPoint(e.clientX, e.clientY), [distortFromPoint]);
+  const onMove  = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled) return;
+    distortFromPoint(e.clientX, e.clientY);
+  }, [distortFromPoint, disabled]);
   const onTouch = useCallback((e: React.TouchEvent<HTMLButtonElement>) => {
+    if (disabled) return;
     const t = e.touches[0];
     if (t) distortFromPoint(t.clientX, t.clientY);
-  }, [distortFromPoint]);
+  }, [distortFromPoint, disabled]);
 
   const onRelease = useCallback(() => {
     cancelAnimationFrame(rafRef.current);
@@ -71,13 +104,14 @@ export function QuizCTAButton({ label, onClick }: { label: string; onClick: () =
   return (
     <button
       ref={btnRef}
-      onClick={onClick}
+      onClick={disabled ? undefined : onClick}
       onMouseMove={onMove}
       onMouseLeave={onRelease}
       onTouchStart={onTouch}
       onTouchMove={onTouch}
       onTouchEnd={onRelease}
-      className="group relative w-full px-12 py-6 cursor-pointer"
+      aria-disabled={disabled || undefined}
+      className={`group relative w-full px-12 py-6 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
     >
       <svg
         className="absolute inset-0 h-full w-full overflow-visible"
@@ -91,13 +125,16 @@ export function QuizCTAButton({ label, onClick }: { label: string; onClick: () =
           d={BTN_D}
           stroke="#FFEFDE"
           strokeWidth="0.9"
-          strokeOpacity="0.4"
+          strokeOpacity={disabled ? 0.14 : 0.4}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ transition: "stroke-opacity 500ms ease" }}
         />
       </svg>
-      <span className="font-label relative z-10 text-[11px] text-cream" style={{ transition: "opacity 300ms ease" }}>
+      <span
+        className="font-label relative z-10 text-[11px] text-cream"
+        style={{ transition: "opacity 300ms ease", opacity: disabled ? 0.3 : 1 }}
+      >
         {label}
       </span>
     </button>
