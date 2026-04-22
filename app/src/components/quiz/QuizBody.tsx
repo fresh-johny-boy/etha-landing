@@ -112,20 +112,13 @@ type LayerScreen = { kind: "layer"; layer: 1 | 2 | 3; label: string; title: stri
 type OptDef      = { id: string; text: string };
 
 type ChoiceQ = { kind: "question"; qtype?: "choice"; layer: 1|2|3; q: string; options: OptDef[] };
-type VisualQ = { kind: "question"; qtype: "visual";  layer: 1|2|3; q: string; options: OptDef[] };
+type VisualQ = { kind: "question"; qtype: "visual";  layer: 1|2|3; q: string; options: OptDef[]; images?: { a: string; b: string; c: string } };
 type Scale2Q = { kind: "question"; qtype: "scale2";  layer: 1|2|3; q: string; poleA: string; poleB: string };
 type Scale3Q = { kind: "question"; qtype: "scale3";  layer: 1|2|3; q: string; poleA: string; middle: string; poleB: string };
 type OpenQ   = { kind: "question"; qtype: "open";    layer: 1|2|3; q: string; placeholder: string; bonus?: { q: string; placeholder: string } };
 type Question = ChoiceQ | VisualQ | Scale2Q | Scale3Q | OpenQ;
 type InterstitialStep = { kind: "interstitial"; id: string; text: string; layer: 1|2|3; variant: "reassure" | "tempo" };
 type Step     = LayerScreen | Question | InterstitialStep;
-
-/* ── Layer BG paths — distinct aura silhouette per section ── */
-const LAYER_BG: Record<1|2|3, string> = {
-  1: "M 318,38 C 395,8 470,58 482,132 C 494,206 462,290 400,350 C 338,410 248,445 166,434 C 84,423 24,362 14,280 C 4,198 42,110 110,68 C 152,46 234,65 278,46 C 296,38 308,38 318,38",
-  2: "M 240,30 C 320,2 410,40 440,112 C 470,180 452,272 394,330 C 336,386 244,400 162,386 C 90,372 24,316 8,244 C -8,172 22,102 74,60 C 118,28 184,46 224,32 C 236,26 238,28 240,30",
-  3: "M 300,26 C 380,2 464,46 476,120 C 488,198 454,294 392,352 C 330,410 236,434 154,420 C 74,406 8,350 2,272 C -4,194 38,110 100,68 C 148,42 230,62 274,42 C 292,34 298,26 300,26",
-};
 
 /* ── Layer definitions ── */
 const LAYER_DEF: Record<1|2|3, LayerScreen> = {
@@ -137,45 +130,73 @@ const LAYER_DEF: Record<1|2|3, LayerScreen> = {
 /* ── 45 Questions (all 5 interaction types) ── */
 const QS: Question[] = [
   /* ─ Layer 1 / Body ─────────────────────────────────────────── */
+  /* Q1–Q3: visually-heavy openers (placeholder images, swap-in-place later).
+     Each opener sits in a different sensory register — sound, touch, trace —
+     so they read as three art pieces, not three versions of the same question.
+     a→Vata, b→Pitta, c→Kapha. */
+  { kind: "question", qtype: "visual", layer: 1, q: "Which one sounds like your morning?",
+    images: { a: "opener-q1-a.webp", b: "opener-q1-b.webp", c: "opener-q1-c.webp" },
+    options: [
+      { id: "a", text: "Wind through a thin curtain." },
+      { id: "b", text: "Water coming to boil." },
+      { id: "c", text: "Rain on a heavy roof." },
+    ],
+  },
+  { kind: "question", qtype: "visual", layer: 1, q: "Choose the one you'd hold.",
+    images: { a: "opener-q2-a.webp", b: "opener-q2-b.webp", c: "opener-q2-c.webp" },
+    options: [
+      { id: "a", text: "A silver needle, cold." },
+      { id: "b", text: "A cast-iron handle, still warm." },
+      { id: "c", text: "A stone the sea has polished." },
+    ],
+  },
+  { kind: "question", qtype: "visual", layer: 1, q: "What do you leave behind in a room?",
+    images: { a: "opener-q3-a.webp", b: "opener-q3-b.webp", c: "opener-q3-c.webp" },
+    options: [
+      { id: "a", text: "The door not quite closed." },
+      { id: "b", text: "A candle burning after you left." },
+      { id: "c", text: "A warm indent in the cushion." },
+    ],
+  },
   { kind: "question", layer: 1, q: "My body frame is naturally…", options: [
-    { id: "a", text: "Lean and light — hard to gain weight no matter what I eat." },
-    { id: "b", text: "Medium and muscular — I gain and lose weight with relative ease." },
-    { id: "c", text: "Solid and sturdy — I gain weight easily and hold it." },
+    { id: "a", text: "Lean and light. Hard to gain weight no matter what I eat." },
+    { id: "b", text: "Medium and muscular. I gain and lose weight with relative ease." },
+    { id: "c", text: "Solid and sturdy. I gain weight easily and hold it." },
   ]},
   { kind: "question", layer: 1, q: "My skin tends to be…", options: [
-    { id: "a", text: "Dry, thin, and rough — cool to the touch." },
-    { id: "b", text: "Warm, flushed, sensitive — quick to redden when things heat up." },
-    { id: "c", text: "Thick, smooth, oily — cool and moist." },
+    { id: "a", text: "Dry, thin, and rough. Cool to the touch." },
+    { id: "b", text: "Warm, flushed, sensitive. Quick to redden when things heat up." },
+    { id: "c", text: "Thick, smooth, oily. Cool and moist." },
   ]},
   { kind: "question", layer: 1, q: "My hair is naturally…", options: [
     { id: "a", text: "Dry, fine, frizzy, or curly." },
-    { id: "b", text: "Fine and oily — tends to thin or grey early." },
-    { id: "c", text: "Thick, wavy, lush — naturally oily." },
+    { id: "b", text: "Fine and oily. Tends to thin or grey early." },
+    { id: "c", text: "Thick, wavy, lush. Naturally oily." },
   ]},
   { kind: "question", layer: 1, q: "My hands and feet are usually…", options: [
-    { id: "a", text: "Cold with variable temperature — always reaching for warmth." },
-    { id: "b", text: "Warm, even hot — I consistently run warm." },
-    { id: "c", text: "Cool and steady — neither cold nor hot." },
+    { id: "a", text: "Cold with variable temperature. Always reaching for warmth." },
+    { id: "b", text: "Warm, even hot. I consistently run warm." },
+    { id: "c", text: "Cool and steady. Neither cold nor hot." },
   ]},
   { kind: "question", layer: 1, q: "My digestion is…", options: [
-    { id: "a", text: "Irregular — sometimes strong, sometimes completely off." },
-    { id: "b", text: "Sharp and intense — I become irritable when hunger strikes." },
-    { id: "c", text: "Slow but steady — I rarely feel hunger urgently." },
+    { id: "a", text: "Irregular. Sometimes strong, sometimes completely off." },
+    { id: "b", text: "Sharp and intense. I become irritable when hunger strikes." },
+    { id: "c", text: "Slow but steady. I rarely feel hunger urgently." },
   ]},
   { kind: "question", layer: 1, q: "My appetite day to day is…", options: [
-    { id: "a", text: "Variable — I forget to eat, then am suddenly ravenous." },
-    { id: "b", text: "Strong and consistent — I must eat on schedule." },
-    { id: "c", text: "Moderate — I could eat or skip a meal and feel fine." },
+    { id: "a", text: "Variable. I forget to eat, then am suddenly ravenous." },
+    { id: "b", text: "Strong and consistent. I must eat on schedule." },
+    { id: "c", text: "Moderate. I could eat or skip a meal and feel fine." },
   ]},
   { kind: "question", layer: 1, q: "My sleep is…", options: [
-    { id: "a", text: "Light and interrupted — I'm a restless sleeper." },
-    { id: "b", text: "Moderate — I wake early with my mind already running." },
-    { id: "c", text: "Deep and long — I could sleep ten hours without effort." },
+    { id: "a", text: "Light and interrupted. I'm a restless sleeper." },
+    { id: "b", text: "Moderate. I wake early with my mind already running." },
+    { id: "c", text: "Deep and long. I could sleep ten hours without effort." },
   ]},
   { kind: "question", layer: 1, q: "My energy moves in…", options: [
-    { id: "a", text: "Unpredictable bursts — intense, then suddenly exhausted." },
-    { id: "b", text: "Sustained peaks — most productive in the middle of the day." },
-    { id: "c", text: "Slow crescendos — I build and hold energy through the day." },
+    { id: "a", text: "Unpredictable bursts. Intense, then suddenly exhausted." },
+    { id: "b", text: "Sustained peaks. Most productive in the middle of the day." },
+    { id: "c", text: "Slow crescendos. I build and hold energy through the day." },
   ]},
   /* scale2 */
   { kind: "question", qtype: "scale2", layer: 1, q: "Your body has known this for years. The temperature you keep.",
@@ -198,14 +219,14 @@ const QS: Question[] = [
     placeholder: "rest, warmth, stillness, to be seen",
   },
   { kind: "question", layer: 1, q: "My body's daily rhythm of release is…", options: [
-    { id: "a", text: "Uneven — some days light and easy, other days held back." },
-    { id: "b", text: "Frequent and quick — sometimes urgent when things move fast." },
-    { id: "c", text: "Heavy and steady — predictable like clockwork." },
+    { id: "a", text: "Uneven. Some days light and easy, other days held back." },
+    { id: "b", text: "Frequent and quick. Sometimes urgent when things move fast." },
+    { id: "c", text: "Heavy and steady. Predictable like clockwork." },
   ]},
   { kind: "question", layer: 1, q: "My voice naturally is…", options: [
-    { id: "a", text: "Quick, high-pitched, variable — I speak fast." },
-    { id: "b", text: "Clear, direct, sharp — I say exactly what I mean." },
-    { id: "c", text: "Deep, resonant, melodious — I choose words slowly." },
+    { id: "a", text: "Quick, high-pitched, variable. I speak fast." },
+    { id: "b", text: "Clear, direct, sharp. I say exactly what I mean." },
+    { id: "c", text: "Deep, resonant, melodious. I choose words slowly." },
   ]},
   { kind: "question", layer: 1, q: "My lips tend to be…", options: [
     { id: "a", text: "Thin, dry, frequently chapped." },
@@ -215,9 +236,9 @@ const QS: Question[] = [
 
   /* ─ Layer 2 / Mind ──────────────────────────────────────────── */
   { kind: "question", layer: 2, q: "My thinking style is…", options: [
-    { id: "a", text: "Quick and creative — many ideas at once, hard to settle." },
-    { id: "b", text: "Sharp and analytical — I think in systems and conclusions." },
-    { id: "c", text: "Steady and methodical — I think slowly but think it through." },
+    { id: "a", text: "Quick and creative. Many ideas at once, hard to settle." },
+    { id: "b", text: "Sharp and analytical. I think in systems and conclusions." },
+    { id: "c", text: "Steady and methodical. I think slowly but think it through." },
   ]},
   /* scale3 */
   { kind: "question", qtype: "scale3", layer: 2, q: "When you have something important to do. Your energy shows up like:",
@@ -226,14 +247,14 @@ const QS: Question[] = [
     poleB: "Takes time to start. Once it does, I do not stop.",
   },
   { kind: "question", layer: 2, q: "My memory tends to be…", options: [
-    { id: "a", text: "Quick to grasp but quick to lose — it moves with me." },
+    { id: "a", text: "Quick to grasp but quick to lose. It moves with me." },
     { id: "b", text: "Sharp and clear for what matters most." },
-    { id: "c", text: "Slow to form, but once held — virtually permanent." },
+    { id: "c", text: "Slow to form. Once held, virtually permanent." },
   ]},
   { kind: "question", layer: 2, q: "Under pressure, I tend to…", options: [
-    { id: "a", text: "Scatter — anxiety rises, I lose my centre." },
-    { id: "b", text: "Sharpen — I become focused but also controlling." },
-    { id: "c", text: "Withdraw — I become quiet, stubborn, or close down." },
+    { id: "a", text: "Scatter. Anxiety rises, I lose my centre." },
+    { id: "b", text: "Sharpen. I become focused but also controlling." },
+    { id: "c", text: "Withdraw. I become quiet, stubborn, or close down." },
   ]},
   /* visual */
   { kind: "question", qtype: "visual", layer: 2, q: "Two doors. What do you actually do? Which one?", options: [
@@ -242,14 +263,14 @@ const QS: Question[] = [
     { id: "c", text: "Pick one. Walk through. Do not look back." },
   ]},
   { kind: "question", layer: 2, q: "In conversation, I…", options: [
-    { id: "a", text: "Jump between topics quickly — I love ideas more than conclusions." },
-    { id: "b", text: "Speak precisely — I make my point and defend it." },
-    { id: "c", text: "Listen more than I speak — words are chosen carefully." },
+    { id: "a", text: "Jump between topics quickly. I love ideas more than conclusions." },
+    { id: "b", text: "Speak precisely. I make my point and defend it." },
+    { id: "c", text: "Listen more than I speak. Words are chosen carefully." },
   ]},
   { kind: "question", layer: 2, q: "My relationship with time is…", options: [
-    { id: "a", text: "Loose — I'm often late, time escapes me effortlessly." },
-    { id: "b", text: "Precise — I'm punctual and dislike being kept waiting." },
-    { id: "c", text: "Steady — I move at my own unhurried pace." },
+    { id: "a", text: "Loose. I'm often late, time escapes me effortlessly." },
+    { id: "b", text: "Precise. I'm punctual and dislike being kept waiting." },
+    { id: "c", text: "Steady. I move at my own unhurried pace." },
   ]},
   /* scale3 */
   { kind: "question", qtype: "scale3", layer: 2, q: "When you need to focus on something important. What actually happens?",
@@ -263,9 +284,9 @@ const QS: Question[] = [
     { id: "c", text: "Belonging, security, and deep harmony." },
   ]},
   { kind: "question", layer: 2, q: "My emotional expression is…", options: [
-    { id: "a", text: "Expansive and changing — I wear feelings openly." },
-    { id: "b", text: "Controlled but intense — I feel deeply beneath stillness." },
-    { id: "c", text: "Slow and contained — emotions simmer quietly inside." },
+    { id: "a", text: "Expansive and changing. I wear feelings openly." },
+    { id: "b", text: "Controlled but intense. I feel deeply beneath stillness." },
+    { id: "c", text: "Slow and contained. Emotions simmer quietly inside." },
   ]},
   /* open */
   { kind: "question", qtype: "open", layer: 2, q: "One detail is enough. Or skip. If you could design a space for your mind to rest in, what would be there?",
@@ -283,9 +304,9 @@ const QS: Question[] = [
     { id: "c", text: "Tradition, time, and those who have truly earned it." },
   ]},
   { kind: "question", layer: 2, q: "My mind at rest…", options: [
-    { id: "a", text: "Rarely stops — thoughts race even in moments of stillness." },
-    { id: "b", text: "Analyses and plans — true rest doesn't come easily." },
-    { id: "c", text: "Settles quickly — I am naturally inclined to peace." },
+    { id: "a", text: "Rarely stops. Thoughts race even in moments of stillness." },
+    { id: "b", text: "Analyses and plans. True rest doesn't come easily." },
+    { id: "c", text: "Settles quickly. I am naturally inclined to peace." },
   ]},
   { kind: "question", layer: 2, q: "The thing I crave most is…", options: [
     { id: "a", text: "Movement, stimulation, variety." },
@@ -295,24 +316,24 @@ const QS: Question[] = [
 
   /* ─ Layer 3 / Spirit ────────────────────────────────────────── */
   { kind: "question", layer: 3, q: "Lately, my energy has been…", options: [
-    { id: "a", text: "Scattered — I start things and don't finish." },
-    { id: "b", text: "Driven but burning — I'm doing too much." },
-    { id: "c", text: "Low and heavy — hard to begin anything at all." },
+    { id: "a", text: "Scattered. I start things and don't finish." },
+    { id: "b", text: "Driven but burning. I'm doing too much." },
+    { id: "c", text: "Low and heavy. Hard to begin anything at all." },
   ]},
   { kind: "question", layer: 3, q: "My mind lately feels…", options: [
-    { id: "a", text: "Restless and racing — hard to settle or focus." },
-    { id: "b", text: "Sharp but stretched — edging toward exhaustion." },
-    { id: "c", text: "Foggy and slow — unmotivated without clear reason." },
+    { id: "a", text: "Restless and racing. Hard to settle or focus." },
+    { id: "b", text: "Sharp but stretched. Edging toward exhaustion." },
+    { id: "c", text: "Foggy and slow. Unmotivated without clear reason." },
   ]},
   { kind: "question", layer: 3, q: "My sleep lately is…", options: [
-    { id: "a", text: "Disrupted — I wake in the night and struggle to return." },
-    { id: "b", text: "Shortened — I can't turn my mind off." },
-    { id: "c", text: "Excessive — I sleep long but still wake feeling tired." },
+    { id: "a", text: "Disrupted. I wake in the night and struggle to return." },
+    { id: "b", text: "Shortened. I can't turn my mind off." },
+    { id: "c", text: "Excessive. I sleep long but still wake feeling tired." },
   ]},
   { kind: "question", layer: 3, q: "My digestion lately is…", options: [
     { id: "a", text: "Bloated, unsettled, never quite the same two days in a row." },
-    { id: "b", text: "Sharp and burning — quick to turn on me." },
-    { id: "c", text: "Sluggish and heavy — slow to move through." },
+    { id: "b", text: "Sharp and burning. Quick to turn on me." },
+    { id: "c", text: "Sluggish and heavy. Slow to move through." },
   ]},
   { kind: "question", layer: 3, q: "The emotion I'm most sitting with…", options: [
     { id: "a", text: "Fear, anxiety, or a sense of being unmoored." },
@@ -325,7 +346,7 @@ const QS: Question[] = [
     { id: "c", text: "I'm isolated, without purpose, or without routine." },
   ]},
   { kind: "question", layer: 3, q: "My body lately has been…", options: [
-    { id: "a", text: "Dry, stiff, cold — hard to warm." },
+    { id: "a", text: "Dry, stiff, cold. Hard to warm." },
     { id: "b", text: "Hot, flushed, and quick to react." },
     { id: "c", text: "Heavy, thick, and slow to recover." },
   ]},
@@ -335,9 +356,9 @@ const QS: Question[] = [
     poleB: "Slowly. I need time to say what it meant.",
   },
   { kind: "question", layer: 3, q: "The habit I most want to break…", options: [
-    { id: "a", text: "Inconsistency — I cannot sustain what I begin." },
-    { id: "b", text: "Perfectionism — I push until I burn." },
-    { id: "c", text: "Inertia — I'm avoiding what I know I need to do." },
+    { id: "a", text: "Inconsistency. I cannot sustain what I begin." },
+    { id: "b", text: "Perfectionism. I push until I burn." },
+    { id: "c", text: "Inertia. I'm avoiding what I know I need to do." },
   ]},
   { kind: "question", layer: 3, q: "My body is most asking for…", options: [
     { id: "a", text: "Warmth, grounding, and deep stillness." },
@@ -351,9 +372,9 @@ const QS: Question[] = [
     { id: "c", text: "Wet clay, dense." },
   ]},
   { kind: "question", layer: 3, q: "The inner season I'm living right now is…", options: [
-    { id: "a", text: "Autumn — unpredictable, transitional, searching for ground." },
-    { id: "b", text: "Summer — intense, bright, sometimes overwhelming." },
-    { id: "c", text: "Late winter — slow, heavy, ready to shift." },
+    { id: "a", text: "Autumn. Unpredictable, transitional, searching for ground." },
+    { id: "b", text: "Summer. Intense, bright, sometimes overwhelming." },
+    { id: "c", text: "Late winter. Slow, heavy, ready to shift." },
   ]},
   /* open with bonus */
   { kind: "question", qtype: "open", layer: 3, q: "One sentence. Or skip. If you could tell your younger self one thing about who you are becoming, what would it be?",
@@ -464,45 +485,6 @@ function calcProgress(stepIdx: number, layer: 1|2|3): number {
   const from   = LAYER_POS[layer];
   const to     = layer < 3 ? LAYER_POS[(layer + 1) as 2|3] : 1;
   return from + within * (to - from);
-}
-
-/* ────────────────────────────────────────────────────────
-   Background aura — slow breathing, layer-aware path
-   ──────────────────────────────────────────────────────── */
-function BgAura({ layer }: { layer: 1 | 2 | 3 }) {
-  const svgRef = useRef<SVGSVGElement>(null);
-
-  useEffect(() => {
-    if (!svgRef.current) return;
-    /* Single shared-clock timeline — scale and rotation ride the same 22s loop
-       with an intentional phase offset so peaks don't coincide. */
-    const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ repeat: -1, defaults: { ease: WATER, transformOrigin: "center center" } });
-      tl
-        .fromTo(svgRef.current, { scale: 1 },        { scale: 1.05, duration: 3.5 }, 0)
-        .to   (svgRef.current,                        { scale: 1,    duration: 3.5 }, 3.5)
-        .fromTo(svgRef.current, { scale: 1 },        { scale: 1.05, duration: 3.5 }, 7)
-        .to   (svgRef.current,                        { scale: 1,    duration: 4.0 }, 10.5)
-        .fromTo(svgRef.current, { scale: 1 },        { scale: 1.05, duration: 3.5 }, 14.5)
-        .to   (svgRef.current,                        { scale: 1,    duration: 4.0 }, 18.0)
-        .fromTo(svgRef.current, { rotation: 0 },     { rotation: 8,  duration: 11 }, 0)
-        .to   (svgRef.current,                        { rotation: 0, duration: 11 }, 11);
-    });
-    return () => ctx.revert();
-  }, []);
-
-  return (
-    <svg
-      ref={svgRef}
-      className="pointer-events-none absolute"
-      style={{ bottom: "-8%", right: "-18%", width: "68vw", maxWidth: 600, opacity: 0.055 }}
-      viewBox="0 0 500 470"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path d={LAYER_BG[layer]} stroke="#FFEFDE" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
 }
 
 /* ────────────────────────────────────────────────────────
@@ -745,15 +727,17 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
    Each option uses a distinct organic blob shape.
    Entry: scale+fade stagger. Selection: outline draws, others dim.
    ──────────────────────────────────────────────────────── */
-function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
+function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride }: {
   opt: OptDef; chosen: string | null;
   onPick: (id: string) => void;
   entryDelay?: number;
+  imageOverride?: string;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const blob     = BLOB_MASKS[opt.id as keyof typeof BLOB_MASKS] ?? BLOB_MASKS.b;
   const clipId   = `blob-clip-${opt.id}`;
+  const imgFile  = imageOverride ?? VISUAL_IMG[opt.id] ?? "earth.webp";
 
   useEffect(() => {
     if (!wrapRef.current) return;
@@ -811,7 +795,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
           </defs>
           {/* Real element image clipped to blob silhouette */}
           <image
-            href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/${VISUAL_IMG[opt.id] ?? "earth.webp"}`}
+            href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/${imgFile}`}
             x="0" y="0"
             width={blob.w} height={blob.h}
             preserveAspectRatio="xMidYMid slice"
@@ -910,10 +894,11 @@ function ScaleNode({ id, text, pos, total, chosen, onPick, entryDelay = 0 }: {
    All visuals updated imperatively (no React re-renders during
    drag) for 60 fps smoothness on mobile.
    ──────────────────────────────────────────────────────── */
-function ScaleSlider({ step, onPick, entryDelay = 0 }: {
+function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
   step: Scale2Q | Scale3Q;
-  onPick: (id: string) => void;
+  onPlaced: (id: string | null) => void;
   entryDelay?: number;
+  disabled?: boolean;
 }) {
   const wrapRef    = useRef<HTMLDivElement>(null);
   const svgRef     = useRef<SVGSVGElement>(null);
@@ -927,19 +912,24 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
   /* Bucket-zone tick marks (scale3 only) — placed after dim track mounts */
   const tick1Ref   = useRef<SVGLineElement>(null);
   const tick2Ref   = useRef<SVGLineElement>(null);
+  /* A/B (or A/B/C) letter markers shown above the track at bucket centres.
+     Rendered as HTML so we have full control over font + vertical spacing. */
+  const letterRefs = useRef<(HTMLSpanElement | null)[]>([]);
 
   const posRef      = useRef(0.5);
   const dragging    = useRef(false);
-  const submitted   = useRef(false);
   const lenRef      = useRef(0);
-  /* placedIdRef drives logic; placed bool triggers React render for CONTINUE */
+  /* placedIdRef drives the DRAG TO PLACE cue fade; CONTINUE lives in the
+     page footer (QuizBody) and is rendered based on onPlaced(id) reports. */
   const placedIdRef = useRef<string | null>(null);
   const [placed, setPlaced] = useState(false);
 
   const isS3 = step.qtype === "scale3";
-  /* Bucket centers — where the handle snaps after drop. Matches the scoring
-     boundaries in onUp (scale3: <0.33 / 0.33–0.67 / >0.67). */
+  /* Bucket centres — where the A/B(/C) letters sit. The handle no longer
+     snaps here on drop; letters are just positional guides and score
+     according to onUp's boundaries (scale3: <0.33 / 0.33–0.67 / >0.67). */
   const bucketCenters = isS3 ? [1/6, 0.5, 5/6] : [0.25, 0.75];
+  const bucketLetters = isS3 ? ["A", "B", "C"] : ["A", "B"];
 
   const applyPos = (pos: number) => {
     const dim = dimRef.current;
@@ -986,6 +976,16 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
       place(tick1Ref.current, p1);
       place(tick2Ref.current, p2);
     }
+    /* Place A/B(/C) HTML letter labels at each bucket-centre x, expressed
+       as a percentage of the 448-wide SVG so they stay aligned when the
+       SVG scales with the viewport. */
+    const len = lenRef.current;
+    bucketCenters.forEach((c, i) => {
+      const el = letterRefs.current[i];
+      if (!el) return;
+      const p = dim.getPointAtLength(len * c);
+      el.style.left = `${(p.x / 448) * 100}%`;
+    });
     const ctx = gsap.context(() => {
       gsap.fromTo(wrapRef.current,
         { opacity: 0, y: 18 },
@@ -1006,15 +1006,19 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
   }, []);
 
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (submitted.current) return;
-    /* Re-drag after placing — kill any in-flight tweens (aura draw, snap)
+    if (disabled) return;
+    /* Re-drag after placing — kill any in-flight tweens (aura draw)
        before restarting breathing so we don't get animation seams. */
     if (placedIdRef.current !== null) {
       placedIdRef.current = null;
       setPlaced(false);
+      onPlaced(null);
       if (auraRef.current) gsap.killTweensOf(auraRef.current);
-      gsap.killTweensOf(posRef);
       startBreathing();
+      /* Reset letter markers to neutral opacity */
+      letterRefs.current.forEach((el) => {
+        if (el) el.style.opacity = "0.55";
+      });
     }
     e.currentTarget.setPointerCapture(e.pointerId);
     dragging.current = true;
@@ -1022,35 +1026,26 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
     gsap.killTweensOf(auraRef.current);
     gsap.to(auraRef.current, { attr: { strokeOpacity: 0.88 }, duration: 0.12, overwrite: true });
     const rect = svgRef.current!.getBoundingClientRect();
-    const pos  = Math.max(0.01, Math.min(0.99, (e.clientX - rect.left) / rect.width));
+    const pos  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     posRef.current = pos;
     applyPos(pos);
   };
 
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!dragging.current || submitted.current) return;
+    if (!dragging.current || disabled) return;
     const rect = svgRef.current!.getBoundingClientRect();
-    const pos  = Math.max(0.01, Math.min(0.99, (e.clientX - rect.left) / rect.width));
+    const pos  = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     posRef.current = pos;
     applyPos(pos);
   };
 
   const onUp = () => {
-    if (!dragging.current || submitted.current) return;
+    if (!dragging.current || disabled) return;
     dragging.current = false;
     if (svgRef.current) svgRef.current.style.cursor = "grab";
     const pos = posRef.current;
     const id  = isS3 ? (pos < 0.33 ? "a" : pos > 0.67 ? "c" : "b") : (pos < 0.5 ? "a" : "b");
-    /* Soft snap to bucket centre — eases perceived precision (200ms) */
-    const targetIdx = isS3 ? (id === "a" ? 0 : id === "c" ? 2 : 1) : (id === "a" ? 0 : 1);
-    const target    = bucketCenters[targetIdx];
-    gsap.killTweensOf(posRef);
-    gsap.to(posRef, {
-      current: target,
-      duration: 0.2,
-      ease: WATER,
-      onUpdate: () => applyPos(posRef.current),
-    });
+    const placedIdx = isS3 ? (id === "a" ? 0 : id === "c" ? 2 : 1) : (id === "a" ? 0 : 1);
     /* Aura ring draws to confirm placement — CONTINUE button then appears */
     if (auraRef.current) {
       gsap.killTweensOf(auraRef.current);
@@ -1058,18 +1053,40 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
       gsap.set(auraRef.current, { attr: { strokeDasharray: al, strokeDashoffset: al, strokeOpacity: 0.3 } });
       gsap.to(auraRef.current, { attr: { strokeDashoffset: 0, strokeOpacity: 0.88 }, duration: 0.55, ease: "power2.inOut" });
     }
+    /* Brighten the chosen letter so the user sees which bucket registered */
+    letterRefs.current.forEach((el, i) => {
+      if (!el) return;
+      el.style.opacity = i === placedIdx ? "0.95" : "0.32";
+    });
     placedIdRef.current = id;
     setPlaced(true);
-  };
-
-  const onContinue = () => {
-    if (!placedIdRef.current || submitted.current) return;
-    submitted.current = true;
-    onPick(placedIdRef.current);
+    onPlaced(id);
   };
 
   return (
     <div ref={wrapRef} style={{ opacity: 0 }}>
+      {/* A / B (/ C) row — sits on a single line well above the track.
+         `left` is placed imperatively in useEffect once the dim path is
+         measured. Margin-bottom gives clear separation from the handle. */}
+      <div className="relative w-full h-4 mb-7" aria-hidden="true">
+        {bucketLetters.map((ltr, i) => (
+          <span
+            key={ltr}
+            ref={(el) => { letterRefs.current[i] = el; }}
+            className="absolute font-label text-cream text-[11px]"
+            style={{
+              top: 0,
+              opacity: 0.55,
+              letterSpacing: "0.3em",
+              transform: "translateX(-50%)",
+              pointerEvents: "none",
+              transition: "opacity 0.3s ease",
+            }}
+          >
+            {ltr}
+          </span>
+        ))}
+      </div>
       <svg
         ref={svgRef}
         viewBox="0 0 448 56"
@@ -1141,27 +1158,8 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
           {(step as Scale3Q).middle}
         </p>
       )}
-
-      {/* CONTINUE — always rendered, disabled until the user drops.
-         Post-drop button uses revealMode="draw" so the aura traces itself
-         alongside the slider's placement ring draw. */}
-      <div className="relative mt-10">
-        {placed ? (
-          <QuizCTAButton
-            key="cta-placed"
-            label="CONTINUE"
-            onClick={onContinue}
-            revealMode="draw"
-          />
-        ) : (
-          <QuizCTAButton
-            key="cta-disabled"
-            label="CONTINUE"
-            onClick={() => {}}
-            disabled
-          />
-        )}
-      </div>
+      {/* CONTINUE lives in the page footer (QuizBody) so it sits at the
+         bottom of the viewport like the intro screen. */}
     </div>
   );
 }
@@ -1416,9 +1414,10 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
 /* ────────────────────────────────────────────────────────
    Question router — all 5 types
    ──────────────────────────────────────────────────────── */
-function QuestionView({ step, chosen, onPick, onAdvance }: {
+function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
   step: Question; chosen: string | null;
   onPick: (id: string) => void;
+  onScalePlaced: (id: string | null) => void;
   onAdvance: () => void;
 }) {
   const qRef = useRef<HTMLHeadingElement>(null);
@@ -1453,16 +1452,16 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
           <div className="flex items-end justify-center gap-10">
             {/* A — tall narrow teardrop */}
             <div style={{ width: bA.containerW }}>
-              <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} />
+              <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} imageOverride={step.images?.a} />
             </div>
             {/* B — compact rounder blob */}
             <div style={{ width: bB.containerW }}>
-              <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} />
+              <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} imageOverride={step.images?.b} />
             </div>
           </div>
           {/* C — wide landscape pebble */}
           <div style={{ width: bC.containerW }}>
-            <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} />
+            <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
           </div>
         </div>
       </div>
@@ -1475,7 +1474,7 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
-      <ScaleSlider step={step} onPick={onPick} entryDelay={0.42} />
+      <ScaleSlider step={step} onPlaced={onScalePlaced} disabled={chosen !== null} entryDelay={0.42} />
     </div>
   );
 
@@ -1485,7 +1484,7 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
-      <ScaleSlider step={step} onPick={onPick} entryDelay={0.42} />
+      <ScaleSlider step={step} onPlaced={onScalePlaced} disabled={chosen !== null} entryDelay={0.42} />
     </div>
   );
 
@@ -1551,6 +1550,9 @@ export default function QuizBody() {
   const [stepIdx, setStepIdx] = useState(0);
   const [chosen,  setChosen]  = useState<string | null>(null);
   const [gateOpen, setGateOpen] = useState(false);
+  /* Scale-question placement lives in parent so the CONTINUE button can
+     render at the page bottom (outside the centred content) like the intro. */
+  const [scalePlacedId, setScalePlacedId] = useState<string | null>(null);
   const contentRef   = useRef<HTMLDivElement>(null);
   const advancingRef = useRef(false);
   const stepIdxRef   = useRef(0);
@@ -1569,6 +1571,7 @@ export default function QuizBody() {
       if (isLast) { setGateOpen(true); return; }
       advancingRef.current = false;
       setChosen(null);
+      setScalePlacedId(null);
       setStepIdx((s) => s + 1);
     };
 
@@ -1634,8 +1637,6 @@ export default function QuizBody() {
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-aubergine select-none">
-      <BgAura layer={currentLayer} />
-
       <Nav
         variant="light"
         hideLinks
@@ -1659,11 +1660,37 @@ export default function QuizBody() {
               step={step}
               chosen={chosen}
               onPick={handlePick}
+              onScalePlaced={setScalePlacedId}
               onAdvance={advance}
             />
           )}
         </div>
       </div>
+
+      {/* Bottom action area — CONTINUE for scale questions sits here so it
+         anchors to the viewport bottom, matching the intro screen layout.
+         Other question types manage their own CTAs (auto-advance / inline). */}
+      {step.kind === "question" && (step.qtype === "scale2" || step.qtype === "scale3") && (
+        <div className="relative z-10 flex flex-col items-center px-8 pt-6 pb-10 sm:pb-14">
+          <div className="w-full max-w-2xl">
+            {scalePlacedId ? (
+              <QuizCTAButton
+                key={`cta-placed-${stepIdx}`}
+                label="CONTINUE"
+                onClick={() => handlePick(scalePlacedId)}
+                revealMode="draw"
+              />
+            ) : (
+              <QuizCTAButton
+                key={`cta-disabled-${stepIdx}`}
+                label="CONTINUE"
+                onClick={() => {}}
+                disabled
+              />
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Dev nav ── */}
       {process.env.NODE_ENV === "development" && (
