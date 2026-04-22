@@ -153,15 +153,32 @@ const SCREENS: ScreenDef[] = [
 /* ── Per-screen content components ── */
 
 function StatementScreen({ text, size }: { text: string; size: "massive" | "large" }) {
+  const l1Ref = useRef<HTMLSpanElement>(null);
+  const l2Ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.fromTo(l1Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: 0.4 });
+      gsap.fromTo(l2Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: 1.6 });
+    });
+    return () => ctx.revert();
+  }, []);
+
+  const words = text.split(" ");
+  const split = Math.ceil(words.length * 0.6);
+  const line1 = words.slice(0, split).join(" ");
+  const line2 = words.slice(split).join(" ");
+
   return (
     <h1
       className="font-serif text-cream text-center"
       style={{
         fontSize: size === "massive" ? "clamp(2.8rem,8vw,6.5rem)" : "clamp(2.2rem,5.5vw,4rem)",
-        lineHeight: 1.06,
+        lineHeight: 1.15,
       }}
     >
-      {text}
+      <span ref={l1Ref} className="block opacity-0">{line1}</span>
+      <span ref={l2Ref} className="block opacity-0">{line2}</span>
     </h1>
   );
 }
@@ -173,11 +190,8 @@ function TwoLineStatement({ line1, line2 }: { line1: string; line2: string }) {
   useEffect(() => {
     if (!l1.current || !l2.current) return;
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        [l1.current, l2.current],
-        { opacity: 0, y: 24 },
-        { opacity: 1, y: 0, duration: 1.1, ease: AIR, stagger: 0.42, delay: 0.3 }
-      );
+      gsap.fromTo(l1.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: 0.4 });
+      gsap.fromTo(l2.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: 1.6 });
     });
     return () => ctx.revert();
   }, []);
@@ -185,10 +199,10 @@ function TwoLineStatement({ line1, line2 }: { line1: string; line2: string }) {
   const fs = "clamp(2.4rem,7vw,5rem)";
   return (
     <div className="text-center" style={{ lineHeight: 1.12 }}>
-      <p ref={l1} className="font-serif text-cream/60" style={{ fontSize: fs, opacity: 0 }}>
+      <p ref={l1} className="font-serif text-cream/60 opacity-0" style={{ fontSize: fs }}>
         {line1}
       </p>
-      <p ref={l2} className="font-serif text-cream" style={{ fontSize: fs, fontStyle: "italic", opacity: 0 }}>
+      <p ref={l2} className="font-serif text-cream opacity-0" style={{ fontSize: fs, fontStyle: "italic" }}>
         {line2}
       </p>
     </div>
@@ -287,15 +301,16 @@ export default function QuizIntro() {
     const ctx = gsap.context(() => {
       gsap.killTweensOf([content, hint]);
 
+      const isFirst = screen === 0;
       gsap.fromTo(
         content,
-        { opacity: 0, y: 34 },
-        { opacity: 1, y: 0, duration: 1.15, ease: AIR, delay: 0.05 }
+        { opacity: 0, y: isFirst ? 0 : 34 },
+        { opacity: 1, y: 0, duration: isFirst ? 0.15 : 1.15, ease: AIR, delay: 0.05 }
       );
 
       if (hint) {
         gsap.set(hint, { opacity: 0 });
-        gsap.to(hint, { opacity: 1, duration: 1.0, ease: EARTH, delay: 2.8 });
+        gsap.to(hint, { opacity: 1, duration: 1.0, ease: EARTH, delay: isFirst ? 4.0 : 2.8 });
       }
     });
     return () => ctx.revert();
@@ -325,8 +340,6 @@ export default function QuizIntro() {
   return (
     <main
       className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none"
-      onClick={advance}
-      style={{ cursor: isGate ? "default" : "pointer" }}
     >
       <Nav variant="light" hideLinks progress={screen / (SCREENS.length - 1)} className="pt-10 pb-16 md:pt-14 md:pb-20" />
 
