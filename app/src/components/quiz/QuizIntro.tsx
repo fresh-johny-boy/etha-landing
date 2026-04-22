@@ -152,17 +152,17 @@ const SCREENS: ScreenDef[] = [
 
 /* ── Per-screen content components ── */
 
-function StatementScreen({ text, size }: { text: string; size: "massive" | "large" }) {
+function StatementScreen({ text, size, entranceDelay = 0 }: { text: string; size: "massive" | "large"; entranceDelay?: number }) {
   const l1Ref = useRef<HTMLSpanElement>(null);
   const l2Ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(l1Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: 0.4 });
-      gsap.fromTo(l2Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: 1.6 });
+      gsap.fromTo(l1Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: entranceDelay });
+      gsap.fromTo(l2Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.8, ease: WATER, delay: entranceDelay + 1.4 });
     });
     return () => ctx.revert();
-  }, []);
+  }, [entranceDelay]);
 
   const words = text.split(" ");
   const split = Math.ceil(words.length * 0.6);
@@ -302,15 +302,23 @@ export default function QuizIntro() {
       gsap.killTweensOf([content, hint]);
 
       const isFirst = screen === 0;
-      gsap.fromTo(
-        content,
-        { opacity: 0, y: isFirst ? 0 : 34 },
-        { opacity: 1, y: 0, duration: isFirst ? 0.15 : 1.15, ease: AIR, delay: 0.05 }
-      );
+
+      if (isFirst) {
+        // Reveal content after nav logo + track draw (~1.8s)
+        gsap.set(content, { opacity: 0 });
+        gsap.to(content, { opacity: 1, duration: 0.01, delay: 1.9 });
+      } else {
+        gsap.fromTo(
+          content,
+          { opacity: 0, y: 34 },
+          { opacity: 1, y: 0, duration: 1.15, ease: AIR, delay: 0.05 }
+        );
+      }
 
       if (hint) {
         gsap.set(hint, { opacity: 0 });
-        gsap.to(hint, { opacity: 1, duration: 1.0, ease: EARTH, delay: isFirst ? 4.0 : 2.8 });
+        // screen 0: wait for both heading lines (l1@1.9s + l2@3.3s + 1.8s fade = ~5.1s)
+        gsap.to(hint, { opacity: 1, duration: 1.0, ease: EARTH, delay: isFirst ? 5.4 : 2.8 });
       }
     });
     return () => ctx.revert();
@@ -341,7 +349,7 @@ export default function QuizIntro() {
     <main
       className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none"
     >
-      <Nav variant="light" hideLinks progress={screen / (SCREENS.length - 1)} className="pt-10 pb-16 md:pt-14 md:pb-20" />
+      <Nav variant="light" hideLinks animated progress={screen / (SCREENS.length - 1)} className="pt-10 pb-16 md:pt-14 md:pb-20" />
 
       {/* Screen content — key forces child remounts for per-screen useEffects */}
       <div
@@ -350,7 +358,9 @@ export default function QuizIntro() {
         style={{ opacity: 0 }}
       >
         <div key={screen} className="flex w-full items-center justify-center">
-          {renderScreen(current)}
+          {screen === 0 && current.type === "statement"
+            ? <StatementScreen text={current.text} size={current.size} entranceDelay={1.9} />
+            : renderScreen(current)}
         </div>
       </div>
 

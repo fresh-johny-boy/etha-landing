@@ -2,8 +2,8 @@
 
 @theme inline {
   /* Fonts */
-  --font-serif: var(--font-plantin), "Playfair Display", Georgia, "Times New Roman", serif;
-  --font-sans: var(--font-brandon), "Gill Sans", "Segoe UI", sans-serif;
+  --font-serif: var(--font-plantin);
+  --font-sans: var(--font-brandon);
 
   /* Masterbrand */
   --color-cream: #FFEFDE;

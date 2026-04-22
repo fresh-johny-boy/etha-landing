@@ -7,7 +7,7 @@ import Nav from "@/components/Nav";
 const AIR  = "expo.out";
 const FIRE = "power4.in";
 
-/* ── Three distinct balanced aura blobs — smooth 6-bezier paths ── */
+/* ── Single balanced aura — draws on click, invisible at rest ── */
 type Pt = [number, number];
 
 function toPath(pts: Pt[]): string {
@@ -17,67 +17,40 @@ function toPath(pts: Pt[]): string {
   return d;
 }
 
-function distort(base: Pt[], cx: number, cy: number, nx: number, ny: number): string {
-  const angle = Math.atan2(ny, nx);
-  const mag   = Math.min(1, Math.sqrt(nx * nx + ny * ny));
-  return toPath(base.map(([px, py]) => {
-    const dx = px - cx, dy = py - cy;
-    const r  = Math.sqrt(dx * dx + dy * dy) || 1;
-    const soft = Math.pow((Math.cos(Math.atan2(dy, dx) - angle) + 1) / 2, 2);
-    return [px + (dx / r) * soft * mag * 10, py + (dy / r) * soft * mag * 10] as Pt;
-  }));
-}
-
-/* Shared viewBox — proportions close to actual card (≈3.5:1) for minimal distortion */
-const VB = "0 0 352 108";
-
-/* A — gap top-left, right side slightly fuller */
-const A_BASE: Pt[] = [
-  [162, 7],
-  [224, 2],  [296, 4],  [330, 13],
-  [346, 24], [350, 44], [344, 64],
-  [334, 82], [298, 96], [246, 102],
-  [188, 107],[124, 106],[74,  98],
-  [30,  86], [4,   66], [2,   44],
-  [2,   22], [22,  8],  [68,  3],
-  [122, 0],  [148, 3],  [162, 7],
+/* Spacious balanced oval — viewBox proportioned ~4.8:1 to match card */
+const AURA_BASE: Pt[] = [
+  [188, 7],
+  [252, 2],  [318, 4],  [350, 14],
+  [368, 24], [370, 42], [364, 60],
+  [356, 76], [318, 86], [260, 91],
+  [196, 95], [136, 93], [88,  86],
+  [40,  78], [4,   60], [2,   42],
+  [0,   24], [18,  8],  [62,  3],
+  [118, 0],  [158, 3],  [188, 7],
 ];
-
-/* B — rounder arch, taller feel, gap top-right */
-const B_BASE: Pt[] = [
-  [190, 5],
-  [250, 0],  [314, 2],  [340, 12],
-  [356, 24], [358, 46], [352, 68],
-  [342, 86], [306, 100],[250, 107],
-  [188, 112],[124, 110],[72,  102],
-  [26,  90], [2,   68], [0,   46],
-  [0,   24], [18,  8],  [58,  2],
-  [108, 0],  [160, 2],  [190, 5],
-];
-
-/* C — slightly different curvature, gap bottom-left area */
-const C_BASE: Pt[] = [
-  [170, 8],
-  [228, 3],  [298, 6],  [330, 16],
-  [346, 28], [348, 50], [340, 70],
-  [330, 88], [294, 100],[240, 106],
-  [182, 110],[118, 108],[68,  100],
-  [22,  88], [0,   66], [0,   44],
-  [2,   22], [20,  8],  [60,  4],
-  [114, 1],  [146, 4],  [170, 8],
-];
-
-const CARD_VARIANTS = {
-  a: { base: A_BASE, cx: 176, cy: 53, vb: VB, d: toPath(A_BASE) },
-  b: { base: B_BASE, cx: 179, cy: 56, vb: VB, d: toPath(B_BASE) },
-  c: { base: C_BASE, cx: 174, cy: 55, vb: VB, d: toPath(C_BASE) },
-};
+const AURA_D  = toPath(AURA_BASE) + " Z";
 
 /* ── Types ── */
 type LayerScreen = { kind: "layer"; layer: 1 | 2 | 3; label: string; title: string; sub: string };
-type Option      = { id: "a" | "b" | "c"; text: string };
-type Question    = { kind: "question"; layer: 1 | 2 | 3; q: string; options: [Option, Option, Option] };
-type Step        = LayerScreen | Question;
+type OptDef = { id: string; text: string };
+
+/* A/B/C standard select — most questions */
+type ChoiceQ = { kind: "question"; qtype?: "choice"; layer: 1|2|3; q: string; options: OptDef[] };
+
+/* Image tiles — centered text, card layout, photography placeholder */
+type VisualQ = { kind: "question"; qtype: "visual"; layer: 1|2|3; q: string; options: OptDef[] };
+
+/* Spectrum — only 2 poles, no middle */
+type Scale2Q = { kind: "question"; qtype: "scale2"; layer: 1|2|3; q: string; poleA: string; poleB: string };
+
+/* Spectrum — 2 poles + explicit middle node */
+type Scale3Q = { kind: "question"; qtype: "scale3"; layer: 1|2|3; q: string; poleA: string; middle: string; poleB: string };
+
+/* Open text with skip */
+type OpenQ   = { kind: "question"; qtype: "open"; layer: 1|2|3; q: string; placeholder: string; bonus?: { q: string; placeholder: string } };
+
+type Question = ChoiceQ | VisualQ | Scale2Q | Scale3Q | OpenQ;
+type Step     = LayerScreen | Question;
 
 /* ── Layer definitions ── */
 const LAYER_DEF: Record<1 | 2 | 3, LayerScreen> = {
@@ -87,7 +60,7 @@ const LAYER_DEF: Record<1 | 2 | 3, LayerScreen> = {
 };
 const LAYER_NAMES: Record<1 | 2 | 3, string> = { 1: "BODY", 2: "MIND", 3: "NOW" };
 
-/* ── 43 Questions ── */
+/* ── 45 Questions (PDF-accurate, all 5 interaction types) ── */
 const QS: Question[] = [
   /* ─ Layer 1 / Body ──────────────────────────────────────── */
   { kind: "question", layer: 1, q: "My body frame is naturally...", options: [
@@ -130,26 +103,26 @@ const QS: Question[] = [
     { id: "b", text: "Sustained peaks — most productive in the middle of the day." },
     { id: "c", text: "Slow crescendos — I build and hold energy through the day." },
   ]},
-  { kind: "question", layer: 1, q: "My joints...", options: [
-    { id: "a", text: "Crack and pop — dry and variable." },
-    { id: "b", text: "Can become hot and inflamed under strain." },
-    { id: "c", text: "Are well-lubricated, sometimes holding excess fluid." },
-  ]},
-  { kind: "question", layer: 1, q: "My eyes are...", options: [
-    { id: "a", text: "Small, dark, active — darting and curious." },
-    { id: "b", text: "Medium, piercing, intense — often with a reddish tint." },
-    { id: "c", text: "Large, soft, calm — deep and steady." },
-  ]},
-  { kind: "question", layer: 1, q: "When I sweat...", options: [
-    { id: "a", text: "Rarely — I find sweating difficult." },
-    { id: "b", text: "Easily and profusely — heat affects me immediately." },
-    { id: "c", text: "Moderately — average in most conditions." },
+  /* Q8 — 2-node scale (PDF Q8) */
+  { kind: "question", qtype: "scale2", layer: 1, q: "Your body has known this for years. The temperature your body keeps.",
+    poleA: "Cold. Always borrowing warmth from the world.",
+    poleB: "Hot. Always trying to release some of it.",
+  },
+  /* Q9 — visual cards (PDF Q6) */
+  { kind: "question", qtype: "visual", layer: 1, q: "If your body had a texture right now, what would it be?", options: [
+    { id: "a", text: "Dry, cool, always a little thin." },
+    { id: "b", text: "Warm, flushed, quick to react." },
+    { id: "c", text: "Soft, full, holds moisture easily." },
   ]},
   { kind: "question", layer: 1, q: "When illness comes, it tends toward...", options: [
     { id: "a", text: "Anxiety, nervous exhaustion, dry and cold conditions." },
     { id: "b", text: "Fever, inflammation, or infection." },
     { id: "c", text: "Congestion, excess mucus, and heaviness." },
   ]},
+  /* Q11 — open text */
+  { kind: "question", qtype: "open", layer: 1, q: "One sentence, or skip. What does your body most need right now that it is not getting?",
+    placeholder: "rest, warmth, stillness, to be seen",
+  },
   { kind: "question", layer: 1, q: "My elimination is...", options: [
     { id: "a", text: "Irregular — prone to constipation or inconsistency." },
     { id: "b", text: "Regular and sometimes loose — occasionally urgent." },
@@ -172,11 +145,12 @@ const QS: Question[] = [
     { id: "b", text: "Sharp and analytical — I think in systems and conclusions." },
     { id: "c", text: "Steady and methodical — I think slowly but think it through." },
   ]},
-  { kind: "question", layer: 2, q: "I learn best when...", options: [
-    { id: "a", text: "I can explore freely and make my own unexpected connections." },
-    { id: "b", text: "The information is precise, logical, and well-organised." },
-    { id: "c", text: "I have time to absorb, repeat, and let it settle." },
-  ]},
+  /* Q17 — 3-node scale (PDF Q17) */
+  { kind: "question", qtype: "scale3", layer: 2, q: "When you have something important to do. Your energy shows up like:",
+    poleA: "Strong at the start, hard to keep going.",
+    middle: "I lock in and push through, even when I should rest.",
+    poleB: "Takes time to start. Once it does, I do not stop.",
+  },
   { kind: "question", layer: 2, q: "My memory tends to be...", options: [
     { id: "a", text: "Quick to grasp but quick to lose — it moves with me." },
     { id: "b", text: "Sharp and clear for what matters most." },
@@ -187,10 +161,11 @@ const QS: Question[] = [
     { id: "b", text: "Sharpen — I become focused but also controlling." },
     { id: "c", text: "Withdraw — I become quiet, stubborn, or close down." },
   ]},
-  { kind: "question", layer: 2, q: "My decision-making is...", options: [
-    { id: "a", text: "Impulsive — I decide fast and sometimes change my mind." },
-    { id: "b", text: "Deliberate — I weigh outcomes carefully, then commit fully." },
-    { id: "c", text: "Cautious — I prefer consensus, slow change, certainty." },
+  /* Q18 — visual cards (PDF Q18) */
+  { kind: "question", qtype: "visual", layer: 2, q: "Two doors. What do you actually do? Which one?", options: [
+    { id: "a", text: "Open both. Look for a third." },
+    { id: "b", text: "Wait until one feels right." },
+    { id: "c", text: "Pick one. Walk through. Do not look back." },
   ]},
   { kind: "question", layer: 2, q: "In conversation, I...", options: [
     { id: "a", text: "Jump between topics quickly — I love ideas more than conclusions." },
@@ -202,11 +177,12 @@ const QS: Question[] = [
     { id: "b", text: "Precise — I'm punctual and dislike being kept waiting." },
     { id: "c", text: "Steady — I move at my own unhurried pace." },
   ]},
-  { kind: "question", layer: 2, q: "When I love, I...", options: [
-    { id: "a", text: "Fall quickly and intensely — the feeling shifts as I do." },
-    { id: "b", text: "Love with loyalty and a quiet possessiveness." },
-    { id: "c", text: "Love steadily and deeply — for a very, very long time." },
-  ]},
+  /* Q23 — 3-node scale (PDF Q23) */
+  { kind: "question", qtype: "scale3", layer: 2, q: "When you need to focus on something important. What actually happens?",
+    poleA: "My mind wanders. Ten minutes in, I am somewhere else.",
+    middle: "I lock in. Nothing else exists. Sometimes for too long.",
+    poleB: "Takes forever to start. Once I do, I can go for hours.",
+  },
   { kind: "question", layer: 2, q: "I am most motivated by...", options: [
     { id: "a", text: "Freedom, creativity, and the call of the new." },
     { id: "b", text: "Achievement, mastery, and being recognised for it." },
@@ -217,15 +193,15 @@ const QS: Question[] = [
     { id: "b", text: "Controlled but intense — I feel deeply beneath stillness." },
     { id: "c", text: "Slow and contained — emotions simmer quietly inside." },
   ]},
-  { kind: "question", layer: 2, q: "I handle change...", options: [
-    { id: "a", text: "By embracing it — I thrive in novelty and flux." },
-    { id: "b", text: "By managing it — I need to lead the change." },
-    { id: "c", text: "With difficulty — I prefer things to stay as they are." },
-  ]},
-  { kind: "question", layer: 2, q: "My creativity is...", options: [
-    { id: "a", text: "Abundant and unpredictable — inspiration arrives suddenly." },
-    { id: "b", text: "Focused and purposeful — I create with clear intention." },
-    { id: "c", text: "Deep and slow — I build things designed to last." },
+  /* Q26 — open text (PDF Q26) */
+  { kind: "question", qtype: "open", layer: 2, q: "One detail is enough. Or skip. If you could design a space for your mind to rest in, what would be there?",
+    placeholder: "silence, water, soft light, nothing",
+  },
+  /* Q27 — visual cards (PDF Q27) */
+  { kind: "question", qtype: "visual", layer: 2, q: "Your mental energy this month. Which image?", options: [
+    { id: "a", text: "Fire burning too bright." },
+    { id: "b", text: "Candle flickering in wind." },
+    { id: "c", text: "Embers under ash." },
   ]},
   { kind: "question", layer: 2, q: "I trust...", options: [
     { id: "a", text: "My intuition and spontaneous inner knowing." },
@@ -279,11 +255,11 @@ const QS: Question[] = [
     { id: "b", text: "Hot, inflamed, and reactive." },
     { id: "c", text: "Heavy, congested, and slow to recover." },
   ]},
-  { kind: "question", layer: 3, q: "The weather affecting me most is...", options: [
-    { id: "a", text: "Cold, dry, and windy." },
-    { id: "b", text: "Hot, intense, or humid." },
-    { id: "c", text: "Cold, wet, or overcast." },
-  ]},
+  /* Q38 — 2-node scale (PDF Q38) */
+  { kind: "question", qtype: "scale2", layer: 3, q: "When something ends. A chapter, a relationship, a phase. How do you leave?",
+    poleA: "Quick. Already gone before the goodbye.",
+    poleB: "Slowly. I need time to say what it meant.",
+  },
   { kind: "question", layer: 3, q: "The habit I most want to break...", options: [
     { id: "a", text: "Inconsistency — I cannot sustain what I begin." },
     { id: "b", text: "Perfectionism — I push until I burn." },
@@ -294,21 +270,22 @@ const QS: Question[] = [
     { id: "b", text: "Cooling, release, and softness." },
     { id: "c", text: "Movement, lightness, and stimulation." },
   ]},
-  { kind: "question", layer: 3, q: "My mind is most asking for...", options: [
-    { id: "a", text: "Presence — to stop the racing and arrive here." },
-    { id: "b", text: "Silence — to stop analysing and simply be." },
-    { id: "c", text: "Clarity — to cut through the fog and feel purpose." },
+  /* Q41 — visual cards (PDF Q41) */
+  { kind: "question", qtype: "visual", layer: 3, q: "If your spirit had a texture right now. What would it be?", options: [
+    { id: "a", text: "Silk scarf in wind." },
+    { id: "b", text: "Blade edge, sharp." },
+    { id: "c", text: "Wet clay, dense." },
   ]},
   { kind: "question", layer: 3, q: "The inner season I'm living right now is...", options: [
     { id: "a", text: "Autumn — unpredictable, transitional, searching for ground." },
     { id: "b", text: "Summer — intense, bright, sometimes overwhelming." },
     { id: "c", text: "Late winter — slow, heavy, ready to shift." },
   ]},
-  { kind: "question", layer: 3, q: "In one sentence, my body right now is...", options: [
-    { id: "a", text: "Uncontained — like trying to hold wind in your hands." },
-    { id: "b", text: "Overcharged — too much heat with nowhere to go." },
-    { id: "c", text: "Unmoved — like still water, waiting to flow." },
-  ]},
+  /* Q45 — open text with bonus (PDF Q45) */
+  { kind: "question", qtype: "open", layer: 3, q: "One sentence. Or skip. If you could tell your younger self one thing about who you are becoming, what would it be?",
+    placeholder: "You are exactly where you need to be.",
+    bonus: { q: "One word for what your spirit needs most right now.", placeholder: "rest, fire, ground, space, permission" },
+  },
 ];
 
 /* ── Build interleaved step sequence ── */
@@ -364,119 +341,68 @@ function BgAura() {
   );
 }
 
-/* ── Option card — balanced aura, AuraButton pattern ── */
-function OptionCard({ opt, chosen, onPick }: {
+/* ── Option row — aura invisible at rest, draws on click ── */
+function OptionRow({ opt, chosen, onPick }: {
   opt: Option; chosen: string | null; onPick: (id: string) => void;
 }) {
-  const pathRef = useRef<SVGPathElement>(null);
-  const btnRef  = useRef<HTMLButtonElement>(null);
-  const rafRef  = useRef(0);
+  const pathRef  = useRef<SVGPathElement>(null);
   const isChosen = chosen === opt.id;
   const isDimmed = chosen !== null && !isChosen;
 
-  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
-
-  const v = CARD_VARIANTS[opt.id];
-
-  const onMove = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    if (chosen !== null || !btnRef.current || !pathRef.current) return;
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      if (!btnRef.current || !pathRef.current) return;
-      const r  = btnRef.current.getBoundingClientRect();
-      const nx = ((e.clientX - r.left) / r.width  - 0.5) * 2;
-      const ny = ((e.clientY - r.top)  / r.height - 0.5) * 2;
-      gsap.to(pathRef.current, { attr: { d: distort(v.base, v.cx, v.cy, nx, ny) }, duration: 0.45, ease: "power3.out", overwrite: true });
-    });
-  }, [chosen, v]);
-
-  const onLeave = useCallback(() => {
-    if (chosen !== null) return;
-    cancelAnimationFrame(rafRef.current);
-    if (pathRef.current)
-      gsap.to(pathRef.current, { attr: { d: v.d }, duration: 1.1, ease: "elastic.out(1,0.38)", overwrite: true });
-  }, [chosen, v]);
-
-  /* Draw animation on selection */
   useEffect(() => {
     const path = pathRef.current;
     if (!path) return;
     if (isChosen) {
       gsap.killTweensOf(path);
-      gsap.set(path, { attr: { d: v.d } });
+      gsap.set(path, { attr: { d: AURA_D }, strokeOpacity: 0 });
       const len = path.getTotalLength();
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
-      gsap.to(path, { strokeDashoffset: 0, duration: 0.7, ease: "power2.inOut" });
+      gsap.to(path, { strokeDashoffset: 0, strokeOpacity: 0.75, duration: 0.72, ease: "power2.inOut" });
     } else {
-      gsap.set(path, { strokeDasharray: "none", strokeDashoffset: 0 });
+      gsap.set(path, { strokeDasharray: "none", strokeDashoffset: 0, strokeOpacity: 0 });
     }
-  }, [isChosen, v.d]);
-
-  /* Stroke opacity: resting → dim → selected */
-  const strokeOpacity = isDimmed ? 0.06 : isChosen ? 0.72 : 0.3;
+  }, [isChosen]);
 
   return (
-    <button
-      ref={btnRef}
-      onClick={() => chosen === null && onPick(opt.id)}
-      onMouseMove={onMove}
-      onMouseLeave={onLeave}
-      tabIndex={chosen !== null ? -1 : 0}
-      className={[
-        "relative w-full flex items-center gap-5 px-6 py-7 text-left cursor-pointer",
-        "transition-opacity duration-400",
-        isDimmed ? "opacity-30" : "opacity-100",
-      ].join(" ")}
-    >
-      {/* Balanced aura SVG border — unique blob per option */}
-      <svg
-        className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
-        viewBox={v.vb}
-        preserveAspectRatio="none"
-        fill="none"
-        aria-hidden="true"
+    <div className="relative">
+      <div className="h-px bg-cream/[0.08]" />
+      <button
+        onClick={() => chosen === null && onPick(opt.id)}
+        tabIndex={chosen !== null ? -1 : 0}
+        className={[
+          "relative w-full text-left py-6 min-h-[48px] cursor-pointer",
+          "transition-opacity duration-350",
+          isDimmed ? "opacity-[0.14]" : isChosen ? "opacity-100" : "opacity-70 hover:opacity-100",
+        ].join(" ")}
       >
-        {/* Subtle fill on selected */}
-        <path d={v.d} fill="#FFEFDE" fillOpacity={isChosen ? 0.04 : 0} style={{ transition: "fill-opacity 400ms ease" }} />
-        {/* Aura stroke — morphs on hover */}
-        <path
-          ref={pathRef}
-          d={v.d}
-          stroke="#FFEFDE"
-          strokeWidth="0.9"
-          strokeOpacity={strokeOpacity}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ transition: "stroke-opacity 400ms ease" }}
-        />
-      </svg>
+        {/* Aura — invisible at rest, draws on selection */}
+        <svg
+          className="pointer-events-none absolute overflow-visible"
+          viewBox="0 0 372 96"
+          preserveAspectRatio="none"
+          fill="none"
+          aria-hidden="true"
+          style={{ left: "-14px", top: "-10px", width: "calc(100% + 28px)", height: "calc(100% + 20px)" }}
+        >
+          <path
+            ref={pathRef}
+            d={AURA_D}
+            stroke="#FFEFDE"
+            strokeWidth="0.85"
+            strokeOpacity="0"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
 
-      {/* Option letter */}
-      <span
-        className="font-label text-[9px] text-cream flex-shrink-0 relative z-10"
-        style={{ opacity: isChosen ? 1 : 0.5, transition: "opacity 300ms ease" }}
-      >
-        {opt.id.toUpperCase()}
-      </span>
-
-      {/* Option text */}
-      <span
-        className="font-serif text-cream leading-relaxed flex-1 relative z-10"
-        style={{ fontSize: "clamp(0.9rem, 2.2vw, 1.08rem)", opacity: isChosen ? 1 : 0.82, transition: "opacity 300ms ease" }}
-      >
-        {opt.text}
-      </span>
-
-      {/* Selection indicator */}
-      {isChosen && (
-        <span className="flex-shrink-0 relative z-10">
-          <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
-            <circle cx="4.5" cy="4.5" r="3.75" stroke="#FFEFDE" strokeWidth="0.65" strokeOpacity="0.75" />
-            <circle cx="4.5" cy="4.5" r="1.75" fill="#FFEFDE" fillOpacity="0.9" />
-          </svg>
+        <span
+          className="font-serif text-cream leading-relaxed block relative z-10"
+          style={{ fontSize: "clamp(1rem, 2.5vw, 1.2rem)" }}
+        >
+          {opt.text}
         </span>
-      )}
-    </button>
+      </button>
+    </div>
   );
 }
 
@@ -506,35 +432,23 @@ function LayerView({ step, onSkip }: { step: LayerScreen; onSkip: () => void }) 
 }
 
 /* ── Question screen ── */
-function QuestionView({ step, qNum, totalQ, chosen, onPick }: {
-  step: Question; qNum: number; totalQ: number;
-  chosen: string | null; onPick: (id: string) => void;
+function QuestionView({ step, chosen, onPick }: {
+  step: Question; chosen: string | null; onPick: (id: string) => void;
 }) {
   return (
     <div className="w-full max-w-xl px-7 sm:px-4">
-      {/* Meta bar */}
-      <div className="flex items-center justify-between mb-9">
-        <span className="font-label text-[9px] text-cream/30">
-          LAYER {String(step.layer).padStart(2, "0")} — {LAYER_NAMES[step.layer]}
-        </span>
-        <span className="font-label text-[9px] text-cream/30">
-          {String(qNum).padStart(2, "0")} / {String(totalQ).padStart(2, "0")}
-        </span>
-      </div>
-
-      {/* Question text */}
       <h2
-        className="font-serif text-cream mb-9 leading-snug"
-        style={{ fontSize: "clamp(1.55rem, 4.5vw, 2.5rem)" }}
+        className="font-serif text-cream mb-10 leading-snug"
+        style={{ fontSize: "clamp(1.75rem, 5vw, 3rem)" }}
       >
         {step.q}
       </h2>
 
-      {/* Answer option cards */}
-      <div className="flex flex-col gap-2.5">
+      <div>
         {step.options.map((opt) => (
-          <OptionCard key={opt.id} opt={opt} chosen={chosen} onPick={onPick} />
+          <OptionRow key={opt.id} opt={opt} chosen={chosen} onPick={onPick} />
         ))}
+        <div className="h-px bg-cream/[0.08]" />
       </div>
     </div>
   );
@@ -613,8 +527,6 @@ export default function QuizBody() {
           ) : (
             <QuestionView
               step={step}
-              qNum={qNum}
-              totalQ={QS.length}
               chosen={chosen}
               onPick={handlePick}
             />
