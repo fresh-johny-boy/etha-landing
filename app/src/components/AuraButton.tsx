@@ -3,6 +3,7 @@
 import { useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
+import { quizSounds } from "@/lib/quizSounds";
 
 interface AuraButtonProps {
   href: string;
@@ -132,6 +133,10 @@ export default function AuraButton({
     });
   }, []);
 
+  const handleEnter = useCallback(() => {
+    quizSounds.play("chime", { volume: 0.4 });
+  }, []);
+
   return (
     <Link
       ref={wrapRef}
@@ -139,6 +144,8 @@ export default function AuraButton({
       className={`group relative inline-flex items-center justify-center px-14 py-6 ${className}`}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
+      onMouseEnter={handleEnter}
+      onClick={() => quizSounds.prime()}
     >
       <svg
         className="absolute inset-0 h-full w-full overflow-visible"

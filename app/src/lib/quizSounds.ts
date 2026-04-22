@@ -362,9 +362,8 @@ class ETHASoundKit {
   }
 
   /**
-   * Intro melody — same single-bowl treatment all 7 screens.
-   * A432 pentatonic motif A→C#→E repeats twice, getting gently clearer.
-   * Root returns on screen 6 as a quiet homecoming.
+   * Intro melody — one quiet bowl per screen, same treatment throughout.
+   * A432 pentatonic, high wet ratio, short decays.
    */
   playIntroMelody(screenIdx: number) {
     if (!this._enabled) return;
@@ -372,19 +371,26 @@ class ETHASoundKit {
     try {
       const ctx = this.getCtx();
 
+      // Descending pentatonic: C#5 → A4 → E4 → C#4 → A3 → E3 → A2
+      // Starts bright, settles into earth. Final note = deep grounding, ready to begin.
       type L = { freq: number; amp: number; decay: number; attack: number };
       const layers: L[] = [
-        { freq: 432, amp: 0.020, decay: 4.0, attack: 0.32 }, // 0 A3  — seed, barely there
-        { freq: 540, amp: 0.034, decay: 3.8, attack: 0.30 }, // 1 C#4 — third drifts in
-        { freq: 648, amp: 0.050, decay: 3.8, attack: 0.30 }, // 2 E4  — fifth opens
-        { freq: 432, amp: 0.068, decay: 3.5, attack: 0.28 }, // 3 A3  — root echoes back
-        { freq: 540, amp: 0.088, decay: 3.5, attack: 0.26 }, // 4 C#4 — third, warmer
-        { freq: 648, amp: 0.112, decay: 3.2, attack: 0.24 }, // 5 E4  — fifth, fuller
-        { freq: 432, amp: 0.140, decay: 3.0, attack: 0.22 }, // 6 A3  — root home, arrival
+        { freq: 1080, amp: 0.070, decay: 1.9, attack: 0.005 }, // 0 C#5 — bright open
+        { freq:  864, amp: 0.064, decay: 2.1, attack: 0.006 }, // 1 A4
+        { freq:  648, amp: 0.058, decay: 2.3, attack: 0.008 }, // 2 E4
+        { freq:  540, amp: 0.048, decay: 2.5, attack: 0.010 }, // 3 C#4
+        { freq:  432, amp: 0.036, decay: 2.8, attack: 0.012 }, // 4 A3
+        { freq:  324, amp: 0.026, decay: 3.0, attack: 0.015 }, // 5 E3
+        { freq:  216, amp: 0.022, decay: 3.5, attack: 0.020 }, // 6 A2  — deep earth, begin
       ];
 
       const { freq, amp, decay, attack } = layers[Math.min(screenIdx, layers.length - 1)];
-      this.bowl(ctx, freq, decay, attack, amp, 0.45, 0.55);
+      this.bowl(ctx, freq, decay, attack, amp, 0.35, 0.65);
+
+      // Screen 6: C#4 whisper above — warmth over the deep note
+      if (screenIdx >= 6) {
+        this.bowl(ctx, 540, 2.5, 0.012, 0.018, 0.30, 0.70);
+      }
     } catch { /* silent fail */ }
   }
 

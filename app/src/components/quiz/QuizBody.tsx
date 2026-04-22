@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
+import { QuizCTAButton } from "./QuizCTAButton";
 
 const AIR  = "expo.out";
 const FIRE = "power4.in";
@@ -31,6 +32,12 @@ const AURA_BASE: Pt[] = [
 ];
 const AURA_D = toPath(AURA_BASE) + " Z";
 
+/* ── Scale slider geometry ── */
+/* Track: gentle 5-wave horizontal organic line, viewBox 0 0 448 56, y-center 28 */
+const SLIDER_TRACK = "M 16,28 C 48,16 80,40 112,28 C 144,16 176,40 208,28 C 240,16 272,40 304,28 C 336,16 368,40 400,28 C 416,22 428,26 432,28";
+/* Handle aura: small ETHA-style irregular organic oval centered at origin */
+const SLIDER_AURA  = "M 0,-13 C 6,-16 14,-12 16,-5 C 18,2 14,12 7,15 C 0,18 -10,14 -14,6 C -18,-2 -14,-12 -8,-14 C -4,-15 -2,-13 0,-13 Z";
+
 /* ── Three ETHA aura types mapped to quiz choices
    A → VATA / Air:  open-ended path (no Z) — restless, airy, unclosed
    B → PITTA / Fire: classic balanced ETHA oval — confident, clear
@@ -41,7 +48,7 @@ const OPTION_AURAS = {
   a: {
     // Real ETHA brand aura (aura-balanced-01.svg) — authentic organic oval with kink
     vb: "0 0 392 250",
-    d: "M307.86,21.36C265.47-.88,211.17-3.86,163.55,9.51c-47.61,13.37-90.21,41.08-126.94,74.17C19.29,99.28,2.05,118.52,1.51,141.81c-.53,23.31,16.07,43.59,34.47,57.96,34.84,27.2,78.6,41.24,122.54,46.24,39.66,4.51,80.11,2.02,118.92-7.32,30.23-7.28,60.27-19.2,82.67-40.75,22.4-21.55,35.89-54.16,28.46-84.32-6.21-25.19-25.58-45.09-46.55-60.41-11.81-8.63,8.24-9.62,-34.15-31.85Z",
+    d: "M163.55,9.51C211.17,-3.86,265.47,-0.88,307.86,21.36C350.26,43.59,330.21,44.58,342.02,53.21C362.99,68.53,382.36,88.43,388.57,113.62C395.99,143.78,382.51,176.39,360.11,197.94C337.71,219.49,307.67,231.41,277.44,238.69C238.63,248.03,198.18,250.52,158.52,246.01C114.58,241.01,70.82,226.97,35.98,199.77C17.58,185.40,0.98,165.12,1.51,141.81C2.05,118.52,19.29,99.28,36.61,83.68C73.34,50.59,115.94,22.88,163.55,9.51Z",
     sw: 2.0,
     pad: "py-7",
   },
@@ -70,15 +77,16 @@ const OPTION_AURAS = {
    ──────────────────────────────────────────────────────────────────────── */
 const BLOB_MASKS = {
   a: {
-    vb: "0 0 112 228", w: 112, h: 228, containerW: 112,
-    d: "M 56,4 C 78,2 104,20 108,62 C 112,102 100,152 82,184 C 66,212 46,226 30,220 C 14,214 2,196 2,166 C 2,132 14,88 28,58 C 42,26 40,4 56,4 Z",
+    // Portrait leaf/drop — tall, clearly portrait (0.67:1)
+    vb: "0 0 156 232", w: 156, h: 232, containerW: 168,
+    d: "M 78,5 C 110,0 148,20 154,62 C 160,104 146,154 124,188 C 102,220 70,234 44,222 C 18,210 4,180 6,148 C 8,114 22,72 44,44 C 62,20 56,8 78,5 Z",
   },
   b: {
-    vb: "0 0 182 170", w: 182, h: 170, containerW: 160,
+    vb: "0 0 182 170", w: 182, h: 170, containerW: 185,
     d: "M 90,5 C 128,2 166,22 178,60 C 190,98 180,136 156,158 C 132,180 84,184 48,168 C 14,152 -2,114 4,78 C 10,44 32,16 64,6 C 76,2 86,5 90,5 Z",
   },
   c: {
-    vb: "0 0 250 138", w: 250, h: 138, containerW: 215,
+    vb: "0 0 250 138", w: 250, h: 138, containerW: 248,
     d: "M 124,8 C 176,2 238,22 246,56 C 254,88 238,118 200,130 C 164,142 116,138 76,128 C 36,118 2,96 4,66 C 6,36 36,10 80,6 C 100,2 116,10 124,8 Z",
   },
 } as const;
@@ -390,6 +398,22 @@ function buildSteps(): Step[] {
 const STEPS = buildSteps();
 const TOTAL  = STEPS.length;
 
+/* Where each layer begins in STEPS (derived, not hardcoded) */
+const LAYER_START: Record<1|2|3, number> = { 1: 0, 2: 0, 3: 0 };
+STEPS.forEach((s, i) => { if (s.kind === "layer") LAYER_START[s.layer as 1|2|3] = i; });
+
+/* Icon positions in the 3-col grid wave: 1/6, 1/2, 5/6
+   Within each layer, bar advances from its icon toward the next icon. */
+const LAYER_POS: Record<1|2|3, number> = { 1: 1/6, 2: 1/2, 3: 5/6 };
+function calcProgress(stepIdx: number, layer: 1|2|3): number {
+  const start  = LAYER_START[layer];
+  const end    = layer < 3 ? LAYER_START[(layer + 1) as 2|3] : TOTAL;
+  const within = (stepIdx - start) / (end - start);
+  const from   = LAYER_POS[layer];
+  const to     = layer < 3 ? LAYER_POS[(layer + 1) as 2|3] : 1;
+  return from + within * (to - from);
+}
+
 /* ────────────────────────────────────────────────────────
    Background aura — slow breathing, layer-aware path
    ──────────────────────────────────────────────────────── */
@@ -667,15 +691,18 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  const blob    = BLOB_MASKS[opt.id as keyof typeof BLOB_MASKS] ?? BLOB_MASKS.b;
-  const clipId  = `blob-clip-${opt.id}`;
+  const blob     = BLOB_MASKS[opt.id as keyof typeof BLOB_MASKS] ?? BLOB_MASKS.b;
+  const clipId   = `blob-clip-${opt.id}`;
 
   useEffect(() => {
     if (!wrapRef.current) return;
-    gsap.fromTo(wrapRef.current,
-      { opacity: 0, scale: 0.9, y: 10 },
-      { opacity: 1, scale: 1, y: 0, duration: 0.65, ease: AIR, delay: entryDelay },
-    );
+    const ctx = gsap.context(() => {
+      gsap.fromTo(wrapRef.current,
+        { opacity: 0, y: 36, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: "power3.out", delay: entryDelay },
+      );
+    });
+    return () => ctx.revert();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -697,11 +724,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
   }, [chosen]);
 
   return (
-    <div
-      ref={wrapRef}
-      className="flex flex-col items-center gap-3"
-      style={{ opacity: 0 }}
-    >
+    <div ref={wrapRef} className="flex flex-col items-center gap-3" style={{ opacity: 0 }}>
       <button
         onClick={() => chosen === null && onPick(opt.id)}
         tabIndex={chosen !== null ? -1 : 0}
@@ -720,23 +743,22 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
               <path d={blob.d} />
             </clipPath>
           </defs>
-          {/* Image placeholder — clipped to blob shape */}
-          <rect
+          {/* Real element image clipped to blob silhouette */}
+          <image
+            href={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/${VISUAL_IMG[opt.id] ?? "earth.webp"}`}
             x="0" y="0"
             width={blob.w} height={blob.h}
-            fill="#FFEFDE"
-            fillOpacity="0.07"
+            preserveAspectRatio="xMidYMid slice"
             clipPath={`url(#${clipId})`}
+            style={{ opacity: 1 }}
           />
-          {/* Inner fill for depth */}
-          <path d={blob.d} fill="#FFEFDE" fillOpacity="0.03" />
-          {/* Organic outline — draws on selection */}
+          {/* Organic outline — ghost at rest, draws on selection */}
           <path
             ref={pathRef}
             d={blob.d}
             stroke="#FFEFDE"
-            strokeWidth="1.2"
-            strokeOpacity="0.18"
+            strokeWidth="1.3"
+            strokeOpacity="0.22"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -744,7 +766,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
       </button>
       <p
         className="font-serif text-cream text-center leading-snug px-1"
-        style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.95rem)", opacity: 0.75 }}
+        style={{ fontSize: "clamp(1rem, 2.8vw, 1.2rem)", opacity: 1 }}
       >
         {opt.text}
       </p>
@@ -810,6 +832,202 @@ function ScaleNode({ id, text, pos, total, chosen, onPick, entryDelay = 0 }: {
           {text}
         </span>
       </button>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────
+   Horizontal organic-aura drag slider — scale2 (A↔B) and
+   scale3 (A↔middle↔B). The track is a living ETHA aura
+   line; the handle breathes. Active segment brightens left
+   of the handle. Pole labels fade with position in real time.
+   All visuals updated imperatively (no React re-renders during
+   drag) for 60 fps smoothness on mobile.
+   ──────────────────────────────────────────────────────── */
+function ScaleSlider({ step, onPick, entryDelay = 0 }: {
+  step: Scale2Q | Scale3Q;
+  onPick: (id: string) => void;
+  entryDelay?: number;
+}) {
+  const wrapRef    = useRef<HTMLDivElement>(null);
+  const svgRef     = useRef<SVGSVGElement>(null);
+  const dimRef     = useRef<SVGPathElement>(null);
+  const litRef     = useRef<SVGPathElement>(null);
+  const handleGRef = useRef<SVGGElement>(null);
+  const auraRef    = useRef<SVGPathElement>(null);
+  const poleARef   = useRef<HTMLParagraphElement>(null);
+  const poleBRef   = useRef<HTMLParagraphElement>(null);
+  const poleMRef   = useRef<HTMLParagraphElement>(null);
+
+  const posRef      = useRef(0.5);
+  const dragging    = useRef(false);
+  const submitted   = useRef(false);
+  const lenRef      = useRef(0);
+  /* placedIdRef drives logic; placed bool triggers React render for CONTINUE */
+  const placedIdRef = useRef<string | null>(null);
+  const [placed, setPlaced] = useState(false);
+
+  const isS3 = step.qtype === "scale3";
+
+  const applyPos = (pos: number) => {
+    const dim = dimRef.current;
+    const lit = litRef.current;
+    const hg  = handleGRef.current;
+    if (!dim || !lit || !hg || !lenRef.current) return;
+    const len = lenRef.current;
+    const al  = pos * len;
+    const pt  = dim.getPointAtLength(al);
+    hg.setAttribute("transform", `translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)})`);
+    lit.setAttribute("stroke-dasharray", `${al.toFixed(1)} ${(len + 4).toFixed(1)}`);
+    if (poleARef.current) poleARef.current.style.opacity = String(Math.max(0.38, 1.0 - pos * 0.62));
+    if (poleBRef.current) poleBRef.current.style.opacity = String(Math.max(0.38, 0.38 + pos * 0.62));
+    if (poleMRef.current && isS3) {
+      poleMRef.current.style.opacity = String(Math.max(0.38, 0.82 - Math.abs(pos - 0.5) * 1.8));
+    }
+  };
+
+  const startBreathing = () => {
+    if (!auraRef.current) return;
+    gsap.killTweensOf(auraRef.current);
+    gsap.set(auraRef.current, { attr: { strokeDasharray: "none", strokeDashoffset: 0, strokeOpacity: 0.55 } });
+    gsap.to(auraRef.current, { attr: { strokeOpacity: 0.18 }, duration: 3.0, ease: "sine.inOut", yoyo: true, repeat: -1 });
+  };
+
+  useEffect(() => {
+    const dim = dimRef.current;
+    if (!dim) return;
+    lenRef.current = dim.getTotalLength();
+    applyPos(0.5);
+    const ctx = gsap.context(() => {
+      gsap.fromTo(wrapRef.current,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.7, ease: AIR, delay: entryDelay },
+      );
+      gsap.set(handleGRef.current, { opacity: 0 });
+      gsap.to(handleGRef.current, { opacity: 1, duration: 0.55, ease: AIR, delay: entryDelay + 0.45 });
+      gsap.set(auraRef.current, { attr: { strokeOpacity: 0.55 } });
+      gsap.to(auraRef.current, {
+        attr: { strokeOpacity: 0.18 },
+        duration: 3.0, ease: "sine.inOut",
+        yoyo: true, repeat: -1,
+        delay: entryDelay + 1.0,
+      });
+    });
+    return () => ctx.revert();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (submitted.current) return;
+    /* Re-drag after placing — reset and restart breathing */
+    if (placedIdRef.current !== null) {
+      placedIdRef.current = null;
+      setPlaced(false);
+      startBreathing();
+    }
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragging.current = true;
+    if (svgRef.current) svgRef.current.style.cursor = "grabbing";
+    gsap.killTweensOf(auraRef.current);
+    gsap.to(auraRef.current, { attr: { strokeOpacity: 0.88 }, duration: 0.12, overwrite: true });
+    const rect = svgRef.current!.getBoundingClientRect();
+    const pos  = Math.max(0.01, Math.min(0.99, (e.clientX - rect.left) / rect.width));
+    posRef.current = pos;
+    applyPos(pos);
+  };
+
+  const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!dragging.current || submitted.current) return;
+    const rect = svgRef.current!.getBoundingClientRect();
+    const pos  = Math.max(0.01, Math.min(0.99, (e.clientX - rect.left) / rect.width));
+    posRef.current = pos;
+    applyPos(pos);
+  };
+
+  const onUp = () => {
+    if (!dragging.current || submitted.current) return;
+    dragging.current = false;
+    if (svgRef.current) svgRef.current.style.cursor = "grab";
+    /* Aura ring draws to confirm placement — CONTINUE button then appears */
+    if (auraRef.current) {
+      gsap.killTweensOf(auraRef.current);
+      const al = auraRef.current.getTotalLength();
+      gsap.set(auraRef.current, { attr: { strokeDasharray: al, strokeDashoffset: al, strokeOpacity: 0.3 } });
+      gsap.to(auraRef.current, { attr: { strokeDashoffset: 0, strokeOpacity: 0.88 }, duration: 0.55, ease: "power2.inOut" });
+    }
+    const pos = posRef.current;
+    const id  = isS3 ? (pos < 0.33 ? "a" : pos > 0.67 ? "c" : "b") : (pos < 0.5 ? "a" : "b");
+    placedIdRef.current = id;
+    setPlaced(true);
+  };
+
+  const onContinue = () => {
+    if (!placedIdRef.current || submitted.current) return;
+    submitted.current = true;
+    onPick(placedIdRef.current);
+  };
+
+  return (
+    <div ref={wrapRef} style={{ opacity: 0 }}>
+      <svg
+        ref={svgRef}
+        viewBox="0 0 448 56"
+        width="100%"
+        fill="none"
+        overflow="visible"
+        style={{ display: "block", cursor: "grab", touchAction: "none", userSelect: "none" }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+        aria-label="Drag to place on the spectrum"
+      >
+        <path ref={dimRef} d={SLIDER_TRACK}
+          stroke="#FFEFDE" strokeWidth="1.15" strokeOpacity="0.14"
+          strokeLinecap="round" strokeLinejoin="round"
+        />
+        <path ref={litRef} d={SLIDER_TRACK}
+          stroke="#FFEFDE" strokeWidth="1.15" strokeOpacity="0.7"
+          strokeLinecap="round" strokeLinejoin="round"
+          strokeDasharray="0 1000"
+        />
+        <g ref={handleGRef} style={{ opacity: 0, pointerEvents: "none" }}>
+          <path ref={auraRef} d={SLIDER_AURA}
+            stroke="#FFEFDE" strokeWidth="1.1" strokeOpacity="0.55"
+            fill="none" strokeLinecap="round" strokeLinejoin="round"
+          />
+          <circle cx="0" cy="0" r="5.5" fill="#FFEFDE" fillOpacity="0.92" />
+        </g>
+      </svg>
+
+      <div className="flex gap-5 mt-5">
+        <p ref={poleARef} className="font-serif text-cream leading-snug"
+           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: isS3 ? "30%" : "44%", opacity: 0.78 }}>
+          {step.poleA}
+        </p>
+        {isS3 && (
+          <p ref={poleMRef} className="font-serif text-cream leading-snug text-center"
+             style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", flex: 1, minWidth: 0, opacity: 0.5 }}>
+            {(step as Scale3Q).middle}
+          </p>
+        )}
+        <p ref={poleBRef} className="font-serif text-cream leading-snug text-right"
+           style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.98rem)", maxWidth: isS3 ? "30%" : "44%", opacity: 0.46 }}>
+          {step.poleB}
+        </p>
+      </div>
+
+      {/* Hint fades out; CONTINUE fades in after first placement */}
+      <div className="relative mt-10" style={{ minHeight: 80 }}>
+        <p className="font-label text-[8px] text-center absolute inset-x-0 top-7"
+           style={{ letterSpacing: "0.3em", color: "rgba(255,239,222,1)", opacity: placed ? 0 : 1, transition: "opacity 0.3s ease", pointerEvents: "none" }}>
+          DRAG TO PLACE
+        </p>
+        <div className="absolute inset-x-0 top-0"
+             style={{ opacity: placed ? 1 : 0, pointerEvents: placed ? "auto" : "none", transition: "opacity 0.35s ease" }}>
+          <QuizCTAButton label="CONTINUE" onClick={onContinue} />
+        </div>
+      </div>
     </div>
   );
 }
@@ -941,25 +1159,33 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
 
   if (step.qtype === "visual") {
     const opts = step.options;
+    const bA = BLOB_MASKS.a;
+    const bB = BLOB_MASKS.b;
+    const bC = BLOB_MASKS.c;
     return (
-      <div className="w-full px-5 sm:px-8">
+      <div className="w-full px-4 sm:px-6">
         <h2
           ref={qRef}
-          className="font-serif text-cream mb-10 leading-snug text-center max-w-lg mx-auto"
-          style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", opacity: 0 }}
+          className="font-serif text-cream mb-12 leading-snug text-center max-w-lg mx-auto"
+          style={{ fontSize: "clamp(1.75rem, 4.8vw, 2.8rem)", opacity: 0 }}
         >
           {step.q}
         </h2>
-        {/* Triangle: A (top-left) + B (top-right), C (bottom-center) */}
-        <div className="max-w-sm mx-auto">
-          <div className="grid grid-cols-2 gap-5 mb-5">
-            <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.30} />
-            <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} />
-          </div>
-          <div className="flex justify-center">
-            <div className="w-[55%]">
-              <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.58} />
+        {/* Triangle: A (tall narrow) + B (compact square) top, C (wide flat) bottom-center */}
+        <div className="flex flex-col items-center gap-14">
+          <div className="flex items-end justify-center gap-10">
+            {/* A — tall narrow teardrop */}
+            <div style={{ width: bA.containerW }}>
+              <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} />
             </div>
+            {/* B — compact rounder blob */}
+            <div style={{ width: bB.containerW }}>
+              <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} />
+            </div>
+          </div>
+          {/* C — wide landscape pebble */}
+          <div style={{ width: bC.containerW }}>
+            <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} />
           </div>
         </div>
       </div>
@@ -972,15 +1198,7 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
-      <div className="flex items-center gap-3 mb-10">
-        <div className="flex-1 h-px bg-cream/10" />
-        <span className="font-label text-[9px] text-cream/28" style={{ letterSpacing: "0.3em" }}>SPECTRUM</span>
-        <div className="flex-1 h-px bg-cream/10" />
-      </div>
-      <div>
-        <ScaleNode id="a" text={step.poleA} pos={0} total={2} chosen={chosen} onPick={onPick} entryDelay={0.42} />
-        <ScaleNode id="b" text={step.poleB} pos={1} total={2} chosen={chosen} onPick={onPick} entryDelay={0.54} />
-      </div>
+      <ScaleSlider step={step} onPick={onPick} entryDelay={0.42} />
     </div>
   );
 
@@ -990,16 +1208,7 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
-      <div className="flex items-center gap-3 mb-10">
-        <div className="flex-1 h-px bg-cream/10" />
-        <span className="font-label text-[9px] text-cream/28" style={{ letterSpacing: "0.3em" }}>SPECTRUM</span>
-        <div className="flex-1 h-px bg-cream/10" />
-      </div>
-      <div>
-        <ScaleNode id="a" text={step.poleA}  pos={0} total={3} chosen={chosen} onPick={onPick} entryDelay={0.42} />
-        <ScaleNode id="b" text={step.middle} pos={1} total={3} chosen={chosen} onPick={onPick} entryDelay={0.54} />
-        <ScaleNode id="c" text={step.poleB}  pos={2} total={3} chosen={chosen} onPick={onPick} entryDelay={0.66} />
-      </div>
+      <ScaleSlider step={step} onPick={onPick} entryDelay={0.42} />
     </div>
   );
 
@@ -1118,7 +1327,7 @@ export default function QuizBody() {
   /* Derived */
   const step         = STEPS[stepIdx];
   const currentLayer = (step.kind === "layer" ? step.layer : (step as Question).layer) as 1 | 2 | 3;
-  const progress     = stepIdx / (TOTAL - 1);
+  const progress = calcProgress(stepIdx, currentLayer);
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-aubergine select-none">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 
@@ -10,27 +10,26 @@ const SECTION_ICONS = {
   BODY: {
     viewBox: "22 8 66 76",
     paths: [
-      { d: "M 55 12 C 45 10 38 18 38 28 C 38 38 46 44 55 44 C 64 44 72 38 72 28 C 72 18 65 10 55 12 Z", sw: 1.2 },
-      { d: "M 28 62 C 36 52 46 48 55 48 C 64 48 74 52 82 62", sw: 1.2 },
-      { d: "M 55 44 C 55 50 54 56 55 64", sw: 1.2 },
+      { d: "M 55 12 C 45 10 38 18 38 28 C 38 38 46 44 55 44 C 64 44 72 38 72 28 C 72 18 65 10 55 12 Z", sw: 1.8 },
+      { d: "M 28 62 C 36 52 46 48 55 48 C 64 48 74 52 82 62", sw: 1.8 },
+      { d: "M 55 44 C 55 50 54 56 55 64", sw: 1.8 },
     ],
   },
   MIND: {
-    viewBox: "22 2 66 82",
+    viewBox: "18 6 74 60",
     paths: [
-      { d: "M 55 16 C 45 14 38 22 38 32 C 38 42 46 48 55 48 C 64 48 72 42 72 32 C 72 22 65 14 55 16 Z", sw: 1.2 },
-      { d: "M 48 14 C 46 8 44 4 42 2", sw: 1.2 },
-      { d: "M 55 12 C 55 6 55 4 55 2", sw: 1.2 },
-      { d: "M 62 14 C 64 8 66 4 68 2", sw: 1.2 },
+      { d: "M 24 36 C 32 12 78 12 86 36", sw: 1.8 },
+      { d: "M 24 36 C 32 60 78 60 86 36", sw: 1.8 },
+      { d: "M 51 36 C 51 30 59 30 59 36 C 59 42 51 42 51 36 Z", sw: 1.8 },
     ],
   },
   SPIRIT: {
     viewBox: "18 10 74 78",
     paths: [
-      { d: "M 55 80 C 47 66 43 48 55 32 C 67 48 63 66 55 80 Z", sw: 1.2 },
-      { d: "M 55 80 C 40 70 30 54 38 38 C 46 50 52 66 55 80 Z", sw: 1.2 },
-      { d: "M 55 80 C 70 70 80 54 72 38 C 64 50 58 66 55 80 Z", sw: 1.2 },
-      { d: "M 26 84 C 36 80 46 82 55 80 C 64 82 74 80 84 84", sw: 1.2 },
+      { d: "M 55 80 C 47 66 43 48 55 32 C 67 48 63 66 55 80 Z", sw: 1.8 },
+      { d: "M 55 80 C 40 70 30 54 38 38 C 46 50 52 66 55 80 Z", sw: 1.8 },
+      { d: "M 55 80 C 70 70 80 54 72 38 C 64 50 58 66 55 80 Z", sw: 1.8 },
+      { d: "M 26 84 C 36 80 46 82 55 80 C 64 82 74 80 84 84", sw: 1.8 },
     ],
   },
 } as const;
@@ -63,6 +62,13 @@ export default function Nav({
   const logoRef         = useRef<HTMLDivElement>(null);
   const trackRef        = useRef<SVGPathElement>(null);
   const checkpointsRef  = useRef<HTMLDivElement>(null);
+  const revealedRef     = useRef(!animated);
+  const [visibleP, setVisibleP] = useState(animated ? 0 : p);
+
+  /* After initial reveal, keep visibleP in sync with p */
+  useEffect(() => {
+    if (revealedRef.current) setVisibleP(p);
+  }, [p]);
 
   useEffect(() => {
     if (!animated) return;
@@ -83,7 +89,13 @@ export default function Nav({
       if (checkpointsRef.current)
         gsap.to(checkpointsRef.current, { opacity: 1, y: 0, duration: 0.65, ease: "power2.out", delay: 1.85 });
     });
-    return () => ctx.revert();
+    // 4. Reveal progress fill after wave draw completes
+    const t = setTimeout(() => {
+      revealedRef.current = true;
+      setVisibleP(p);
+    }, 1900);
+    return () => { ctx.revert(); clearTimeout(t); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [animated]);
 
   return (
@@ -95,7 +107,7 @@ export default function Nav({
 
         <div
           ref={logoRef}
-          className="absolute left-1/2 -translate-x-1/2"
+          className="absolute inset-x-0 flex justify-center"
           style={{ opacity: animated ? 0 : undefined }}
         >
           <Image
@@ -138,7 +150,7 @@ export default function Nav({
               strokeWidth="1.5"
               strokeOpacity="0.85"
               strokeLinecap="round"
-              strokeDasharray={`${p} 1`}
+              strokeDasharray={`${visibleP} 1`}
               style={{ transition: "stroke-dasharray 0.7s cubic-bezier(0.37,0,0.63,1)" }}
             />
           </svg>
@@ -146,8 +158,8 @@ export default function Nav({
           {quizMilestones && (
             <div
               ref={checkpointsRef}
-              className="absolute left-0 right-0 flex justify-between px-6 md:px-12"
-              style={{ top: 16, opacity: animated ? 0 : undefined, transform: animated ? "translateY(8px)" : undefined }}
+              className="absolute left-0 right-0 grid grid-cols-3"
+              style={{ top: 0, opacity: animated ? 0 : undefined, transform: animated ? "translateY(8px)" : undefined }}
             >
               {(["BODY", "MIND", "SPIRIT"] as const).map((name, i) => {
                 const layer     = (i + 1) as 1 | 2 | 3;
@@ -159,7 +171,7 @@ export default function Nav({
                 const icon      = SECTION_ICONS[name];
 
                 return (
-                  <div key={name} className="flex flex-col items-center gap-[6px]">
+                  <div key={name} className="flex flex-col items-center" style={{ paddingTop: 16 }}>
                     <svg width="28" height="28" viewBox={icon.viewBox} fill="none" aria-hidden="true">
                       {icon.paths.map((p, pi) => (
                         <path
