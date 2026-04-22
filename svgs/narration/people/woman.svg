@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 16 82 86" fill="none" stroke="#3D233B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Woman">
+  <!-- Head as imperfect oval + two shoulder curves — gestural, not literal -->
+  <path d="M 55 24 C 42 24 36 34 36 44 C 36 54 44 62 55 62 C 66 62 74 54 74 44 C 74 34 68 24 55 24 Z"/>
+  <path d="M 36 64 C 26 74 22 86 22 94"/>
+  <path d="M 74 64 C 84 74 88 86 88 94"/>
+</svg>

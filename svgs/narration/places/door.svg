@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="22 12 66 88" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Door">
+  <!-- Doorway with arch top and handle -->
+  <path stroke-width="2" d="M 30 92 L 30 28 C 30 22 34 20 40 20 L 70 20 C 76 20 80 22 80 28 L 80 92"/>
+  <path stroke-width="1.4" d="M 68 58 C 72 58 72 64 68 64 C 64 64 64 58 68 58 Z"/>
+</svg>

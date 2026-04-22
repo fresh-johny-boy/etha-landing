@@ -1195,7 +1195,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
 
           {val.trim().length > 0 && (
             <button
-              onClick={onAdvance}
+              onClick={() => { quizSounds.play("openSubmit"); onAdvance(); }}
               className="relative font-label text-[9px] text-cream cursor-pointer min-h-[48px] px-8 py-4"
             >
               <svg

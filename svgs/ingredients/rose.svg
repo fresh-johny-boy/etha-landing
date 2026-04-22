@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 130" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Rose">
+  <!-- Single bloom, side profile with inner petal curls — cooling, heart-opening -->
+  <path stroke-width="2" d="M 65 118 C 65 100 65 80 65 65"/>
+  <path stroke-width="1.4" d="M 65 90 C 52 88 44 82 42 74 C 50 74 60 80 65 88"/>
+  <path stroke-width="2" d="M 45 58 C 40 45 45 30 60 28 C 75 26 88 35 88 50 C 88 65 78 70 65 70 C 52 70 45 65 45 58 Z"/>
+  <path stroke-width="1.4" d="M 55 55 C 55 45 65 42 72 48 C 76 54 72 60 65 60"/>
+  <path stroke-width="1.4" d="M 62 52 C 62 46 68 46 70 50"/>
+</svg>

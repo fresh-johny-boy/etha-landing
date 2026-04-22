@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="18 10 74 78" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Spirit">
+  <!-- Lotus — 3 petals opening upward, spirit blooming -->
+  <!-- Central petal -->
+  <path stroke-width="1.8" d="M 55 80 C 47 66 43 48 55 32 C 67 48 63 66 55 80 Z"/>
+  <!-- Left petal -->
+  <path stroke-width="1.4" d="M 55 80 C 40 70 30 54 38 38 C 46 50 52 66 55 80 Z"/>
+  <!-- Right petal -->
+  <path stroke-width="1.4" d="M 55 80 C 70 70 80 54 72 38 C 64 50 58 66 55 80 Z"/>
+  <!-- Water line — lotus rises from water -->
+  <path stroke-width="1" d="M 26 84 C 36 80 46 82 55 80 C 64 82 74 80 84 84"/>
+</svg>

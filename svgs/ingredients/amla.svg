@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 130" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Amla">
+  <!-- Round gooseberry fruit with ridges, stem and leaf — highest Vitamin C, Tridoshic -->
+  <path stroke-width="2" d="M 65 40 C 42 40 35 65 40 82 C 45 98 55 105 65 105 C 75 105 85 98 90 82 C 95 65 88 40 65 40 Z"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 53 50 C 50 65 50 85 55 100"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 65 42 C 65 60 65 90 65 105"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 77 50 C 80 65 80 85 75 100"/>
+  <path stroke-width="2" d="M 65 40 C 65 32 65 25 62 20"/>
+  <path stroke-width="1.4" d="M 62 25 C 55 22 50 20 46 22 C 48 28 55 30 62 28"/>
+</svg>

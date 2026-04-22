@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 16 78 84" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Window">
+  <!-- Frame divided into four panes with light-suggestion marks -->
+  <path stroke-width="2" d="M 24 24 L 86 24 L 86 92 L 24 92 Z"/>
+  <path stroke-width="2" d="M 55 24 L 55 92"/>
+  <path stroke-width="2" d="M 24 58 L 86 58"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 34 40 L 46 40"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 64 76 L 76 76"/>
+</svg>

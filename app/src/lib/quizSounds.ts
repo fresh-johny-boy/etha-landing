@@ -26,7 +26,8 @@ export type SoundName =
   | "chime"
   | "chimeA"
   | "chimeB"
-  | "chimeC";
+  | "chimeC"
+  | "openSubmit";
 
 export interface SoundOptions {
   volume?: number; // 0–1, multiplied with master volume
@@ -348,6 +349,41 @@ class ETHASoundKit {
     this.bowl(ctx, 1320, 1.6, 0.004, 0.10 * vol, 0.65, 0.35);
   }
 
+  // Open-text submit — 528Hz (transformation) rising to 639Hz (connection),
+  // soft attack, pink noise exhale underneath. More contemplative than quick chimes.
+  private playOpenSubmit(ctx: AudioContext, vol: number) {
+    const now = ctx.currentTime;
+
+    // First bowl — 528Hz Solfeggio MI, slower attack feels intentional
+    this.bowl(ctx, 528, 2.4, 0.018, 0.30 * vol, 0.58, 0.42);
+
+    // Second bowl — 639Hz FA (connection), arrives 220ms later, slightly softer
+    setTimeout(() => {
+      if (!this.ctx) return;
+      this.bowl(this.ctx, 639, 2.1, 0.014, 0.24 * vol, 0.52, 0.48);
+    }, 220);
+
+    // Breath layer — pink noise shaped as a gentle exhale (letting go)
+    const breathDur = 0.65;
+    const noise = this.pinkNoise(ctx, breathDur + 0.12);
+    const lp = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.setValueAtTime(550, now);
+    lp.frequency.linearRampToValueAtTime(820, now + breathDur * 0.35);
+    lp.frequency.exponentialRampToValueAtTime(280, now + breathDur);
+
+    const breathEnv = ctx.createGain();
+    breathEnv.gain.setValueAtTime(0.0001, now);
+    breathEnv.gain.linearRampToValueAtTime(0.038 * vol, now + 0.045);
+    breathEnv.gain.exponentialRampToValueAtTime(0.0001, now + breathDur);
+
+    noise.connect(lp);
+    lp.connect(breathEnv);
+    breathEnv.connect(this.masterGain!);
+    noise.start(now);
+    noise.stop(now + breathDur + 0.12);
+  }
+
   // ─── Public API ───────────────────────────────────────────────────────────
 
   /** Call on any user gesture (e.g. CTA click) to unlock AudioContext before navigation. */
@@ -412,7 +448,8 @@ class ETHASoundKit {
         case "chime":    this.playChime(ctx, vol);    break;
         case "chimeA":   this.playChimeA(ctx, vol);  break;
         case "chimeB":   this.playChimeB(ctx, vol);  break;
-        case "chimeC":   this.playChimeC(ctx, vol);  break;
+        case "chimeC":      this.playChimeC(ctx, vol);      break;
+        case "openSubmit":  this.playOpenSubmit(ctx, vol);  break;
       }
     } catch {
       // Audio is progressive enhancement — never crash

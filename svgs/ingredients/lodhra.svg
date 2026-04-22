@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 130" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Lodhra">
+  <!-- Curled bark strip with texture lines — skin toning, astringent -->
+  <path stroke-width="2" d="M 35 30 C 40 35 55 40 70 45 C 85 50 95 60 90 80 C 85 100 70 108 55 100 C 42 92 38 78 45 70 C 52 65 62 68 62 78"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 50 45 C 55 50 60 55 65 62"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 70 55 C 75 62 80 70 82 80"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 55 78 C 60 82 65 85 70 88"/>
+</svg>

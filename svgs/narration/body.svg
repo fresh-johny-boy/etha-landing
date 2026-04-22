@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="22 8 66 76" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Body">
+  <!-- Head — imperfect oval, gestural -->
+  <path stroke-width="1.8" d="M 55 12 C 45 10 38 18 38 28 C 38 38 46 44 55 44 C 64 44 72 38 72 28 C 72 18 65 10 55 12 Z"/>
+  <!-- Shoulders — arms slightly open, the physical embrace of life -->
+  <path stroke-width="1.4" d="M 28 62 C 36 52 46 48 55 48 C 64 48 74 52 82 62"/>
+  <!-- Spine — the axis -->
+  <path stroke-width="1.1" d="M 55 44 C 55 50 54 56 55 64"/>
+</svg>

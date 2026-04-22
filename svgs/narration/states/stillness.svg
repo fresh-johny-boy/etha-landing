@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 36 96 24" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Stillness">
+  <!-- Single horizon line with a small centred mark — the most minimal icon -->
+  <path stroke-width="2" d="M 16 56 L 96 56"/>
+  <path stroke-width="1.4" d="M 55 44 C 52 44 52 52 55 52 C 58 52 58 44 55 44 Z"/>
+</svg>

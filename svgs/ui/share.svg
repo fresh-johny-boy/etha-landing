@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 10 64 64" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Share">
+  <!-- Three open node loops connected by lines -->
+  <path stroke-width="1.6" d="M 30 24 Q 24 24 24 30 Q 24 36 30 36 Q 36 36 36 30 Q 36 24 30 24"/>
+  <path stroke-width="1.6" d="M 66 18 Q 60 18 60 24 Q 60 30 66 30 Q 72 30 72 24 Q 72 18 66 18"/>
+  <path stroke-width="1.6" d="M 66 54 Q 60 54 60 60 Q 60 66 66 66 Q 72 66 72 60 Q 72 54 66 54"/>
+  <path stroke-width="1.2" d="M 36 32 L 60 24"/>
+  <path stroke-width="1.2" d="M 36 34 L 60 58"/>
+</svg>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="8 24 96 74" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Garden">
+  <!-- Three plant sprigs on a ground line -->
+  <path stroke-width="1.4" d="M 16 90 L 96 90"/>
+  <path stroke-width="2" d="M 30 90 C 30 72 28 56 32 44"/>
+  <path stroke-width="1.4" d="M 31 64 C 24 62 20 56 20 50"/>
+  <path stroke-width="1.4" d="M 31 52 C 36 50 40 44 40 38"/>
+  <path stroke-width="2" d="M 55 90 C 55 70 53 50 57 34"/>
+  <path stroke-width="1.4" d="M 56 58 C 50 56 46 50 46 44"/>
+  <path stroke-width="1.4" d="M 56 46 C 62 44 66 38 66 32"/>
+  <path stroke-width="2" d="M 80 90 C 80 76 78 64 82 56"/>
+  <path stroke-width="1.4" d="M 81 74 C 76 72 72 68 72 62"/>
+</svg>

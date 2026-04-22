@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="16 14 64 60" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Dosha">
+  <!-- Three-point balance — one node for each Dosha, connected by soft lines -->
+  <circle cx="48" cy="26" r="4" stroke-width="1.6"/>
+  <circle cx="28" cy="58" r="4" stroke-width="1.6"/>
+  <circle cx="68" cy="58" r="4" stroke-width="1.6"/>
+  <path stroke-width="1.2" opacity="0.5" d="M 48 30 Q 38 42 32 54"/>
+  <path stroke-width="1.2" opacity="0.5" d="M 48 30 Q 58 42 64 54"/>
+  <path stroke-width="1.2" opacity="0.5" d="M 32 58 Q 48 62 64 58"/>
+</svg>

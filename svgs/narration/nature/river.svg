@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="22 10 58 98" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="River">
+  <!-- Meandering single line with side channel echoes -->
+  <path stroke-width="2" d="M 30 18 C 45 28 60 28 55 42 C 50 56 35 58 40 72 C 45 86 65 84 72 98"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 38 34 C 45 38 52 38 52 44"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 44 66 C 50 70 58 70 58 76"/>
+</svg>

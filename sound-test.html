@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ETHA Sound Kit</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #3D233B;
+    color: #FFEFDE;
+    font-family: "Brandon Grotesque", "Helvetica Neue", Helvetica, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    padding: 60px 24px;
+  }
+
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    opacity: 0.9;
+    text-align: center;
+  }
+
+  .sub {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    width: 100%;
+    max-width: 820px;
+  }
+
+  button {
+    background: transparent;
+    border: 1px solid rgba(255,239,222,0.2);
+    color: #FFEFDE;
+    padding: 22px 16px 18px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  button:hover {
+    border-color: rgba(255,239,222,0.55);
+    background: rgba(255,239,222,0.05);
+  }
+
+  button.playing {
+    border-color: #FFEFDE;
+    background: rgba(255,239,222,0.1);
+  }
+
+  button .name {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+
+  button .label {
+    display: block;
+    font-family: Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  button .freq {
+    display: block;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.38;
+    margin-top: 6px;
+  }
+
+  button .ripple {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0%;
+    background: rgba(255,239,222,0.6);
+    transition: none;
+  }
+
+  button.playing .ripple {
+    width: 100%;
+    transition: width var(--dur, 3s) linear;
+  }
+
+  .vol-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0.55;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  input[type=range] {
+    -webkit-appearance: none;
+    width: 160px;
+    height: 2px;
+    background: rgba(255,239,222,0.3);
+    outline: none;
+    border-radius: 0;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #FFEFDE;
+    cursor: pointer;
+    border-radius: 50%;
+  }
+
+  .aura {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 380px;
+    pointer-events: none;
+    opacity: 0.04;
+    z-index: 0;
+  }
+
+  .grid { position: relative; z-index: 1; }
+  h1    { position: relative; z-index: 1; }
+  .sub  { position: relative; z-index: 1; }
+  .vol-row { position: relative; z-index: 1; }
+</style>
+</head>
+<body>
+
+<svg class="aura" viewBox="0 0 392 250" fill="none" xmlns="http://www.w3.org/2000/svg" overflow="visible">
+  <path d="M307.86,21.36C265.47-.88,211.17-3.86,163.55,9.51c-47.61,13.37-90.21,41.08-126.94,74.17C19.29,99.28,2.05,118.52,1.51,141.81c-.53,23.31,16.07,43.59,34.47,57.96,34.84,27.2,78.6,41.24,122.54,46.24,39.66,4.51,80.11,2.02,118.92-7.32,30.23-7.28,60.27-19.2,82.67-40.75,22.4-21.55,35.89-54.16,28.46-84.32-6.21-25.19-25.58-45.09-46.55-60.41-11.81-8.63,8.24-9.62-34.15-31.85Z"
+    stroke="#FFEFDE" stroke-width="2" stroke-miterlimit="10"/>
+</svg>
+
+<div>
+  <h1>ETHA Sound Kit</h1>
+  <p class="sub">Solfeggio + 432 Hz tuning · Pure Web Audio API</p>
+</div>
+
+<div class="grid">
+  <button onclick="trigger(this,'intro',6000)" style="--dur:6s">
+    <span class="ripple"></span>
+    <span class="name">intro</span>
+    <span class="label">Opening Bowl</span>
+    <span class="freq">432 Hz · Verdi A</span>
+  </button>
+
+  <button onclick="trigger(this,'tick',3500)" style="--dur:3.5s">
+    <span class="ripple"></span>
+    <span class="name">tick</span>
+    <span class="label">Advance Question</span>
+    <span class="freq">528 Hz · Solfeggio MI</span>
+  </button>
+
+  <button onclick="trigger(this,'select',120)" style="--dur:0.12s">
+    <span class="ripple"></span>
+    <span class="name">select</span>
+    <span class="label">Pick Answer</span>
+    <span class="freq">Pencil tap · 3.5kHz scratch</span>
+  </button>
+
+  <button onclick="trigger(this,'layerIn',1400)" style="--dur:1.4s">
+    <span class="ripple"></span>
+    <span class="name">layerIn</span>
+    <span class="label">Layer Transition</span>
+    <span class="freq">432 → 528 Hz · quick chime</span>
+  </button>
+
+  <button onclick="trigger(this,'drawLine',600)" style="--dur:0.6s">
+    <span class="ripple"></span>
+    <span class="name">drawLine</span>
+    <span class="label">SVG Line Draw</span>
+    <span class="freq">Pencil stroke · graphite sweep</span>
+  </button>
+
+  <button onclick="trigger(this,'complete',2800)" style="--dur:2.8s">
+    <span class="ripple"></span>
+    <span class="name">complete</span>
+    <span class="label">Quiz Complete</span>
+    <span class="freq">396 → 528 → 639 Hz</span>
+  </button>
+
+  <button onclick="trigger(this,'chime',1400)" style="--dur:1.4s">
+    <span class="ripple"></span>
+    <span class="name">chime</span>
+    <span class="label">Hover Chime</span>
+    <span class="freq">1760 Hz · Crystal A6</span>
+  </button>
+</div>
+
+<div class="vol-row">
+  <span>Volume</span>
+  <input type="range" min="0" max="1" step="0.05" value="0.75"
+    oninput="masterGain && (masterGain.gain.value = +this.value)">
+</div>
+
+<script>
+let ctx = null;
+let masterGain = null;
+let reverbSend = null;
+let reverbReturn = null;
+
+function boot() {
+  if (ctx) return;
+  ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+  masterGain = ctx.createGain();
+  masterGain.gain.value = 0.75;
+  masterGain.connect(ctx.destination);
+
+  reverbSend = buildReverb(3, 1.8);
+  reverbReturn = ctx.createGain();
+  reverbReturn.gain.value = 0.28;
+  reverbSend.connect(reverbReturn);
+  reverbReturn.connect(masterGain);
+}
+
+function buildReverb(dur, decay) {
+  const sr = ctx.sampleRate;
+  const len = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(2, len, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++)
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+  }
+  const node = ctx.createConvolver();
+  node.buffer = buf;
+  return node;
+}
+
+function bowl(freq, dur, attack, amp, dryVol = 0.72, wetVol = 0.28) {
+  const now = ctx.currentTime;
+  const partials = [
+    [freq,         amp],
+    [freq * 2.756, amp * 0.22],
+    [freq * 5.404, amp * 0.07],
+  ];
+  partials.forEach(([f, a]) => {
+    const osc = ctx.createOscillator();
+    const env = ctx.createGain();
+    const lp  = ctx.createBiquadFilter();
+    lp.type = "lowpass";
+    lp.frequency.value = 5000;
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(f, now);
+    osc.frequency.exponentialRampToValueAtTime(f * 0.9975, now + dur);
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.linearRampToValueAtTime(a, now + attack);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    osc.connect(lp); lp.connect(env);
+    const dry = ctx.createGain(); dry.gain.value = dryVol;
+    env.connect(dry); dry.connect(masterGain);
+    const wet = ctx.createGain(); wet.gain.value = wetVol;
+    env.connect(wet); wet.connect(reverbSend);
+    osc.start(now); osc.stop(now + dur + 0.1);
+  });
+}
+
+function whiteNoise(dur) {
+  const sr = ctx.sampleRate;
+  const len = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  return src;
+}
+
+function pinkNoise(dur) {
+  const sr = ctx.sampleRate;
+  const len = Math.floor(sr * dur);
+  const buf = ctx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0,b6=0;
+  for (let i = 0; i < len; i++) {
+    const w = Math.random() * 2 - 1;
+    b0 = 0.99886*b0 + w*0.0555179;
+    b1 = 0.99332*b1 + w*0.0750759;
+    b2 = 0.96900*b2 + w*0.1538520;
+    b3 = 0.86650*b3 + w*0.3104856;
+    b4 = 0.55000*b4 + w*0.5329522;
+    b5 = -0.7616*b5 - w*0.0168980;
+    d[i] = (b0+b1+b2+b3+b4+b5+b6+w*0.5362)/6.5;
+    b6 = w*0.115926;
+  }
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  return src;
+}
+
+const SOUNDS = {
+  intro:    () => bowl(432,  6,    0.12,  0.55),
+  tick:     () => bowl(528,  3.5,  0.006, 0.42),
+  select: () => {
+    const now = ctx.currentTime;
+    const dur = 0.09;
+    const src = whiteNoise(dur + 0.05);
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass"; bp.frequency.value = 3500; bp.Q.value = 1.8;
+    const hs = ctx.createBiquadFilter();
+    hs.type = "highshelf"; hs.frequency.value = 5000; hs.gain.value = 4;
+    const lfo = ctx.createOscillator();
+    const lfoDepth = ctx.createGain();
+    lfo.type = "sawtooth"; lfo.frequency.value = 14; lfoDepth.gain.value = 0.18;
+    lfo.connect(lfoDepth);
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.linearRampToValueAtTime(0.22, now + 0.005);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    lfoDepth.connect(env.gain);
+    src.connect(bp); bp.connect(hs); hs.connect(env); env.connect(masterGain);
+    lfo.start(now); lfo.stop(now + dur + 0.05);
+    src.start(now); src.stop(now + dur + 0.05);
+  },
+  layerIn: () => {
+    bowl(432, 1.2, 0.006, 0.3, 0.7, 0.3);
+    setTimeout(() => bowl(528, 1.0, 0.006, 0.25, 0.7, 0.3), 180);
+  },
+  drawLine: () => {
+    const now = ctx.currentTime;
+    const dur = 0.52;
+    const src = whiteNoise(dur + 0.1);
+    const bp = ctx.createBiquadFilter();
+    bp.type = "bandpass";
+    bp.frequency.setValueAtTime(2800, now);
+    bp.frequency.linearRampToValueAtTime(3800, now + dur * 0.6);
+    bp.frequency.linearRampToValueAtTime(3200, now + dur);
+    bp.Q.value = 1.5;
+    const hs = ctx.createBiquadFilter();
+    hs.type = "highshelf"; hs.frequency.value = 5000; hs.gain.value = 5;
+    const lfo = ctx.createOscillator();
+    const lfoDepth = ctx.createGain();
+    lfo.type = "sawtooth"; lfo.frequency.value = 11; lfoDepth.gain.value = 0.12;
+    lfo.connect(lfoDepth);
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, now);
+    env.gain.linearRampToValueAtTime(0.13, now + 0.018);
+    env.gain.linearRampToValueAtTime(0.10, now + dur * 0.5);
+    env.gain.linearRampToValueAtTime(0.12, now + dur * 0.75);
+    env.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    lfoDepth.connect(env.gain);
+    // Paper friction layer underneath
+    const src2 = whiteNoise(dur + 0.1);
+    const lp2 = ctx.createBiquadFilter();
+    lp2.type = "lowpass"; lp2.frequency.value = 900;
+    const env2 = ctx.createGain();
+    env2.gain.setValueAtTime(0.0001, now);
+    env2.gain.linearRampToValueAtTime(0.03, now + 0.025);
+    env2.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+    src2.connect(lp2); lp2.connect(env2); env2.connect(masterGain);
+    src2.start(now); src2.stop(now + dur + 0.1);
+    src.connect(bp); bp.connect(hs); hs.connect(env); env.connect(masterGain);
+    lfo.start(now); lfo.stop(now + dur + 0.1);
+    src.start(now); src.stop(now + dur + 0.1);
+  },
+  complete: () => {
+    [[396,0],[528,250],[639,500]].forEach(([freq,delay]) =>
+      setTimeout(() => bowl(freq, 2.5, 0.007, 0.38, 0.55, 0.45), delay));
+  },
+  chime:    () => bowl(1760, 1.4, 0.003, 0.11, 0.65, 0.35),
+};
+
+function trigger(btn, name, durMs) {
+  boot();
+  SOUNDS[name]();
+  btn.classList.add("playing");
+  // Force reflow so transition restarts
+  const ripple = btn.querySelector(".ripple");
+  ripple.style.transition = "none";
+  ripple.style.width = "0%";
+  void ripple.offsetWidth;
+  ripple.style.transition = `width ${durMs}ms linear`;
+  ripple.style.width = "100%";
+  setTimeout(() => {
+    btn.classList.remove("playing");
+    ripple.style.width = "0%";
+  }, durMs + 200);
+}
+</script>
+</body>
+</html>

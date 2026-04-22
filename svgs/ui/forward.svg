@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 20 68 48" fill="none" stroke="#3D233B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Forward">
+  <!-- Arrow right with overshoot tail -->
+  <path d="M 22 44 L 72 44"/>
+  <path d="M 56 28 L 74 44 L 56 60"/>
+</svg>

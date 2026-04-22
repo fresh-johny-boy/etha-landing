@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 130" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Turmeric">
+  <!-- Rhizome with leaf — anti-inflammatory, golden root -->
+  <path stroke-width="2" d="M 35 88 C 28 80 28 72 36 68 C 48 64 58 68 62 76 C 68 72 80 72 88 78 C 96 84 96 92 88 96 C 78 100 62 98 58 92 C 52 96 42 96 35 88 Z"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 50 74 C 50 80 50 86 50 90"/>
+  <path stroke-width="1.4" opacity="0.5" d="M 72 78 C 72 84 72 90 72 94"/>
+  <path stroke-width="2" d="M 65 68 C 60 50 58 35 62 22 C 68 35 70 50 65 68"/>
+</svg>

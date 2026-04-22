@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="20 20 54 54" fill="none" stroke="#3D233B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Close">
+  <!-- Two lines crossing slightly off-centre -->
+  <path d="M 28 28 L 66 66"/>
+  <path d="M 66 28 L 28 66"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="6 22 100 70" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Mountain">
+  <!-- Double-peak silhouette with snow-line marks -->
+  <path stroke-width="2" d="M 14 84 L 40 42 L 56 62 L 72 30 L 96 84"/>
+  <path stroke-width="1.4" d="M 38 46 L 44 52"/>
+  <path stroke-width="1.4" d="M 70 34 L 76 42"/>
+</svg>

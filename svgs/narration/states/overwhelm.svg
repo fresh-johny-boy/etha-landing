@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="14 10 82 90" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Overwhelm">
+  <!-- Lines cascading down onto a small oval form -->
+  <path stroke-width="1.4" d="M 24 22 L 30 52"/>
+  <path stroke-width="1.4" d="M 38 18 L 42 50"/>
+  <path stroke-width="1.4" d="M 52 22 L 54 52"/>
+  <path stroke-width="1.4" d="M 66 18 L 66 50"/>
+  <path stroke-width="1.4" d="M 80 22 L 78 52"/>
+  <path stroke-width="2" d="M 38 76 C 38 68 44 62 55 62 C 66 62 72 68 72 76 C 72 86 66 92 55 92 C 44 92 38 86 38 76 Z"/>
+  <path stroke-width="1.4" opacity="0.7" d="M 48 74 C 48 78 52 80 55 78"/>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 20 86 80" fill="none" stroke="#3D233B" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Home">
+  <!-- House with soft roofline, door, and window -->
+  <path stroke-width="2" d="M 20 56 L 55 28 L 90 56 L 90 92 L 20 92 Z"/>
+  <path stroke-width="1.4" d="M 46 92 L 46 72 L 64 72 L 64 92"/>
+  <path stroke-width="1.4" d="M 30 64 L 40 64 L 40 74 L 30 74 Z"/>
+</svg>
