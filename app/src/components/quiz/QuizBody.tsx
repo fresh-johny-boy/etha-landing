@@ -39,27 +39,56 @@ const AURA_D = toPath(AURA_BASE) + " Z";
    ──────────────────────────────────────────────────────────────── */
 const OPTION_AURAS = {
   a: {
-    // Open path — intentional gap at top-left, Vata restlessness
-    vb: "0 0 400 62",
-    d: "M 32,10 C 90,-4 210,-5 330,4 C 378,10 402,24 400,40 C 397,53 376,60 334,63 C 280,66 200,67 120,64 C 64,62 18,54 4,42 C -4,30 6,16 32,10",
-    sw: 0.8,
-    pad: "py-4",
+    // Real ETHA brand aura (aura-balanced-01.svg) — authentic organic oval with kink
+    vb: "0 0 392 250",
+    d: "M307.86,21.36C265.47-.88,211.17-3.86,163.55,9.51c-47.61,13.37-90.21,41.08-126.94,74.17C19.29,99.28,2.05,118.52,1.51,141.81c-.53,23.31,16.07,43.59,34.47,57.96,34.84,27.2,78.6,41.24,122.54,46.24,39.66,4.51,80.11,2.02,118.92-7.32,30.23-7.28,60.27-19.2,82.67-40.75,22.4-21.55,35.89-54.16,28.46-84.32-6.21-25.19-25.58-45.09-46.55-60.41-11.81-8.63,8.24-9.62,-34.15-31.85Z",
+    sw: 2.0,
+    pad: "py-7",
   },
   b: {
-    // Closed balanced oval — the canonical ETHA balanced aura
+    // Idealized clean oval — Pitta precision
     vb: "0 0 400 76",
     d: "M 196,5 C 264,-1 348,4 386,19 C 408,30 412,47 405,61 C 396,73 354,79 278,81 C 206,83 120,81 52,76 C 6,68 -8,52 4,37 C 16,20 50,7 106,5 C 148,2 172,5 196,5 Z",
     sw: 1.05,
     pad: "py-7",
   },
   c: {
-    // Wide rounded blob — Kapha fullness, slightly more oval than B
-    vb: "-12 0 424 96",
-    d: "M 194,12 C 260,4 350,8 394,26 C 420,40 426,62 416,78 C 406,92 360,99 278,101 C 202,103 112,101 42,94 C -8,84 -26,66 -16,50 C -6,32 28,16 96,12 C 152,7 184,12 194,12 Z",
-    sw: 1.3,
-    pad: "py-8",
+    // Double-hump wave top — Kapha earth/water, peaks extend above button
+    vb: "0 0 400 106",
+    d: "M 80,14 C 118,-4 158,24 200,4 C 242,-10 282,24 318,6 C 354,-4 392,12 402,36 C 410,54 402,74 378,86 C 346,98 286,104 218,104 C 150,104 86,100 44,86 C 6,72 -6,50 4,30 C 16,8 50,-4 80,14 Z",
+    sw: 1.4,
+    pad: "py-10",
   },
 } as const;
+
+/* ── Blob mask shapes for visual questions ────────────────────────────────
+   Three DRAMATICALLY different silhouettes — shape IS character:
+   A → Vata / Air   : tall narrow teardrop — thin, airy (aspect 0.49:1)
+   B → Pitta / Fire : compact rounder blob  — focused, squarish (1.07:1)
+   C → Kapha / Earth: wide landscape pebble — heavy, flat (1.81:1)
+   containerW drives layout width so each card looks truly distinct.
+   ──────────────────────────────────────────────────────────────────────── */
+const BLOB_MASKS = {
+  a: {
+    vb: "0 0 112 228", w: 112, h: 228, containerW: 112,
+    d: "M 56,4 C 78,2 104,20 108,62 C 112,102 100,152 82,184 C 66,212 46,226 30,220 C 14,214 2,196 2,166 C 2,132 14,88 28,58 C 42,26 40,4 56,4 Z",
+  },
+  b: {
+    vb: "0 0 182 170", w: 182, h: 170, containerW: 160,
+    d: "M 90,5 C 128,2 166,22 178,60 C 190,98 180,136 156,158 C 132,180 84,184 48,168 C 14,152 -2,114 4,78 C 10,44 32,16 64,6 C 76,2 86,5 90,5 Z",
+  },
+  c: {
+    vb: "0 0 250 138", w: 250, h: 138, containerW: 215,
+    d: "M 124,8 C 176,2 238,22 246,56 C 254,88 238,118 200,130 C 164,142 116,138 76,128 C 36,118 2,96 4,66 C 6,36 36,10 80,6 C 100,2 116,10 124,8 Z",
+  },
+} as const;
+
+/* ── Element images — Vata/Pitta/Kapha semantic mapping ── */
+const VISUAL_IMG: Record<string, string> = {
+  a: "air.webp",
+  b: "fire.webp",
+  c: "earth.webp",
+};
 
 /* ── Types ── */
 type LayerScreen = { kind: "layer"; layer: 1 | 2 | 3; label: string; title: string; sub: string };
@@ -627,33 +656,99 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
 }
 
 /* ────────────────────────────────────────────────────────
-   Visual card — image-placeholder tile
+   Visual card — blob-masked image tile + text label
+   Each option uses a distinct organic blob shape.
+   Entry: scale+fade stagger. Selection: outline draws, others dim.
    ──────────────────────────────────────────────────────── */
 function VisualCard({ opt, chosen, onPick, entryDelay = 0 }: {
   opt: OptDef; chosen: string | null;
   onPick: (id: string) => void;
   entryDelay?: number;
 }) {
-  const wrapRef = useRef<HTMLButtonElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  useOptionAnim(wrapRef, pathRef, chosen, opt.id, entryDelay, 0.75);
+  const blob    = BLOB_MASKS[opt.id as keyof typeof BLOB_MASKS] ?? BLOB_MASKS.b;
+  const clipId  = `blob-clip-${opt.id}`;
+
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    gsap.fromTo(wrapRef.current,
+      { opacity: 0, scale: 0.9, y: 10 },
+      { opacity: 1, scale: 1, y: 0, duration: 0.65, ease: AIR, delay: entryDelay },
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const path = pathRef.current;
+    if (!wrap || chosen === null) return;
+    const isSelected = chosen === opt.id;
+    gsap.to(wrap, { opacity: isSelected ? 1 : 0.18, duration: 0.35, ease: "power2.out", overwrite: true });
+    if (isSelected && path) {
+      gsap.killTweensOf(path);
+      const len = path.getTotalLength();
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0 });
+      gsap.to(path, { strokeDashoffset: 0, strokeOpacity: 0.9, duration: 0.85, ease: "power2.inOut" });
+    } else if (path) {
+      gsap.to(path, { strokeOpacity: 0.14, duration: 0.2, overwrite: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosen]);
 
   return (
-    <button
-      ref={wrapRef as React.RefObject<HTMLButtonElement>}
-      onClick={() => chosen === null && onPick(opt.id)}
-      tabIndex={chosen !== null ? -1 : 0}
-      className="relative w-full min-h-[120px] flex items-center justify-center px-8 py-8 cursor-pointer border border-cream/[0.07]"
+    <div
+      ref={wrapRef}
+      className="flex flex-col items-center gap-3"
       style={{ opacity: 0 }}
     >
-      <AuraSvg pathRef={pathRef} viewBoxH={130} />
-      <span
-        className="font-serif text-cream text-center leading-snug relative z-10"
-        style={{ fontSize: "clamp(1.1rem, 2.8vw, 1.35rem)" }}
+      <button
+        onClick={() => chosen === null && onPick(opt.id)}
+        tabIndex={chosen !== null ? -1 : 0}
+        className="cursor-pointer w-full block"
+        style={{ WebkitTapHighlightColor: "transparent" }}
+      >
+        <svg
+          width="100%"
+          viewBox={blob.vb}
+          fill="none"
+          aria-hidden="true"
+          style={{ display: "block", overflow: "visible" }}
+        >
+          <defs>
+            <clipPath id={clipId}>
+              <path d={blob.d} />
+            </clipPath>
+          </defs>
+          {/* Image placeholder — clipped to blob shape */}
+          <rect
+            x="0" y="0"
+            width={blob.w} height={blob.h}
+            fill="#FFEFDE"
+            fillOpacity="0.07"
+            clipPath={`url(#${clipId})`}
+          />
+          {/* Inner fill for depth */}
+          <path d={blob.d} fill="#FFEFDE" fillOpacity="0.03" />
+          {/* Organic outline — draws on selection */}
+          <path
+            ref={pathRef}
+            d={blob.d}
+            stroke="#FFEFDE"
+            strokeWidth="1.2"
+            strokeOpacity="0.18"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+      <p
+        className="font-serif text-cream text-center leading-snug px-1"
+        style={{ fontSize: "clamp(0.82rem, 2.1vw, 0.95rem)", opacity: 0.75 }}
       >
         {opt.text}
-      </span>
-    </button>
+      </p>
+    </div>
   );
 }
 
@@ -844,19 +939,32 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
 
   if (step.qtype === "open") return <OpenQuestion step={step} onAdvance={onAdvance} />;
 
-  if (step.qtype === "visual") return (
-    <div className="w-full max-w-2xl px-8 sm:px-10">
-      <h2 ref={qRef} className="font-serif text-cream mb-10 leading-snug"
-          style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
-        {step.q}
-      </h2>
-      <div className="flex flex-col gap-3">
-        {step.options.map((opt, i) => (
-          <VisualCard key={opt.id} opt={opt} chosen={chosen} onPick={onPick} entryDelay={0.38 + i * 0.1} />
-        ))}
+  if (step.qtype === "visual") {
+    const opts = step.options;
+    return (
+      <div className="w-full px-5 sm:px-8">
+        <h2
+          ref={qRef}
+          className="font-serif text-cream mb-10 leading-snug text-center max-w-lg mx-auto"
+          style={{ fontSize: "clamp(1.8rem, 5vw, 3rem)", opacity: 0 }}
+        >
+          {step.q}
+        </h2>
+        {/* Triangle: A (top-left) + B (top-right), C (bottom-center) */}
+        <div className="max-w-sm mx-auto">
+          <div className="grid grid-cols-2 gap-5 mb-5">
+            <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.30} />
+            <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} />
+          </div>
+          <div className="flex justify-center">
+            <div className="w-[55%]">
+              <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.58} />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
 
   if (step.qtype === "scale2") return (
     <div className="w-full max-w-2xl px-8 sm:px-10">
@@ -902,7 +1010,7 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
-      <div className="flex flex-col gap-8 px-10">
+      <div className="flex flex-col gap-12 px-10">
         {(step as ChoiceQ).options.map((opt, i) => (
           <OptionRow key={opt.id} opt={opt} chosen={chosen} onPick={onPick} entryDelay={0.35 + i * 0.14} />
         ))}
@@ -1013,7 +1121,7 @@ export default function QuizBody() {
   const progress     = stepIdx / (TOTAL - 1);
 
   return (
-    <main className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none">
+    <main className="relative flex min-h-dvh flex-col bg-aubergine select-none">
       <BgAura layer={currentLayer} />
 
       <Nav
