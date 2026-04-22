@@ -57,11 +57,10 @@ export default function Nav({
     <nav
       className={`absolute left-0 right-0 top-0 z-50 flex items-center justify-between px-6 py-5 md:px-12 md:py-6 ${className}`}
     >
-      {hideLinks ? <span /> : <a href="#" className={linkClass}>RITUALS</a>}
+      <span className="flex-1">{hideLinks ? null : <a href="#" className={linkClass}>RITUALS</a>}</span>
 
       <div
         ref={logoRef}
-        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
         style={{ opacity: animated ? 0 : undefined }}
       >
         <Image
@@ -74,7 +73,7 @@ export default function Nav({
         />
       </div>
 
-      {hideLinks ? <span /> : <a href="#" className={linkClass}>YOUR REPORTS</a>}
+      <span className="flex-1 text-right">{hideLinks ? null : <a href="#" className={linkClass}>YOUR REPORTS</a>}</span>
 
       {progress !== undefined && (
         <div className="absolute bottom-0 left-0 right-0">
