@@ -31,6 +31,36 @@ const AURA_BASE: Pt[] = [
 ];
 const AURA_D = toPath(AURA_BASE) + " Z";
 
+/* ── Three ETHA aura types mapped to quiz choices
+   A → VATA / Air:  open-ended path (no Z) — restless, airy, unclosed
+   B → PITTA / Fire: classic balanced ETHA oval — confident, clear
+   C → KAPHA / Earth: wide, full, relaxed blob — heavy, rounded
+   Different stroke weights + heights make them legibly distinct.
+   ──────────────────────────────────────────────────────────────── */
+const OPTION_AURAS = {
+  a: {
+    // Open path — intentional gap at top-left, Vata restlessness
+    vb: "0 0 400 62",
+    d: "M 32,10 C 90,-4 210,-5 330,4 C 378,10 402,24 400,40 C 397,53 376,60 334,63 C 280,66 200,67 120,64 C 64,62 18,54 4,42 C -4,30 6,16 32,10",
+    sw: 0.8,
+    pad: "py-4",
+  },
+  b: {
+    // Closed balanced oval — the canonical ETHA balanced aura
+    vb: "0 0 400 76",
+    d: "M 196,5 C 264,-1 348,4 386,19 C 408,30 412,47 405,61 C 396,73 354,79 278,81 C 206,83 120,81 52,76 C 6,68 -8,52 4,37 C 16,20 50,7 106,5 C 148,2 172,5 196,5 Z",
+    sw: 1.05,
+    pad: "py-7",
+  },
+  c: {
+    // Wide rounded blob — Kapha fullness, slightly more oval than B
+    vb: "-12 0 424 96",
+    d: "M 194,12 C 260,4 350,8 394,26 C 420,40 426,62 416,78 C 406,92 360,99 278,101 C 202,103 112,101 42,94 C -8,84 -26,66 -16,50 C -6,32 28,16 96,12 C 152,7 184,12 194,12 Z",
+    sw: 1.3,
+    pad: "py-8",
+  },
+} as const;
+
 /* ── Types ── */
 type LayerScreen = { kind: "layer"; layer: 1 | 2 | 3; label: string; title: string; sub: string };
 type OptDef      = { id: string; text: string };
@@ -290,27 +320,26 @@ const LAYER_ICONS: Record<1|2|3, { viewBox: string; paths: { d: string; sw: numb
   1: {
     viewBox: "22 8 66 76",
     paths: [
-      { d: "M 55 12 C 45 10 38 18 38 28 C 38 38 46 44 55 44 C 64 44 72 38 72 28 C 72 18 65 10 55 12 Z", sw: 1.2 },
-      { d: "M 28 62 C 36 52 46 48 55 48 C 64 48 74 52 82 62", sw: 1.2 },
-      { d: "M 55 44 C 55 50 54 56 55 64", sw: 1.2 },
+      { d: "M 55 12 C 45 10 38 18 38 28 C 38 38 46 44 55 44 C 64 44 72 38 72 28 C 72 18 65 10 55 12 Z", sw: 2.4 },
+      { d: "M 28 62 C 36 52 46 48 55 48 C 64 48 74 52 82 62", sw: 2.4 },
+      { d: "M 55 44 C 55 50 54 56 55 64", sw: 2.4 },
     ],
   },
   2: {
-    viewBox: "22 2 66 82",
+    viewBox: "18 6 74 60",
     paths: [
-      { d: "M 55 16 C 45 14 38 22 38 32 C 38 42 46 48 55 48 C 64 48 72 42 72 32 C 72 22 65 14 55 16 Z", sw: 1.2 },
-      { d: "M 48 14 C 46 8 44 4 42 2", sw: 1.2 },
-      { d: "M 55 12 C 55 6 55 4 55 2", sw: 1.2 },
-      { d: "M 62 14 C 64 8 66 4 68 2", sw: 1.2 },
+      { d: "M 24 36 C 32 12 78 12 86 36", sw: 2.4 },
+      { d: "M 24 36 C 32 60 78 60 86 36", sw: 2.4 },
+      { d: "M 51 36 C 51 30 59 30 59 36 C 59 42 51 42 51 36 Z", sw: 2.4 },
     ],
   },
   3: {
     viewBox: "18 10 74 78",
     paths: [
-      { d: "M 55 80 C 47 66 43 48 55 32 C 67 48 63 66 55 80 Z", sw: 1.2 },
-      { d: "M 55 80 C 40 70 30 54 38 38 C 46 50 52 66 55 80 Z", sw: 1.2 },
-      { d: "M 55 80 C 70 70 80 54 72 38 C 64 50 58 66 55 80 Z", sw: 1.2 },
-      { d: "M 26 84 C 36 80 46 82 55 80 C 64 82 74 80 84 84", sw: 1.2 },
+      { d: "M 55 80 C 47 66 43 48 55 32 C 67 48 63 66 55 80 Z", sw: 2.4 },
+      { d: "M 55 80 C 40 70 30 54 38 38 C 46 50 52 66 55 80 Z", sw: 2.4 },
+      { d: "M 55 80 C 70 70 80 54 72 38 C 64 50 58 66 55 80 Z", sw: 2.4 },
+      { d: "M 26 84 C 36 80 46 82 55 80 C 64 82 74 80 84 84", sw: 2.4 },
     ],
   },
 };
@@ -401,8 +430,8 @@ function LayerView({ step, onSkip, entryDelay = 0 }: { step: LayerScreen; onSkip
     >
       <svg
         ref={iconRef}
-        width="54"
-        height="54"
+        width="96"
+        height="96"
         viewBox={icon.viewBox}
         fill="none"
         aria-hidden="true"
@@ -516,7 +545,10 @@ function useOptionAnim(
 }
 
 /* ────────────────────────────────────────────────────────
-   Option row — A / B / C text-only list
+   Option row — A / B / C aura-ring pill cards
+   Each option has a distinct organic oval aura character.
+   Rest: ghosted ring at 9% opacity.
+   Selected: ring draws itself + brightens. Others dim.
    ──────────────────────────────────────────────────────── */
 function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
   opt: OptDef; chosen: string | null;
@@ -525,19 +557,66 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  useOptionAnim(wrapRef, pathRef, chosen, opt.id, entryDelay, 0.72);
+  const aura = OPTION_AURAS[opt.id as keyof typeof OPTION_AURAS] ?? OPTION_AURAS.b;
+
+  /* Entry stagger */
+  useEffect(() => {
+    if (!wrapRef.current) return;
+    gsap.fromTo(wrapRef.current,
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.6, ease: AIR, delay: entryDelay },
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* Selection state */
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    const path = pathRef.current;
+    if (!wrap || chosen === null) return;
+    const isSelected = chosen === opt.id;
+
+    gsap.to(wrap, { opacity: isSelected ? 1 : 0.12, duration: 0.38, ease: "power2.out", overwrite: true });
+
+    if (isSelected && path) {
+      gsap.killTweensOf(path);
+      const len = path.getTotalLength();
+      gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0.22 });
+      gsap.to(path, { strokeDashoffset: 0, strokeOpacity: 0.88, duration: 0.9, ease: "power2.inOut" });
+    } else if (path) {
+      gsap.to(path, { strokeOpacity: 0.05, duration: 0.22, overwrite: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosen]);
 
   return (
     <div ref={wrapRef as React.RefObject<HTMLDivElement>} className="relative" style={{ opacity: 0 }}>
-      <div className="h-px bg-cream/[0.07]" />
       <button
         onClick={() => chosen === null && onPick(opt.id)}
         tabIndex={chosen !== null ? -1 : 0}
-        className="relative w-full text-left py-7 min-h-[48px] cursor-pointer"
+        className={`relative w-full text-center px-10 ${aura.pad} min-h-[52px] cursor-pointer`}
       >
-        <AuraSvg pathRef={pathRef} />
+        {/* Per-option organic aura ring — unique shape per A/B/C */}
+        <svg
+          className="pointer-events-none absolute overflow-visible"
+          viewBox={aura.vb}
+          preserveAspectRatio="none"
+          fill="none"
+          aria-hidden="true"
+          style={{ left: "-14px", top: "-8px", width: "calc(100% + 28px)", height: "calc(100% + 16px)" }}
+        >
+          <path
+            ref={pathRef}
+            d={aura.d}
+            stroke="#FFEFDE"
+            strokeWidth={aura.sw}
+            strokeOpacity="0.22"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
         <span
-          className="font-serif text-cream leading-relaxed block relative z-10"
+          className="font-serif text-cream leading-snug block relative z-10"
           style={{ fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)" }}
         >
           {opt.text}
@@ -816,18 +895,17 @@ function QuestionView({ step, chosen, onPick, onAdvance }: {
     </div>
   );
 
-  /* Default: A/B/C choice */
+  /* Default: A/B/C choice — question padded, cards full-width */
   return (
-    <div className="w-full max-w-2xl px-8 sm:px-10">
-      <h2 ref={qRef} className="font-serif text-cream mb-12 leading-snug"
+    <div className="w-full">
+      <h2 ref={qRef} className="font-serif text-cream mb-10 leading-snug text-center px-8 sm:px-12 max-w-2xl mx-auto"
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
-      <div>
+      <div className="flex flex-col gap-8 px-10">
         {(step as ChoiceQ).options.map((opt, i) => (
-          <OptionRow key={opt.id} opt={opt} chosen={chosen} onPick={onPick} entryDelay={0.35 + i * 0.12} />
+          <OptionRow key={opt.id} opt={opt} chosen={chosen} onPick={onPick} entryDelay={0.35 + i * 0.14} />
         ))}
-        <div className="h-px bg-cream/[0.07]" />
       </div>
     </div>
   );
