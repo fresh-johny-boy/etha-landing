@@ -1032,14 +1032,26 @@ function ScaleSlider({ step, onPick, entryDelay = 0 }: {
   );
 }
 
+/* ── Aura paths for open question inputs ── */
+/* Tall rectangle-ish organic loop — traces the textarea perimeter with organic wobble */
+const OPEN_MAIN_AURA  = "M 178,5 C 234,2 300,4 338,11 C 354,16 360,28 359,52 C 358,96 360,138 358,174 C 356,186 346,193 318,196 C 278,199 234,200 178,200 C 122,200 74,199 38,196 C 12,192 4,184 4,172 C 2,138 4,96 4,52 C 4,28 10,16 28,11 C 66,4 124,2 178,5 Z";
+/* Shorter version for bonus textarea */
+const OPEN_BONUS_AURA = "M 178,4 C 234,1 300,3 338,9 C 354,13 360,22 359,36 C 358,62 360,86 358,108 C 356,118 346,124 318,126 C 278,128 234,129 178,129 C 122,129 74,128 38,126 C 12,123 4,116 4,106 C 2,86 4,62 4,36 C 4,22 10,13 28,9 C 66,3 124,1 178,4 Z";
+/* Small pill for SKIP button */
+const OPEN_SKIP_AURA  = "M 58,3 C 80,1 102,2 112,8 C 118,12 118,22 114,30 C 108,37 88,40 58,40 C 28,40 8,37 2,30 C -2,22 -2,12 4,8 C 14,2 36,1 58,3 Z";
+
 /* ────────────────────────────────────────────────────────
    Open text question
    ──────────────────────────────────────────────────────── */
 function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void }) {
-  const [val, setVal]     = useState("");
-  const [bonus, setBonus] = useState("");
-  const qRef              = useRef<HTMLHeadingElement>(null);
-  const areaRef           = useRef<HTMLDivElement>(null);
+  const [val, setVal]             = useState("");
+  const [bonus, setBonus]         = useState("");
+  const [mainFocus, setMainFocus] = useState(false);
+  const [bonusFocus, setBonusFocus] = useState(false);
+  const qRef         = useRef<HTMLHeadingElement>(null);
+  const areaRef      = useRef<HTMLDivElement>(null);
+  const mainAuraRef  = useRef<SVGPathElement>(null);
+  const bonusAuraRef = useRef<SVGPathElement>(null);
   const showBonus = step.bonus && val.trim().length > 0;
 
   useEffect(() => {
@@ -1056,6 +1068,17 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
     return () => ctx.revert();
   }, []);
 
+  /* Aura brightens on focus */
+  useEffect(() => {
+    if (!mainAuraRef.current) return;
+    gsap.to(mainAuraRef.current, { strokeOpacity: mainFocus ? 0.58 : 0.2, duration: 0.45, ease: "power2.out" });
+  }, [mainFocus]);
+
+  useEffect(() => {
+    if (!bonusAuraRef.current) return;
+    gsap.to(bonusAuraRef.current, { strokeOpacity: bonusFocus ? 0.58 : 0.2, duration: 0.45, ease: "power2.out" });
+  }, [bonusFocus]);
+
   return (
     <div className="w-full max-w-2xl px-8 sm:px-10">
       <h2
@@ -1067,46 +1090,109 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
       </h2>
 
       <div ref={areaRef} style={{ opacity: 0 }}>
-        <textarea
-          value={val}
-          onChange={e => setVal(e.target.value)}
-          placeholder={step.placeholder}
-          rows={3}
-          className={[
-            "w-full bg-transparent resize-none outline-none",
-            "font-serif text-cream leading-relaxed",
-            "placeholder:text-cream/28 placeholder:italic",
-            "border-b border-cream/[0.1] pb-3",
-          ].join(" ")}
-          style={{ fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)" }}
-        />
+        {/* Tall aura-bordered textarea — organic frame instead of CSS border */}
+        <div className="relative">
+          <svg
+            className="pointer-events-none absolute overflow-visible"
+            viewBox="0 0 360 205"
+            preserveAspectRatio="none"
+            fill="none"
+            aria-hidden="true"
+            style={{ left: "-10px", top: "-8px", width: "calc(100% + 20px)", height: "calc(100% + 16px)" }}
+          >
+            <path
+              ref={mainAuraRef}
+              d={OPEN_MAIN_AURA}
+              stroke="#FFEFDE"
+              strokeWidth="0.95"
+              strokeOpacity="0.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <textarea
+            value={val}
+            onChange={e => setVal(e.target.value)}
+            onFocus={() => setMainFocus(true)}
+            onBlur={() => setMainFocus(false)}
+            placeholder={step.placeholder}
+            rows={7}
+            className={[
+              "w-full bg-transparent resize-none outline-none",
+              "font-serif text-cream leading-relaxed",
+              "placeholder:text-cream/25 placeholder:italic",
+              "px-4 py-5",
+            ].join(" ")}
+            style={{ fontSize: "clamp(1.05rem, 2.5vw, 1.25rem)" }}
+          />
+        </div>
 
         {showBonus && step.bonus && (
-          <div className="mt-10 mb-2">
-            <p className="font-label text-[9px] text-cream/32 mb-4">{step.bonus.q}</p>
-            <textarea
-              value={bonus}
-              onChange={e => setBonus(e.target.value)}
-              placeholder={step.bonus.placeholder}
-              rows={2}
-              className={[
-                "w-full bg-transparent resize-none outline-none",
-                "font-serif text-cream leading-relaxed",
-                "placeholder:text-cream/28 placeholder:italic",
-                "border-b border-cream/[0.1] pb-3",
-              ].join(" ")}
-              style={{ fontSize: "clamp(0.95rem, 2.2vw, 1.1rem)" }}
-            />
+          <div className="mt-10">
+            <p className="font-label text-[9px] text-cream/32 mb-5">{step.bonus.q}</p>
+            <div className="relative">
+              <svg
+                className="pointer-events-none absolute overflow-visible"
+                viewBox="0 0 360 134"
+                preserveAspectRatio="none"
+                fill="none"
+                aria-hidden="true"
+                style={{ left: "-10px", top: "-8px", width: "calc(100% + 20px)", height: "calc(100% + 16px)" }}
+              >
+                <path
+                  ref={bonusAuraRef}
+                  d={OPEN_BONUS_AURA}
+                  stroke="#FFEFDE"
+                  strokeWidth="0.95"
+                  strokeOpacity="0.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <textarea
+                value={bonus}
+                onChange={e => setBonus(e.target.value)}
+                onFocus={() => setBonusFocus(true)}
+                onBlur={() => setBonusFocus(false)}
+                placeholder={step.bonus.placeholder}
+                rows={3}
+                className={[
+                  "w-full bg-transparent resize-none outline-none",
+                  "font-serif text-cream leading-relaxed",
+                  "placeholder:text-cream/25 placeholder:italic",
+                  "px-4 py-4",
+                ].join(" ")}
+                style={{ fontSize: "clamp(0.95rem, 2.2vw, 1.1rem)" }}
+              />
+            </div>
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-10">
+        <div className="flex items-center justify-between mt-8">
+          {/* SKIP — small aura pill, consistent with button system */}
           <button
             onClick={onAdvance}
-            className="font-label text-[9px] text-cream/32 hover:text-cream/60 transition-colors cursor-pointer min-h-[48px] pr-8"
+            className="relative font-label text-[9px] text-cream/38 hover:text-cream/62 transition-colors cursor-pointer min-h-[48px] px-7 py-4"
           >
-            SKIP
+            <svg
+              className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
+              viewBox="0 0 116 40"
+              preserveAspectRatio="none"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d={OPEN_SKIP_AURA}
+                stroke="#FFEFDE"
+                strokeWidth="0.7"
+                strokeOpacity="0.22"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <span className="relative z-10">SKIP</span>
           </button>
+
           {val.trim().length > 0 && (
             <button
               onClick={onAdvance}
@@ -1123,7 +1209,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
                   d="M 98,4 C 136,1 170,3 186,10 C 198,16 200,28 196,38 C 190,46 158,50 100,51 C 42,51 8,46 4,38 C 0,28 4,16 16,10 C 32,3 62,1 98,4"
                   stroke="#FFEFDE"
                   strokeWidth="0.75"
-                  strokeOpacity="0.4"
+                  strokeOpacity="0.5"
                   strokeLinecap="round"
                 />
               </svg>
