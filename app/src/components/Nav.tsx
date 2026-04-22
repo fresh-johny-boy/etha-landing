@@ -27,7 +27,7 @@ export default function Nav({
   }`;
   const trackColor = isLight ? "#FFEFDE" : "#3D233B";
   const logo = isLight
-    ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/etha-logo-light.webp`
+    ? `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/etha-logo-cream.svg`
     : `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/images/etha-logo-dark.svg`;
 
   const p = progress ?? 0;
