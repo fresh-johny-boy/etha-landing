@@ -1065,27 +1065,37 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
 
   return (
     <div ref={wrapRef} style={{ opacity: 0 }}>
-      {/* A / B (/ C) row — sits on a single line well above the track.
-         `left` is placed imperatively in useEffect once the dim path is
-         measured. Margin-bottom gives clear separation from the handle. */}
-      <div className="relative w-full h-4 mb-7" aria-hidden="true">
-        {bucketLetters.map((ltr, i) => (
-          <span
-            key={ltr}
-            ref={(el) => { letterRefs.current[i] = el; }}
-            className="absolute font-label text-cream text-[11px]"
-            style={{
-              top: 0,
-              opacity: 0.55,
-              letterSpacing: "0.3em",
-              transform: "translateX(-50%)",
-              pointerEvents: "none",
-              transition: "opacity 0.3s ease",
-            }}
-          >
-            {ltr}
-          </span>
-        ))}
+      {/* A / B (/ C) row — all letters on one line above the track.
+         Initial `left` is a linear approximation of the bucket-centre x
+         (so they're positioned from first paint), then refined in
+         useEffect to match the exact arc-length position on the
+         slightly-wavy track. Margin-bottom gives clear separation from
+         the handle. */}
+      <div className="relative w-full mb-7" style={{ height: "14px" }} aria-hidden="true">
+        {bucketLetters.map((ltr, i) => {
+          const leftPct = ((16 + bucketCenters[i] * 416) / 448) * 100;
+          return (
+            <span
+              key={ltr}
+              ref={(el) => { letterRefs.current[i] = el; }}
+              className="font-label text-cream text-[11px]"
+              style={{
+                position: "absolute",
+                top: 0,
+                left: `${leftPct}%`,
+                transform: "translate(-50%, 0)",
+                opacity: 0.55,
+                letterSpacing: "0.3em",
+                lineHeight: 1,
+                whiteSpace: "nowrap",
+                pointerEvents: "none",
+                transition: "opacity 0.3s ease",
+              }}
+            >
+              {ltr}
+            </span>
+          );
+        })}
       </div>
       <svg
         ref={svgRef}
