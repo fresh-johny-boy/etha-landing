@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useEffect } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
 
 interface AuraButtonProps {
@@ -132,7 +133,7 @@ export default function AuraButton({
   }, []);
 
   return (
-    <a
+    <Link
       ref={wrapRef}
       href={href}
       className={`group relative inline-flex items-center justify-center px-14 py-6 ${className}`}
@@ -158,6 +159,6 @@ export default function AuraButton({
         />
       </svg>
       <span className="font-label relative z-10 text-[11px]">{children}</span>
-    </a>
+    </Link>
   );
 }

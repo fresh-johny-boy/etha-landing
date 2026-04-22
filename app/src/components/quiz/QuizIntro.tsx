@@ -301,7 +301,7 @@ export default function QuizIntro() {
     return () => ctx.revert();
   }, [screen, isGate]);
 
-  /* Tap-to-advance — FIRE exit, AIR enter */
+  /* Advance — FIRE exit, AIR enter */
   const advance = useCallback(() => {
     if (isGate) return;
     const content = contentRef.current;
@@ -361,7 +361,7 @@ export default function QuizIntro() {
             </p>
           </>
         ) : (
-          <div className="w-full">
+          <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <QuizCTAButton label="CONTINUE" onClick={advance} />
           </div>
         )}

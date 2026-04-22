@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -96,7 +97,7 @@ export default function MobileCTA(): React.ReactElement {
       className="fixed bottom-0 left-0 right-0 z-50 translate-y-20 opacity-0 md:hidden"
     >
       <div className="px-5 pb-[max(env(safe-area-inset-bottom),20px)]">
-        <a
+        <Link
           href="/quiz"
           className="relative flex w-full items-center justify-center py-4"
         >
@@ -123,7 +124,7 @@ export default function MobileCTA(): React.ReactElement {
           >
             BEGIN SELF-DISCOVERY
           </span>
-        </a>
+        </Link>
       </div>
     </div>
   );
