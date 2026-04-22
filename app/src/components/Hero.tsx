@@ -170,7 +170,7 @@ export default function Hero(): React.ReactElement {
                 Get clarity who you are and what you really need today
               </p>
               <div ref={ctaRef} className="hidden md:block">
-                <AuraButton href="#quiz" className="text-cream">
+                <AuraButton href="/quiz" className="text-cream">
                   BEGIN SELF-DISCOVERY
                 </AuraButton>
               </div>

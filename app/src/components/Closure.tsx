@@ -61,7 +61,7 @@ export default function Closure(): React.ReactElement {
 
           {/* Final CTA — hidden on mobile */}
           <div className="hidden md:block">
-            <AuraButton href="#quiz" className="text-aubergine">
+            <AuraButton href="/quiz" className="text-aubergine">
               BEGIN SELF-DISCOVERY
             </AuraButton>
           </div>

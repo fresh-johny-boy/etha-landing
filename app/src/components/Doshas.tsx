@@ -325,7 +325,7 @@ export default function Doshas(): React.ReactElement {
           Everyone carries all three Doshas. What differs is which one leads.
         </p>
         <div className="mt-8 hidden justify-center md:mt-10 md:flex">
-          <AuraButton href="#quiz" className="text-aubergine">
+          <AuraButton href="/quiz" className="text-aubergine">
             DISCOVER YOUR DOSHA
           </AuraButton>
         </div>

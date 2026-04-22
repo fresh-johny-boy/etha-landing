@@ -97,7 +97,7 @@ export default function MobileCTA(): React.ReactElement {
     >
       <div className="px-5 pb-[max(env(safe-area-inset-bottom),20px)]">
         <a
-          href="#quiz"
+          href="/quiz"
           className="relative flex w-full items-center justify-center py-4"
         >
           <svg
