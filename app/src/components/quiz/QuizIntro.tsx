@@ -3,12 +3,13 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "gsap";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
+import { quizSounds } from "@/lib/quizSounds";
 
 /* ── Nature bezier language ── */
-const AIR   = "expo.out";     // enters: quick rush, long float — air element
-const WATER  = "sine.inOut";  // breathes: perfectly smooth — water element
-const FIRE   = "power4.in";   // exits: sharp acceleration — fire element
-const EARTH  = "power1.out";  // blooms: slow, grounded — earth element
+const AIR   = "expo.out";
+const WATER  = "sine.inOut";
+const FIRE   = "power4.in";
+const EARTH  = "power1.out";
 
 /* ── Shared path util ── */
 type Pt = [number, number];
@@ -123,7 +124,7 @@ type ScreenDef =
   | { type: "statement"; text: string; size: "massive" | "large" }
   | { type: "twoLine";   line1: string; line2: string }
   | { type: "reflection"; text: string }
-  | { type: "value"; headline: string; items: { num: string; text: string }[]; footer: string }
+  | { type: "value"; headline: string; items: { num: string; text: string }[]; footer?: string }
   | { type: "gate"; headline: string; ctaA: string; privacy: string };
 
 const SCREENS: ScreenDef[] = [
@@ -140,12 +141,11 @@ const SCREENS: ScreenDef[] = [
       { num: "02", text: "A morning-to-night ritual designed for your specific constitution." },
       { num: "03", text: "Botanical recommendations matched to where you are right now." },
     ],
-    footer: "43 questions. Three layers. One map that belongs only to you.",
   },
   {
     type: "gate",
     headline: "Are you ready to return to yourself?",
-    ctaA: "Yes, begin",
+    ctaA: "Discover yourself",
     privacy: "Your answers are private. Be honest. That is the only way this works.",
   },
 ];
@@ -221,7 +221,7 @@ function ReflectionScreen({ text }: { text: string }) {
 }
 
 function ValueScreen({ headline, items, footer }: {
-  headline: string; items: { num: string; text: string }[]; footer: string;
+  headline: string; items: { num: string; text: string }[]; footer?: string;
 }) {
   const listRef   = useRef<HTMLOListElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
@@ -234,11 +234,11 @@ function ValueScreen({ headline, items, footer }: {
         { opacity: 0, x: -22 },
         { opacity: 1, x: 0, duration: 0.9, ease: AIR, stagger: 0.24, delay: 0.35 }
       );
-      if (footerRef.current)
+      if (footer && footerRef.current)
         gsap.fromTo(footerRef.current, { opacity: 0 }, { opacity: 1, duration: 0.9, ease: EARTH, delay: 1.2 });
     }, listRef);
     return () => ctx.revert();
-  }, []);
+  }, [footer]);
 
   return (
     <div className="w-full max-w-lg">
@@ -252,11 +252,13 @@ function ValueScreen({ headline, items, footer }: {
           </li>
         ))}
       </ol>
-      <div ref={footerRef} className="mt-10 pt-7 border-t border-cream/15" style={{ opacity: 0 }}>
-        <p className="font-serif text-cream/70 leading-relaxed italic" style={{ fontSize: "clamp(0.95rem,2vw,1.1rem)" }}>
-          {footer}
-        </p>
-      </div>
+      {footer && (
+        <div ref={footerRef} className="mt-10 pt-7 border-t border-cream/15" style={{ opacity: 0 }}>
+          <p className="font-serif text-cream/70 leading-relaxed italic" style={{ fontSize: "clamp(0.95rem,2vw,1.1rem)" }}>
+            {footer}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -282,17 +284,65 @@ function renderScreen(s: ScreenDef) {
   }
 }
 
+
+/* ── Dev jump targets ── */
+const DEV_JUMPS = SCREENS.map((s, i) => {
+  const colors: Record<string, string> = {
+    statement:  "#f97316",
+    reflection: "#60a5fa",
+    twoLine:    "#a78bfa",
+    value:      "#34d399",
+    gate:       "#fbbf24",
+  };
+  const labels: Record<string, string> = {
+    statement:  "STATEMENT",
+    reflection: `REFLECT·${i}`,
+    twoLine:    "TWOLINES",
+    value:      "VALUE",
+    gate:       "GATE",
+  };
+  return { label: labels[s.type] ?? s.type.toUpperCase(), idx: i, color: colors[s.type] ?? "#f87171" };
+});
+
+
 /* ── Main ── */
 export default function QuizIntro() {
   const [screen, setScreen] = useState(0);
-  const contentRef    = useRef<HTMLDivElement>(null);
-  const hintRef       = useRef<HTMLDivElement>(null);
-  const router = useRouter();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const hintRef    = useRef<HTMLDivElement>(null);
+  const router     = useRouter();
+
+  /* Bowl fires once — immediately if context was primed (came from landing page),
+     else on first interaction (direct URL load, browser blocks autoplay). */
+  const bowlFired = useRef(false);
+  useEffect(() => {
+    if (bowlFired.current) return;
+
+    if (quizSounds.isRunning()) {
+      bowlFired.current = true;
+      quizSounds.playIntroMelody(0);
+      return;
+    }
+
+    const fire = () => {
+      if (bowlFired.current) return;
+      bowlFired.current = true;
+      quizSounds.playIntroMelody(0);
+    };
+    document.addEventListener("pointerdown", fire, { once: true });
+    document.addEventListener("touchstart",  fire, { once: true });
+    document.addEventListener("keydown",     fire, { once: true });
+    return () => {
+      document.removeEventListener("pointerdown", fire);
+      document.removeEventListener("touchstart",  fire);
+      document.removeEventListener("keydown",     fire);
+    };
+  }, []);
 
   const current = SCREENS[screen];
   const isGate  = current.type === "gate";
 
-/* Per-screen enter — AIR element */
+  /* Per-screen enter — AIR element */
   useEffect(() => {
     const content = contentRef.current;
     const hint    = hintRef.current;
@@ -317,7 +367,6 @@ export default function QuizIntro() {
 
       if (hint) {
         gsap.set(hint, { opacity: 0 });
-        // screen 0: wait for both heading lines (l1@1.9s + l2@3.3s + 1.8s fade = ~5.1s)
         gsap.to(hint, { opacity: 1, duration: 1.0, ease: EARTH, delay: isFirst ? 5.4 : 2.8 });
       }
     });
@@ -330,26 +379,31 @@ export default function QuizIntro() {
     const content = contentRef.current;
     const hint    = hintRef.current;
     if (!content) return;
+    const nextScreen = Math.min(screen + 1, SCREENS.length - 1);
+    quizSounds.playIntroMelody(nextScreen);
     gsap.to(content, {
       opacity: 0, y: -30, duration: 0.36, ease: FIRE,
-      onComplete: () => setScreen((s) => Math.min(s + 1, SCREENS.length - 1)),
+      onComplete: () => setScreen(nextScreen),
     });
     if (hint) gsap.to(hint, { opacity: 0, duration: 0.12 });
-  }, [isGate]);
+  }, [isGate, screen]);
 
   const handleBegin = useCallback(() => {
+    quizSounds.playIntroMelody(6);
     const content = contentRef.current;
     const go = () => router.push("/quiz/body");
     if (!content) { go(); return; }
     gsap.to(content, { opacity: 0, y: -30, duration: 0.5, ease: FIRE, onComplete: go });
   }, [router]);
 
+  const handleDevJump = useCallback((idx: number) => {
+    gsap.killTweensOf([contentRef.current, hintRef.current]);
+    setScreen(idx);
+  }, []);
 
   return (
-    <main
-      className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none"
-    >
-      <Nav variant="light" hideLinks animated progress={screen / (SCREENS.length - 1)} className="pt-10 pb-16 md:pt-14 md:pb-20" />
+    <main className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none">
+      <Nav variant="light" hideLinks animated progress={screen / (SCREENS.length - 1)} className="pt-4 pb-6 md:pt-5 md:pb-8" />
 
       {/* Screen content — key forces child remounts for per-screen useEffects */}
       <div
@@ -363,6 +417,42 @@ export default function QuizIntro() {
             : renderScreen(current)}
         </div>
       </div>
+
+      {/* ── Dev toolbar ── */}
+      {process.env.NODE_ENV === "development" && (
+        <div
+          className="fixed bottom-0 left-0 right-0 z-[999] flex gap-1.5 flex-wrap items-center p-2"
+          style={{ background: "rgba(0,0,0,0.6)", backdropFilter: "blur(6px)" }}
+        >
+          {DEV_JUMPS.map((j) => (
+            <button
+              key={j.idx}
+              onClick={() => handleDevJump(j.idx)}
+              style={{ color: j.color, borderColor: `${j.color}55`, fontSize: 10 }}
+              className="px-2 py-1 border hover:opacity-70 transition-opacity font-mono cursor-pointer"
+            >
+              {j.label}
+            </button>
+          ))}
+          <button
+            onClick={() => router.push("/quiz/body")}
+            style={{ color: "#f472b6", borderColor: "#f472b655", fontSize: 10 }}
+            className="px-2 py-1 border hover:opacity-70 transition-opacity font-mono cursor-pointer"
+          >
+            → BODY
+          </button>
+          <button
+            onClick={() => quizSounds.play("intro")}
+            style={{ color: "#facc15", borderColor: "#facc1555", fontSize: 10 }}
+            className="px-2 py-1 border hover:opacity-70 transition-opacity font-mono cursor-pointer"
+          >
+            ♪ TEST
+          </button>
+          <span style={{ color: "#666", fontSize: 10 }} className="self-center ml-auto font-mono">
+            intro {screen}/{SCREENS.length - 1}
+          </span>
+        </div>
+      )}
 
       {/* Bottom action area — EARTH bloom */}
       <div
