@@ -72,9 +72,8 @@ export default function QuizResultPage() {
   const [devDosha, setDevDosha]   = useState<Archetype>(result?.primary ?? "vata");
   const [showGate, setShowGate]   = useState(false);
   const [emailDone, setEmailDone] = useState(() => !!readQuizState()?.email);
-  const navRef        = useRef<HTMLDivElement>(null);
-  const navAnimated   = useRef(false);
   const auraRef       = useRef<SVGSVGElement>(null);
+  const auraPathRef   = useRef<SVGPathElement>(null);
   const labelRef      = useRef<HTMLParagraphElement>(null);
   const nameRef       = useRef<HTMLHeadingElement>(null);
   const archetypeRef  = useRef<HTMLDivElement>(null);
@@ -88,79 +87,59 @@ export default function QuizResultPage() {
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isFirst = !navAnimated.current;
-
-    /* Nav lives OUTSIDE gsap.context so ctx.revert() on dosha-switch cannot undo it */
-    let navTween: gsap.core.Tween | null = null;
-    if (isFirst && navRef.current) {
-      gsap.set(navRef.current, { opacity: 0, y: -10 });
-      navTween = gsap.to(navRef.current, {
-        opacity: 1, y: 0,
-        duration: reduced ? 0.2 : 0.55,
-        ease: "expo.out",
-        delay: 0.1,
-      });
-      navAnimated.current = true;
-    }
 
     const ctx = gsap.context(() => {
-      gsap.set(nameRef.current,    { y: 24, opacity: 0 });
       gsap.set(contentRef.current, { y: 10, opacity: 0 });
+
+      /* Aura path draw — strokeDashoffset from length → 0 */
+      if (!reduced && auraPathRef.current) {
+        const path = auraPathRef.current;
+        const len  = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+        gsap.to(path, { strokeDashoffset: 0, duration: 2.2, ease: "power1.inOut", delay: 0.5 });
+      }
 
       if (reduced) {
         const tl = gsap.timeline({ delay: 0.05 });
-        tl.to(auraRef.current,      { opacity: 1, duration: 0.3 }, isFirst ? 0.15 : 0);
-        tl.to(labelRef.current,     { opacity: 1, duration: 0.3 }, isFirst ? 0.25 : 0.05);
-        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.3 }, isFirst ? 0.35 : 0.1);
-        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3 }, isFirst ? 0.45 : 0.15);
-        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.3 }, isFirst ? 0.55 : 0.25);
+        tl.to(labelRef.current,     { opacity: 1, duration: 0.3 }, 0.1);
+        tl.fromTo(nameRef.current,
+          { opacity: 0, scale: 1, filter: "blur(0px)" },
+          { opacity: 1, duration: 0.3 }, 0.2);
+        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3 }, 0.3);
+        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.3 }, 0.4);
         return;
       }
 
       /*
-       * First load — staggered entrance: Nav → aura → label → name → archetype → content
-       * Dosha switch (dev) — quick cross-fade, no nav re-entrance.
-       *
-       * First load timing (all relative to delay: 0.1):
-       * 0.00  Nav (outside context, see above)
-       * 0.30  Aura — long ambient fade (1.4s)
-       * 0.65  "YOUR NATURE IS" label
-       * 0.85  Dosha name — hero moment
-       * 1.75  Archetype label
-       * 2.05  Blobs (via AuraBubbleChart startDelay)
-       * 2.87  Main content
+       * Nav animates itself via animated prop. Content sequence:
+       * 0.65s  "YOUR NATURE IS" label
+       * 0.85s  Dosha name — blur scale reveal (same as Body/Mind/Spirit in LayerView)
+       * 2.25s  Archetype label
+       * 2.45s  Blobs (AuraBubbleChart startDelay)
+       * 3.0s   Main content
        */
       const tl = gsap.timeline({ delay: 0.1 });
+      tl.to(labelRef.current,     { opacity: 1, duration: 0.5, ease: "circ.out" }, 0.65);
+      tl.fromTo(nameRef.current,
+        { opacity: 0, scale: 1.1, y: 8, filter: "blur(16px)" },
+        { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 1.4, ease: "power1.out" },
+        0.85,
+      );
+      tl.to(archetypeRef.current, { opacity: 1, duration: 0.45, ease: "circ.out" }, 2.25);
+      tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 3.0);
 
-      if (isFirst) {
-        tl.to(auraRef.current,      { opacity: 1, duration: 1.4, ease: "power2.out" }, 0.30);
-        tl.to(labelRef.current,     { opacity: 1, duration: 0.5, ease: "circ.out" }, 0.65);
-        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, 0.85);
-        tl.to(archetypeRef.current, { opacity: 1, duration: 0.45, ease: "circ.out" }, 1.75);
-        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 2.87);
-      } else {
-        tl.to(auraRef.current,      { opacity: 1, duration: 0.4, ease: "power2.out" }, 0);
-        tl.to(labelRef.current,     { opacity: 1, duration: 0.3, ease: "circ.out" }, 0.05);
-        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.1);
-        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3, ease: "circ.out" }, 0.15);
-        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.25);
-      }
-
-      /* Aura ambient breathe — starts after initial reveal settles */
+      /* Aura ambient breathe — starts after draw settles */
       gsap.to(auraRef.current, {
         scale: 1.02, duration: 12, ease: "sine.inOut",
-        yoyo: true, repeat: -1, transformOrigin: "center", delay: isFirst ? 2.0 : 0.5,
+        yoyo: true, repeat: -1, transformOrigin: "center", delay: 2.8,
       });
       gsap.to(auraRef.current, {
         y: -10, duration: 16, ease: "sine.inOut",
-        yoyo: true, repeat: -1, delay: isFirst ? 2.0 : 0.5,
+        yoyo: true, repeat: -1, delay: 2.8,
       });
     });
 
-    return () => {
-      navTween?.kill();
-      ctx.revert();
-    };
+    return () => ctx.revert();
   }, [devDosha]);
 
   const primaryDosha = result?.primary ?? devDosha;
@@ -181,7 +160,7 @@ export default function QuizResultPage() {
           <div style={{ maxWidth: 360 }}>
             <p
               className="font-label"
-              style={{ fontSize: 10, letterSpacing: "0.28em", color: "rgba(255,239,222,0.55)" }}
+              style={{ fontSize: 10, letterSpacing: "0.28em", color: "rgba(255,239,222,0.85)" }}
             >
               NOTHING TO SHOW YET
             </p>
@@ -201,7 +180,7 @@ export default function QuizResultPage() {
               className="font-serif italic"
               style={{
                 fontSize: "0.95rem",
-                color: "rgba(255,239,222,0.62)",
+                color: "rgba(255,239,222,0.85)",
                 lineHeight: 1.6,
                 marginTop: 14,
               }}
@@ -234,9 +213,7 @@ export default function QuizResultPage() {
       style={{ background: theme.bg, minHeight: "100dvh" }}
       className="relative overflow-x-hidden"
     >
-      <div ref={navRef}>
-        <Nav variant="light" hideLinks progress={1} />
-      </div>
+      <Nav variant="light" hideLinks progress={1} animated />
 
       {/* ── DEV PANEL ─────────────────────────────────────────────── */}
       {process.env.NODE_ENV === "development" && (
@@ -282,9 +259,10 @@ export default function QuizResultPage() {
             viewBox={auraVb}
             fill="none"
             preserveAspectRatio="xMidYMid meet"
-            style={{ position: "absolute", overflow: "visible", opacity: 0, willChange: "transform", ...auraPos }}
+            style={{ position: "absolute", overflow: "visible", willChange: "transform", ...auraPos }}
           >
             <path
+              ref={auraPathRef}
               d={auraPath}
               stroke="#FFEFDE"
               strokeOpacity="0.14"
@@ -307,7 +285,7 @@ export default function QuizResultPage() {
               style={{
                 fontSize: 11,
                 letterSpacing: "0.28em",
-                color: "rgba(255,239,222,0.65)",
+                color: "rgba(255,239,222,0.90)",
                 textAlign: "center",
                 opacity: 0,
               }}
@@ -340,7 +318,7 @@ export default function QuizResultPage() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
               <p
                 className="font-label"
-                style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(255,239,222,0.70)" }}
+                style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(255,239,222,0.90)" }}
               >
                 {card.archetype.toUpperCase()}
               </p>
@@ -366,7 +344,7 @@ export default function QuizResultPage() {
 
           {/* Composition bubble chart - animates independently, blobs stagger from startDelay */}
           <div style={{ marginTop: 28 }}>
-            <AuraBubbleChart comp={card.comp} startDelay={2.05} />
+            <AuraBubbleChart comp={card.comp} startDelay={2.45} />
           </div>
 
           {/* Main content */}
@@ -397,7 +375,7 @@ export default function QuizResultPage() {
                 style={{
                   fontSize: 10,
                   letterSpacing: "0.26em",
-                  color: "rgba(255,239,222,0.55)",
+                  color: "rgba(255,239,222,0.85)",
                   marginBottom: 32,
                   textAlign: "left",
                 }}
@@ -411,7 +389,7 @@ export default function QuizResultPage() {
                     className="font-serif italic"
                     style={{
                       fontSize: "1.22rem",
-                      color: "rgba(255,239,222,0.88)",
+                      color: "#FFEFDE",
                       lineHeight: 1.6,
                       textAlign: "left",
                       paddingLeft: 0,
@@ -430,7 +408,7 @@ export default function QuizResultPage() {
                 style={{
                   fontSize: 10,
                   letterSpacing: "0.26em",
-                  color: "rgba(255,239,222,0.55)",
+                  color: "rgba(255,239,222,0.85)",
                   marginBottom: 20,
                   textAlign: "left",
                 }}
@@ -467,7 +445,7 @@ export default function QuizResultPage() {
             />
             <p
               className="font-serif italic"
-              style={{ marginTop: 14, fontSize: "0.82rem", color: "rgba(255,239,222,0.72)" }}
+              style={{ marginTop: 14, fontSize: "0.82rem", color: "rgba(255,239,222,0.85)" }}
             >
               Private. Never shared. Unsubscribe at any moment.
             </p>

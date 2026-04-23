@@ -246,6 +246,165 @@ function renderScreen(s: ScreenDef) {
 }
 
 
+/* ── Water ripple ring generator ──
+   Near-perfect concentric ovals. 1% perturbation only — enough to read as
+   hand-drawn but reads as still water, not chaotic aura art. ── */
+function makeRippleRing(i: number, rx: number, ry: number, cx: number, cy: number): string {
+  const k = 0.5523;
+  /* 1 % perturbation — just enough to feel organic */
+  const p = (n: number) => Math.sin(n * 11.3 + i * 5.7 + 0.9) * 0.01;
+  const f = (v: number) => +v.toFixed(2);
+  const x0 = f(cx);
+  const y0 = f(cy - ry);
+  return (
+    `M${x0},${y0}` +
+    `C${f(cx+rx*(k+p(1)))},${f(cy-ry+ry*p(2))} ${f(cx+rx*(1+p(3)))},${f(cy-ry*k+ry*p(4))} ${f(cx+rx)},${f(cy+ry*p(5))}` +
+    `C${f(cx+rx*(1+p(6)))},${f(cy+ry*k+ry*p(7))} ${f(cx+rx*(k+p(8)))},${f(cy+ry*(1+p(9)))} ${f(cx+rx*p(10))},${f(cy+ry)}` +
+    `C${f(cx-rx*(k+p(11)))},${f(cy+ry*(1+p(12)))} ${f(cx-rx*(1+p(13)))},${f(cy+ry*k+ry*p(14))} ${f(cx-rx)},${f(cy+ry*p(15))}` +
+    `C${f(cx-rx*(1+p(16)))},${f(cy-ry*k+ry*p(17))} ${f(cx-rx*(k+p(18)))},${f(cy-ry*(1+p(19)))} ${x0},${y0}Z`
+  );
+}
+
+const RING_N = 26;
+const DROP_CX = 50;  /* drop point — dead centre */
+const DROP_CY = 50;
+
+const RING_DATA = Array.from({ length: RING_N }, (_, i) => {
+  /* Linear spacing = even ripple bands */
+  const t = (i + 1) / RING_N;
+  const rx = 3.5 + t * 68;           /* 3.5 → 71.5 */
+  const ry = rx * 0.84;               /* slight horizontal stretch, water-surface perspective */
+  /* Tiny centre drift — max 0.4 units so rings stay concentric */
+  const cx = DROP_CX + Math.sin(i * 1.618) * 0.35;
+  const cy = DROP_CY + Math.cos(i * 2.618) * 0.25;
+  const inner = 1 - t;
+  return {
+    d:   makeRippleRing(i, rx, ry, cx, cy),
+    sOp: +(0.04 + inner * 0.18).toFixed(4),  /* 0.22 → 0.04  — light */
+    sw:  +(0.18 + inner * 0.34).toFixed(3),  /* 0.52 → 0.18  — thin  */
+    cx, cy,
+  };
+});
+
+const ARC_PATH_ID  = "etha-arc-text-path";
+const ARC_RING_IDX = 17;
+
+function AuraRippleBackground({ rippleTrigger }: { rippleTrigger: number }) {
+  const pathRefs = useRef<(SVGPathElement | null)[]>([]);
+
+  /* Reveal: inner rings first, then ambient slow breath */
+  useEffect(() => {
+    const reduced = typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const els = pathRefs.current;
+    const ctx = gsap.context(() => {
+      gsap.set(els, { opacity: 0 });
+      els.forEach((el, i) => {
+        if (!el) return;
+        gsap.to(el, {
+          opacity: 1,
+          duration: reduced ? 0 : 2.0,
+          ease: EARTH,
+          delay: reduced ? 0 : 0.2 + i * 0.055,
+        });
+        if (!reduced) {
+          /* Very slow breathing — imperceptible individually, mesmerising together */
+          gsap.to(el, {
+            scale: 1 + 0.004 * ((RING_N - i) / RING_N),
+            transformOrigin: `${DROP_CX} ${DROP_CY}`,
+            duration: 6 + i * 0.35,
+            ease: WATER,
+            yoyo: true,
+            repeat: -1,
+            delay: i * 0.18 + 3.0,
+          });
+        }
+      });
+    });
+    return () => ctx.revert();
+  }, []);
+
+  /* Water-droplet ripple — smooth sine physics, no elastic spring */
+  useEffect(() => {
+    if (rippleTrigger === 0) return;
+    const reduced = typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    const tl = gsap.timeline();
+    RING_DATA.forEach((ring, i) => {
+      const el = pathRefs.current[i];
+      if (!el) return;
+      /* Amplitude decays exponentially from centre outward */
+      const amp = 1 + 0.045 * Math.exp(-i * 0.14);
+      const d = i * 0.048;
+      tl
+        .to(el, {
+          scale: amp,
+          strokeOpacity: Math.min(ring.sOp * 2.4, 0.55),
+          transformOrigin: `${DROP_CX} ${DROP_CY}`,
+          duration: 0.28,
+          ease: "sine.out",
+        }, d)
+        .to(el, {
+          scale: 1,
+          strokeOpacity: ring.sOp,
+          transformOrigin: `${DROP_CX} ${DROP_CY}`,
+          duration: 0.9,
+          ease: "sine.inOut",
+        }, d + 0.28);
+    });
+    return () => { tl.kill(); };
+  }, [rippleTrigger]);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="xMidYMid slice"
+        className="absolute inset-0 w-full h-full"
+      >
+        <defs>
+          <path id={ARC_PATH_ID} d={RING_DATA[ARC_RING_IDX].d} />
+          <radialGradient id="centre-veil" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stopColor="#3D233B" stopOpacity="0.72" />
+            <stop offset="60%"  stopColor="#3D233B" stopOpacity="0.18" />
+            <stop offset="100%" stopColor="#3D233B" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+
+        {RING_DATA.map((r, i) => (
+          <path
+            key={i}
+            ref={el => { pathRefs.current[i] = el; }}
+            d={r.d}
+            fill="none"
+            stroke="#FFEFDE"
+            strokeWidth={r.sw}
+            strokeOpacity={r.sOp}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        ))}
+
+        {/* Darken centre so text pops over rings */}
+        <ellipse cx="50" cy="50" rx="52" ry="46" fill="url(#centre-veil)" />
+
+        <text
+          fill="#FFEFDE"
+          fillOpacity={0.09}
+          fontSize="1.9"
+          letterSpacing="0.22"
+          style={{ fontFamily: "var(--font-plantin), Georgia, serif", fontStyle: "italic" }}
+        >
+          <textPath href={`#${ARC_PATH_ID}`} startOffset="8%">
+            A 5,000-year-old system for understanding
+          </textPath>
+        </text>
+      </svg>
+    </div>
+  );
+}
+
 /* ── Dev jump targets ── */
 const DEV_JUMPS = SCREENS.map((s, i) => {
   const colors: Record<string, string> = {
@@ -269,6 +428,7 @@ const DEV_JUMPS = SCREENS.map((s, i) => {
 /* ── Main ── */
 export default function QuizIntro() {
   const [screen, setScreen] = useState(0);
+  const [rippleTrigger, setRippleTrigger] = useState(0);
   const contentRef = useRef<HTMLDivElement>(null);
   const hintRef    = useRef<HTMLDivElement>(null);
   const router     = useRouter();
@@ -335,6 +495,7 @@ export default function QuizIntro() {
     const hint    = hintRef.current;
     if (!content) return;
     const nextScreen = Math.min(screen + 1, SCREENS.length - 1);
+    setRippleTrigger(t => t + 1);
     quizSounds.playIntroMelody(nextScreen);
     gsap.to(content, {
       opacity: 0, y: -30, duration: 0.36, ease: FIRE,
@@ -359,6 +520,7 @@ export default function QuizIntro() {
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none">
+      <AuraRippleBackground rippleTrigger={rippleTrigger} />
       <Nav
         variant="light"
         hideLinks
