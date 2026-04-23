@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { hasQuizState, readQuizState, writeQuizState } from "@/lib/quizState";
+import { doshaScoring } from "@/lib/doshaScoring";
 import QuizEmailGate from "@/components/quiz/QuizEmailGate";
 
 export default function QuizGatePage() {
@@ -22,12 +23,8 @@ export default function QuizGatePage() {
     } catch {}
     const state = readQuizState();
     if (state?.answers) {
-      const counts = { a: 0, b: 0, c: 0 };
-      Object.values(state.answers).forEach(v => {
-        if (v in counts) counts[v as keyof typeof counts]++;
-      });
-      const top = Object.entries(counts).sort((x, y) => y[1] - x[1])[0][0];
-      setDosha(top === "a" ? "vata" : top === "b" ? "pitta" : "kapha");
+      const result = doshaScoring(state.answers);
+      setDosha(result.primary);
     } else {
       setDosha("vata");
     }
@@ -42,6 +39,7 @@ export default function QuizGatePage() {
         writeQuizState({ email });
         router.push("/quiz/sent");
       }}
+      onCancel={() => router.back()}
     />
   );
 }

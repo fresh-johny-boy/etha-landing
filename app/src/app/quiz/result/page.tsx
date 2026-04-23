@@ -21,7 +21,7 @@ const CARD = {
     archetype: "The Kinetic Mind",
     reframe: "You were built to move. Right now you are being asked to also burn.",
     comp: [{ pct: 60, label: "Vata" }, { pct: 30, label: "Pitta" }, { pct: 10, label: "Kapha" }],
-    secondaryNote: "With Pitta secondary, your creativity carries an edge of precision — and your burnout arrives faster than most Vatas.",
+    secondaryNote: "With Pitta secondary, your creativity carries an edge of precision, and your burnout arrives faster than most Vatas.",
     signals: [
       "Your mind races when your body needs to land",
       "You push through tired instead of stopping",
@@ -33,30 +33,30 @@ const CARD = {
   },
   pitta: {
     archetype: "The Fiery Drive",
-    reframe: "You are not burning out. You are Pitta — and what you need is not less fire. It is a cooler vessel.",
+    reframe: "You are not burning out. You are Pitta. What you need is not less fire. It is a cooler vessel.",
     comp: [{ pct: 58, label: "Pitta" }, { pct: 32, label: "Vata" }, { pct: 10, label: "Kapha" }],
-    secondaryNote: "With Vata secondary, your fire moves fast and can scatter — brilliant and creative, but prone to burnout from doing too many things at full intensity.",
+    secondaryNote: "With Vata secondary, your fire moves fast and can scatter. Brilliant and creative, but prone to burnout from doing too many things at full intensity.",
     signals: [
       "Your precision turns inward when there is no outlet",
       "You finish the day in your head long after your body has stopped",
       "Your frustration rises before you can name its source",
     ],
     ritualLabel: "One thing for tonight",
-    ritual: "Roll your tongue or part your lips. Inhale slowly through the mouth — feel the cool air travel inward. Hold briefly. Exhale through the nose. Three rounds. This is Sheetali — the oldest Pitta cooling practice in Ayurveda.",
+    ritual: "Roll your tongue or part your lips. Inhale slowly through the mouth. Feel the cool air travel inward. Hold briefly. Exhale through the nose. Three rounds. This is Sheetali. The oldest Pitta cooling practice in Ayurveda.",
     teaser: "Includes the one plant that cools Pitta's fire without dimming its light",
   },
   kapha: {
     archetype: "The Grounded Core",
-    reframe: "You are not stuck. You are Kapha — and the bloom is already there. It simply needs the right conditions.",
+    reframe: "You are not stuck. You are Kapha. The bloom is already there. It simply needs the right conditions.",
     comp: [{ pct: 60, label: "Kapha" }, { pct: 28, label: "Pitta" }, { pct: 12, label: "Vata" }],
-    secondaryNote: "With Pitta secondary, your depth has an edge — a will beneath the steadiness that, when activated, is formidable.",
+    secondaryNote: "With Pitta secondary, your depth has an edge. A will beneath the steadiness that, when activated, is formidable.",
     signals: [
       "Your mornings need more than one reason to begin",
       "You carry what others put down",
-      "Your energy arrives slowly — and lasts the longest",
+      "Your energy arrives slowly. And lasts the longest.",
     ],
     ritualLabel: "One thing for tomorrow morning",
-    ritual: "Before anything else — five minutes of movement. Brisk, warm, arms and legs. Then fresh ginger tea, drunk standing. Kapha wakes from the inside out — and you already know this.",
+    ritual: "Before anything else, five minutes of movement. Brisk, warm, arms and legs. Then fresh ginger tea, drunk standing. Kapha wakes from the inside out. And you already know this.",
     teaser: "Includes the sacred plant that tells Kapha the morning has genuinely arrived",
   },
 } as const;
@@ -102,12 +102,12 @@ export default function QuizResultPage() {
       }
 
       /*
-       * Sequential reveal — each group waits for the previous to land.
+       * Sequential reveal - each group waits for the previous to land.
        * Eases: power2/power3 for smooth deceleration, no bounce/elastic.
        *
        * 0.0s  aura breathes in (ambient, long)
        * 0.2s  "YOUR NATURE IS" label
-       * 0.7s  dosha name — the hero moment, given the most space
+       * 0.7s  dosha name - the hero moment, given the most space
        * 2.0s  archetype label
        * 2.7s  blobs (handled in AuraBubbleChart via startDelay prop)
        * 4.5s  content (reframe + signals + ritual)
@@ -115,7 +115,7 @@ export default function QuizResultPage() {
       const tl = gsap.timeline({ delay: 0.1 });
 
       /*
-       * Waterfall chain — each starts 0.06s before the previous finishes.
+       * Waterfall chain - each starts 0.06s before the previous finishes.
        * Aura runs in parallel (ambient, doesn't block chain).
        *
        * label:      0.00 → 0.50
@@ -132,7 +132,7 @@ export default function QuizResultPage() {
       tl.to(archetypeRef.current, { opacity: 1, duration: 0.45, ease: "circ.out" }, "-=0.06");
       tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 2.87);
 
-      /* Aura ambient breathe — starts after initial reveal settles */
+      /* Aura ambient breathe - starts after initial reveal settles */
       gsap.to(auraRef.current, {
         scale: 1.02, duration: 12, ease: "sine.inOut",
         yoyo: true, repeat: -1, transformOrigin: "center", delay: 2.0,
@@ -256,7 +256,7 @@ export default function QuizResultPage() {
       {/* ── CARD ──────────────────────────────────────────────────── */}
       <section className="relative" aria-labelledby="dosha-name" style={{ minHeight: "100dvh", paddingTop: 100, paddingBottom: 64 }}>
 
-        {/* Atmospheric aura — one per dosha, connected closed loop, breathes only */}
+        {/* Atmospheric aura - one per dosha, connected closed loop, breathes only */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
           <svg
             ref={auraRef}
@@ -345,7 +345,7 @@ export default function QuizResultPage() {
             </div>
           </div>
 
-          {/* Composition bubble chart — animates independently, blobs stagger from startDelay */}
+          {/* Composition bubble chart - animates independently, blobs stagger from startDelay */}
           <div style={{ marginTop: 28 }}>
             <AuraBubbleChart comp={card.comp} startDelay={1.67} />
           </div>
@@ -353,7 +353,7 @@ export default function QuizResultPage() {
           {/* Main content */}
           <div ref={contentRef} style={{ marginTop: 64, opacity: 0 }}>
 
-            {/* Reframe quote — emotional core, given full stage */}
+            {/* Reframe quote - emotional core, given full stage */}
             <blockquote
               className="font-serif italic"
               style={{
@@ -371,7 +371,7 @@ export default function QuizResultPage() {
               {card.reframe}
             </blockquote>
 
-            {/* Mirror signals — left-aligned, editorial feel */}
+            {/* Mirror signals - left-aligned, editorial feel */}
             <div style={{ marginTop: 64 }}>
               <p
                 className="font-label"
@@ -404,7 +404,7 @@ export default function QuizResultPage() {
               </ul>
             </div>
 
-            {/* Ritual — the gift. More weight, more separation, left-aligned */}
+            {/* Ritual - the gift. More weight, more separation, left-aligned */}
             <div style={{ marginTop: 72, position: "relative" }}>
               <p
                 className="font-label"
@@ -466,6 +466,7 @@ export default function QuizResultPage() {
             setShowGate(false);
             router.push("/quiz/sent");
           }}
+          onCancel={() => setShowGate(false)}
         />
       )}
     </main>
@@ -474,7 +475,7 @@ export default function QuizResultPage() {
 
 /* ── Organic aura ornaments ─────────────────────────────────────
  * Replace straight-line dividers with short balanced-state aura strokes.
- * Brand rule: no straight lines — organic shapes from aura SVGs only.
+ * Brand rule: no straight lines - organic shapes from aura SVGs only.
  */
 function AuraOrnament({
   color,
@@ -524,7 +525,7 @@ function AuraBubbleChart({
   const groupRefs = useRef<(SVGGElement | null)[]>([]);
 
   /*
-   * Hand-crafted C1-continuous paths — every anchor has mathematically balanced
+   * Hand-crafted C1-continuous paths - every anchor has mathematically balanced
    * control handles so the tangent direction is identical on both sides.
    * No warp arrays, no kinks, no algorithmic ugliness.
    *

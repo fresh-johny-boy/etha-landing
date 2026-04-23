@@ -19,7 +19,7 @@ type ScreenDef =
   | { type: "statement"; text: string; size: "massive" | "large" }
   | { type: "twoLine";   line1: string; line2: string }
   | { type: "reflection"; text: string }
-  | { type: "value"; headline: string; items: { num: string; text: string }[]; footer?: string }
+  | { type: "value"; headline: string; items: { num: string; text: string }[] }
   | { type: "gate"; headline: string; ctaA: string; privacy: string };
 
 const SCREENS: ScreenDef[] = [
@@ -40,7 +40,6 @@ const SCREENS: ScreenDef[] = [
       { num: "02", text: "A morning-to-night ritual designed for your specific constitution." },
       { num: "03", text: "Botanical recommendations matched to where you are right now." },
     ],
-    footer: "43 questions. One map that belongs only to you.",
   },
   {
     type: "gate",
@@ -138,11 +137,10 @@ function ReflectionScreen({ text }: { text: string }) {
   );
 }
 
-function ValueScreen({ headline, items, footer }: {
-  headline: string; items: { num: string; text: string }[]; footer?: string;
+function ValueScreen({ headline, items }: {
+  headline: string; items: { num: string; text: string }[];
 }) {
-  const listRef   = useRef<HTMLOListElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLOListElement>(null);
 
   useEffect(() => {
     if (!listRef.current) return;
@@ -152,11 +150,9 @@ function ValueScreen({ headline, items, footer }: {
         { opacity: 0 },
         { opacity: 1, duration: 1.0, ease: WATER, stagger: 0.35, delay: 0.3 }
       );
-      if (footer && footerRef.current)
-        gsap.fromTo(footerRef.current, { opacity: 0 }, { opacity: 1, duration: 1.0, ease: WATER, delay: 1.6 });
     }, listRef);
     return () => ctx.revert();
-  }, [footer]);
+  }, []);
 
   return (
     <div className="w-full max-w-lg">
@@ -170,13 +166,6 @@ function ValueScreen({ headline, items, footer }: {
           </li>
         ))}
       </ol>
-      {footer && (
-        <div ref={footerRef} className="mt-10 pt-7 border-t border-cream/15" style={{ opacity: 0 }}>
-          <p className="font-serif text-cream/70 leading-relaxed italic" style={{ fontSize: "clamp(0.95rem,2vw,1.1rem)" }}>
-            {footer}
-          </p>
-        </div>
-      )}
     </div>
   );
 }
@@ -251,7 +240,7 @@ function renderScreen(s: ScreenDef) {
     case "statement":  return <StatementScreen  text={s.text} size={s.size} />;
     case "twoLine":    return <TwoLineStatement  line1={s.line1} line2={s.line2} />;
     case "reflection": return <ReflectionScreen  text={s.text} />;
-    case "value":      return <ValueScreen       headline={s.headline} items={s.items} footer={s.footer} />;
+    case "value":      return <ValueScreen       headline={s.headline} items={s.items} />;
     case "gate":       return <GateScreen        headline={s.headline} />;
   }
 }
@@ -292,7 +281,7 @@ export default function QuizIntro() {
     }
   }, []);
 
-  /* Keyboard back navigation — Escape or ArrowLeft goes to previous screen */
+  /* Keyboard back navigation - Escape or ArrowLeft goes to previous screen */
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if ((e.key === "Escape" || e.key === "ArrowLeft") && screen > 0) {
@@ -306,7 +295,7 @@ export default function QuizIntro() {
   const current = SCREENS[screen];
   const isGate  = current.type === "gate";
 
-  /* Per-screen enter — WATER element */
+  /* Per-screen enter - WATER element */
   useEffect(() => {
     const content = contentRef.current;
     const hint    = hintRef.current;
@@ -339,7 +328,7 @@ export default function QuizIntro() {
     return () => ctx.revert();
   }, [screen, isGate]);
 
-  /* Advance — FIRE exit, AIR enter */
+  /* Advance - FIRE exit, AIR enter */
   const advance = useCallback(() => {
     if (isGate) return;
     const content = contentRef.current;
@@ -383,7 +372,7 @@ export default function QuizIntro() {
         }
       />
 
-      {/* Screen content — key forces child remounts for per-screen useEffects */}
+      {/* Screen content - key forces child remounts for per-screen useEffects */}
       <div
         ref={contentRef}
         className="relative z-10 flex flex-1 items-center justify-center px-7 py-16 sm:px-14"
@@ -432,7 +421,7 @@ export default function QuizIntro() {
         </div>
       )}
 
-      {/* Bottom action area — EARTH bloom */}
+      {/* Bottom action area - EARTH bloom */}
       <div
         ref={hintRef}
         className="relative z-10 flex flex-col items-center gap-4 px-4 pt-6 pb-10 sm:pb-14"

@@ -10,10 +10,10 @@ import { useQuizData } from "./QuizDataProvider";
 import { QuizBackButton } from "./QuizBackButton";
 
 /* Easing vocabulary:
-   AIR   — entrances (default)
-   FIRE  — exits
-   WATER — SPIRIT-layer entrances + late-quiz tempo shifts
-   EARTH — layer-reveal + grounding moments */
+   AIR   - entrances (default)
+   FIRE  - exits
+   WATER - SPIRIT-layer entrances + late-quiz tempo shifts
+   EARTH - layer-reveal + grounding moments */
 const AIR   = "expo.out";
 const FIRE  = "power4.in";
 const WATER = "sine.inOut";
@@ -29,7 +29,7 @@ function toPath(pts: Pt[]): string {
   return d;
 }
 
-/* Balanced oval — 22 control points */
+/* Balanced oval - 22 control points */
 const AURA_BASE: Pt[] = [
   [188,  7],
   [252,  2], [318,  4], [350, 14],
@@ -49,28 +49,28 @@ const SLIDER_TRACK = "M 16,28 C 48,16 80,40 112,28 C 144,16 176,40 208,28 C 240,
 const SLIDER_AURA  = "M 0,-13 C 6,-16 14,-12 16,-5 C 18,2 14,12 7,15 C 0,18 -10,14 -14,6 C -18,-2 -14,-12 -8,-14 C -4,-15 -2,-13 0,-13 Z";
 
 /* ── Three ETHA aura types mapped to quiz choices
-   A → VATA / Air:  open-ended path (no Z) — restless, airy, unclosed
-   B → PITTA / Fire: classic balanced ETHA oval — confident, clear
-   C → KAPHA / Earth: wide, full, relaxed blob — heavy, rounded
+   A → VATA / Air:  open-ended path (no Z) - restless, airy, unclosed
+   B → PITTA / Fire: classic balanced ETHA oval - confident, clear
+   C → KAPHA / Earth: wide, full, relaxed blob - heavy, rounded
    Different stroke weights + heights make them legibly distinct.
    ──────────────────────────────────────────────────────────────── */
 const OPTION_AURAS = {
   a: {
-    // Real ETHA brand aura (aura-balanced-01.svg) — authentic organic oval with kink
+    // Real ETHA brand aura (aura-balanced-01.svg) - authentic organic oval with kink
     vb: "0 0 392 250",
     d: "M163.55,9.51C211.17,-3.86,265.47,-0.88,307.86,21.36C350.26,43.59,330.21,44.58,342.02,53.21C362.99,68.53,382.36,88.43,388.57,113.62C395.99,143.78,382.51,176.39,360.11,197.94C337.71,219.49,307.67,231.41,277.44,238.69C238.63,248.03,198.18,250.52,158.52,246.01C114.58,241.01,70.82,226.97,35.98,199.77C17.58,185.40,0.98,165.12,1.51,141.81C2.05,118.52,19.29,99.28,36.61,83.68C73.34,50.59,115.94,22.88,163.55,9.51Z",
     sw: 2.0,
     pad: "py-7",
   },
   b: {
-    // Idealized clean oval — Pitta precision
+    // Idealized clean oval - Pitta precision
     vb: "0 0 400 76",
     d: "M 196,5 C 264,-1 348,4 386,19 C 408,30 412,47 405,61 C 396,73 354,79 278,81 C 206,83 120,81 52,76 C 6,68 -8,52 4,37 C 16,20 50,7 106,5 C 148,2 172,5 196,5 Z",
     sw: 1.05,
     pad: "py-7",
   },
   c: {
-    // Double-hump wave top — Kapha earth/water, peaks extend above button
+    // Double-hump wave top - Kapha earth/water, peaks extend above button
     vb: "0 0 400 106",
     d: "M 80,14 C 118,-4 158,24 200,4 C 242,-10 282,24 318,6 C 354,-4 392,12 402,36 C 410,54 402,74 378,86 C 346,98 286,104 218,104 C 150,104 86,100 44,86 C 6,72 -6,50 4,30 C 16,8 50,-4 80,14 Z",
     sw: 1.4,
@@ -79,15 +79,15 @@ const OPTION_AURAS = {
 } as const;
 
 /* ── Blob mask shapes for visual questions ────────────────────────────────
-   Three DRAMATICALLY different silhouettes — shape IS character:
-   A → Vata / Air   : tall narrow teardrop — thin, airy (aspect 0.49:1)
-   B → Pitta / Fire : compact rounder blob  — focused, squarish (1.07:1)
-   C → Kapha / Earth: wide landscape pebble — heavy, flat (1.81:1)
+   Three DRAMATICALLY different silhouettes - shape IS character:
+   A → Vata / Air   : tall narrow teardrop - thin, airy (aspect 0.49:1)
+   B → Pitta / Fire : compact rounder blob  - focused, squarish (1.07:1)
+   C → Kapha / Earth: wide landscape pebble - heavy, flat (1.81:1)
    containerW drives layout width so each card looks truly distinct.
    ──────────────────────────────────────────────────────────────────────── */
 const BLOB_MASKS = {
   a: {
-    // Portrait leaf/drop — tall, clearly portrait (0.67:1)
+    // Portrait leaf/drop - tall, clearly portrait (0.67:1)
     vb: "0 0 156 232", w: 156, h: 232, containerW: 168,
     d: "M 78,5 C 110,0 148,20 154,62 C 160,104 146,154 124,188 C 102,220 70,234 44,222 C 18,210 4,180 6,148 C 8,114 22,72 44,44 C 62,20 56,8 78,5 Z",
   },
@@ -101,7 +101,7 @@ const BLOB_MASKS = {
   },
 } as const;
 
-/* ── Element images — Vata/Pitta/Kapha semantic mapping ── */
+/* ── Element images - Vata/Pitta/Kapha semantic mapping ── */
 const VISUAL_IMG: Record<string, string> = {
   a: "air.webp",
   b: "fire.webp",
@@ -128,7 +128,7 @@ const LAYER_DEF: Record<1|2|3, LayerScreen> = {
   3: { kind: "layer", layer: 3, label: "III", title: "Spirit", sub: "What this moment reveals."         },
 };
 
-/* ── 45 Questions — matches ETHA Dosha Quiz Final Version doc ── */
+/* ── 45 Questions - matches ETHA Dosha Quiz Final Version doc ── */
 /* a→Vata, b→Pitta, c→Kapha throughout */
 const QS: Question[] = [
   /* ─ Layer 1 / Body (Q1-Q15) ────────────────────────────────── */
@@ -462,7 +462,7 @@ const QS: Question[] = [
   },
 ];
 
-/* ── Layer section icons — mirrors Nav SECTION_ICONS ── */
+/* ── Layer section icons - mirrors Nav SECTION_ICONS ── */
 const LAYER_ICONS: Record<1|2|3, { viewBox: string; paths: { d: string; sw: number }[] }> = {
   1: {
     viewBox: "22 8 66 76",
@@ -499,7 +499,7 @@ const TRANSITION_COPY: Record<2|3, string> = {
   3: "Your body spoke. Your mind spoke. One final layer. The deepest one. The place where you already know who you are, even when the world has made you forget. In Ayurveda, this is where your Dosha lives most completely. This is the part most people never reach. But you are here.",
 };
 
-/* Keys are QS indices (0-based) — interstitial injected AFTER that question */
+/* Keys are QS indices (0-based) - interstitial injected AFTER that question */
 const MID_ACT_AFTER: Record<number, string> = {
   8:  "Something is forming. The way you described your mornings, your temperature, your energy - a pattern is becoming visible. We need to look at your digestion to confirm what your body is already telling us. Keep going.",
   20: "The way your mind handles pressure, and the way it handles stillness - these two things together are pointing clearly. We need one more layer before the picture is complete. Your spirit holds the final answer.",
@@ -542,7 +542,7 @@ function buildSteps(): Step[] {
 const STEPS = buildSteps();
 const TOTAL  = STEPS.length;
 
-/* TEMPO-1 — last 5 questions get a slower, softer entry cadence. */
+/* TEMPO-1 - last 5 questions get a slower, softer entry cadence. */
 const LATE_TEMPO_SET: Set<number> = (() => {
   const s = new Set<number>();
   let count = 0;
@@ -562,7 +562,7 @@ const LAYER_POS: Record<1|2|3, number> = { 1: 1/6, 2: 1/2, 3: 5/6 };
 function calcProgress(stepIdx: number, layer: 1|2|3): number {
   const start  = LAYER_START[layer];
   const end    = layer < 3 ? LAYER_START[(layer + 1) as 2|3] : TOTAL;
-  /* Clamp — reassurance interstitials sit one step before a layer's start. */
+  /* Clamp - reassurance interstitials sit one step before a layer's start. */
   const within = Math.max(0, Math.min(1, (stepIdx - start) / (end - start)));
   const from   = LAYER_POS[layer];
   const to     = layer < 3 ? LAYER_POS[(layer + 1) as 2|3] : 1;
@@ -570,7 +570,7 @@ function calcProgress(stepIdx: number, layer: 1|2|3): number {
 }
 
 /* ────────────────────────────────────────────────────────
-   Layer transition — cinematic GSAP reveal
+   Layer transition - cinematic GSAP reveal
    ──────────────────────────────────────────────────────── */
 function LayerView({ step, onSkip, entryDelay = 0 }: { step: LayerScreen; onSkip: () => void; entryDelay?: number }) {
   const iconRef  = useRef<SVGSVGElement>(null);
@@ -582,14 +582,14 @@ function LayerView({ step, onSkip, entryDelay = 0 }: { step: LayerScreen; onSkip
       const tl = gsap.timeline({ delay: entryDelay });
       tl
         .fromTo(iconRef.current,
-          { opacity: 0, scale: 0.85 },
-          { opacity: 1, scale: 1, duration: 0.9, ease: EARTH },
+          { opacity: 0, scale: 0.8, filter: "blur(8px)" },
+          { opacity: 1, scale: 1, filter: "blur(0px)", duration: 1.1, ease: EARTH },
           0,
         )
         .fromTo(titleRef.current,
-          { opacity: 0, scale: 1.07, y: 12 },
-          { opacity: 1, scale: 1, y: 0, duration: 1.15, ease: EARTH },
-          0.25,
+          { opacity: 0, scale: 1.1, y: 8, filter: "blur(16px)" },
+          { opacity: 1, scale: 1, y: 0, filter: "blur(0px)", duration: 1.4, ease: EARTH },
+          0.2,
         );
     });
     return () => ctx.revert();
@@ -636,7 +636,7 @@ function LayerView({ step, onSkip, entryDelay = 0 }: { step: LayerScreen; onSkip
 }
 
 /* ────────────────────────────────────────────────────────
-   Shared aura SVG overlay — invisible at rest, draws on selection
+   Shared aura SVG overlay - invisible at rest, draws on selection
    ──────────────────────────────────────────────────────── */
 function AuraSvg({
   pathRef,
@@ -678,7 +678,7 @@ function useOptionAnim(
   entryDelay: number,
   defaultOpacity: number,
 ) {
-  /* Entry — stagger slide-up into opacity target */
+  /* Entry - stagger slide-up into opacity target */
   useEffect(() => {
     if (!wrapRef.current) return;
     gsap.fromTo(
@@ -718,7 +718,7 @@ function useOptionAnim(
 }
 
 /* ────────────────────────────────────────────────────────
-   Option row — A / B / C aura-ring pill cards
+   Option row - A / B / C aura-ring pill cards
    Each option has a distinct organic oval aura character.
    Rest: ghosted ring at 9% opacity.
    Selected: ring draws itself + brightens. Others dim.
@@ -756,7 +756,7 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
       const len = path.getTotalLength();
       gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0.22 });
       gsap.to(path, { strokeDashoffset: 0, strokeOpacity: 0.88, duration: 0.9, ease: "power2.inOut" });
-      /* One-beat confirmation — sensory, not a tick */
+      /* One-beat confirmation - sensory, not a tick */
       gsap.fromTo(wrap,
         { scale: 1 },
         { scale: 1.02, duration: 0.2, ease: "sine.out", yoyo: true, repeat: 1, delay: 0.3, transformOrigin: "center center" },
@@ -774,7 +774,7 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
         tabIndex={chosen !== null ? -1 : 0}
         className={`relative w-full text-center px-10 ${aura.pad} min-h-[52px] cursor-pointer`}
       >
-        {/* Per-option organic aura ring — unique shape per A/B/C */}
+        {/* Per-option organic aura ring - unique shape per A/B/C */}
         <svg
           className="pointer-events-none absolute overflow-visible"
           viewBox={aura.vb}
@@ -805,7 +805,7 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
 }
 
 /* ────────────────────────────────────────────────────────
-   Visual card — blob-masked image tile + text label
+   Visual card - blob-masked image tile + text label
    Each option uses a distinct organic blob shape.
    Entry: scale+fade stagger. Selection: outline draws, others dim.
    ──────────────────────────────────────────────────────── */
@@ -884,7 +884,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride }: {
             clipPath={`url(#${clipId})`}
             style={{ opacity: 1 }}
           />
-          {/* Organic outline — ghost at rest, draws on selection */}
+          {/* Organic outline - ghost at rest, draws on selection */}
           <path
             ref={pathRef}
             d={blob.d}
@@ -907,7 +907,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride }: {
 }
 
 /* ────────────────────────────────────────────────────────
-   Scale node — spectrum with circle indicator
+   Scale node - spectrum with circle indicator
    ──────────────────────────────────────────────────────── */
 function ScaleNode({ id, text, pos, total, chosen, onPick, entryDelay = 0 }: {
   id: string; text: string; pos: number; total: number;
@@ -963,7 +963,7 @@ function ScaleNode({ id, text, pos, total, chosen, onPick, entryDelay = 0 }: {
 }
 
 /* ────────────────────────────────────────────────────────
-   Horizontal organic-aura drag slider — scale2 (A↔B) and
+   Horizontal organic-aura drag slider - scale2 (A↔B) and
    scale3 (A↔middle↔B). The track is a living ETHA aura
    line; the handle breathes. Active segment brightens left
    of the handle. Pole labels fade with position in real time.
@@ -985,7 +985,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
   const poleARef   = useRef<HTMLParagraphElement>(null);
   const poleBRef   = useRef<HTMLParagraphElement>(null);
   const poleMRef   = useRef<HTMLParagraphElement>(null);
-  /* Bucket-zone tick marks (scale3 only) — placed after dim track mounts */
+  /* Bucket-zone tick marks (scale3 only) - placed after dim track mounts */
   const tick1Ref   = useRef<SVGLineElement>(null);
   const tick2Ref   = useRef<SVGLineElement>(null);
   /* A/B (or A/B/C) letter markers shown above the track at bucket centres.
@@ -1001,7 +1001,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
   const [placed, setPlaced] = useState(false);
 
   const isS3 = step.qtype === "scale3";
-  /* Bucket centres — where the A/B(/C) letters sit. The handle no longer
+  /* Bucket centres - where the A/B(/C) letters sit. The handle no longer
      snaps here on drop; letters are just positional guides and score
      according to onUp's boundaries (scale3: <0.33 / 0.33–0.67 / >0.67). */
   const bucketCenters = isS3 ? [1/6, 0.5, 5/6] : [0.25, 0.75];
@@ -1024,7 +1024,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
     }
   };
 
-  /* Pulse range — wider than before so the handle reads as the
+  /* Pulse range - wider than before so the handle reads as the
      interactive element while the user hasn't dragged yet. */
   const startBreathing = () => {
     if (!auraRef.current) return;
@@ -1083,7 +1083,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
 
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (disabled) return;
-    /* Re-drag after placing — kill any in-flight tweens (aura draw)
+    /* Re-drag after placing - kill any in-flight tweens (aura draw)
        before restarting breathing so we don't get animation seams. */
     if (placedIdRef.current !== null) {
       placedIdRef.current = null;
@@ -1122,7 +1122,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
     const pos = posRef.current;
     const id  = isS3 ? (pos < 0.33 ? "a" : pos > 0.67 ? "c" : "b") : (pos < 0.5 ? "a" : "b");
     const placedIdx = isS3 ? (id === "a" ? 0 : id === "c" ? 2 : 1) : (id === "a" ? 0 : 1);
-    /* Aura ring draws to confirm placement — CONTINUE button then appears */
+    /* Aura ring draws to confirm placement - CONTINUE button then appears */
     if (auraRef.current) {
       gsap.killTweensOf(auraRef.current);
       const al = auraRef.current.getTotalLength();
@@ -1141,7 +1141,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
 
   return (
     <div ref={wrapRef} style={{ opacity: 0 }}>
-      {/* A / B (/ C) row — all letters on one line above the track.
+      {/* A / B (/ C) row - all letters on one line above the track.
          Initial `left` is a linear approximation of the bucket-centre x
          (so they're positioned from first paint), then refined in
          useEffect to match the exact arc-length position on the
@@ -1190,7 +1190,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
           stroke="#FFEFDE" strokeWidth="1.15" strokeOpacity="0.14"
           strokeLinecap="round" strokeLinejoin="round"
         />
-        {/* Bucket-zone ticks — scale3 only. Mark the boundaries so the user can
+        {/* Bucket-zone ticks - scale3 only. Mark the boundaries so the user can
             see the three zones before dropping. Positions set in useEffect. */}
         {isS3 && (
           <>
@@ -1214,7 +1214,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
         </g>
       </svg>
 
-      {/* Secondary cue — sits directly under the handle/track */}
+      {/* Secondary cue - sits directly under the handle/track */}
       <p
         className="font-label text-[8px] text-center mt-2"
         style={{
@@ -1264,7 +1264,7 @@ function ScaleSlider({ step, onPlaced, entryDelay = 0, disabled = false }: {
 }
 
 /* ── Aura paths for open question inputs ── */
-/* Tall rectangle-ish organic loop — traces the textarea perimeter with organic wobble */
+/* Tall rectangle-ish organic loop - traces the textarea perimeter with organic wobble */
 const OPEN_MAIN_AURA  = "M 178,5 C 234,2 300,4 338,11 C 354,16 360,28 359,52 C 358,96 360,138 358,174 C 356,186 346,193 318,196 C 278,199 234,200 178,200 C 122,200 74,199 38,196 C 12,192 4,184 4,172 C 2,138 4,96 4,52 C 4,28 10,16 28,11 C 66,4 124,2 178,5 Z";
 /* Shorter version for bonus textarea */
 const OPEN_BONUS_AURA = "M 178,4 C 234,1 300,3 338,9 C 354,13 360,22 359,36 C 358,62 360,86 358,108 C 356,118 346,124 318,126 C 278,128 234,129 178,129 C 122,129 74,128 38,126 C 12,123 4,116 4,106 C 2,86 4,62 4,36 C 4,22 10,13 28,9 C 66,3 124,1 178,4 Z";
@@ -1366,7 +1366,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
       </h2>
 
       <div ref={areaRef} style={{ opacity: 0 }}>
-        {/* Tall aura-bordered textarea — organic frame instead of CSS border */}
+        {/* Tall aura-bordered textarea - organic frame instead of CSS border */}
         <div className="relative" style={{ maxHeight: "calc(100dvh - 420px)" }}>
           <svg
             className="pointer-events-none absolute overflow-visible"
@@ -1454,7 +1454,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
         )}
 
         <div className="flex items-center justify-between mt-8">
-          {/* SKIP — small aura pill, consistent with button system */}
+          {/* SKIP - small aura pill, consistent with button system */}
           <button
             onClick={onAdvance}
             className="relative font-label text-[9px] text-cream/62 hover:text-cream/85 focus-visible:text-cream/85 transition-colors cursor-pointer min-h-[48px] px-7 py-4"
@@ -1511,7 +1511,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
 }
 
 /* ────────────────────────────────────────────────────────
-   Question router — all 5 types
+   Question router - all 5 types
    ──────────────────────────────────────────────────────── */
 function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
   step: Question; chosen: string | null;
@@ -1525,8 +1525,8 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
     if (!qRef.current) return;
     gsap.fromTo(
       qRef.current,
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.75, ease: AIR, delay: 0.08 },
+      { opacity: 0, y: 24, scale: 0.98 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.85, ease: AIR, delay: 0.08 },
     );
   }, []);
 
@@ -1534,11 +1534,8 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
 
   if (step.qtype === "visual") {
     const opts = step.options;
-    const bA = BLOB_MASKS.a;
-    const bB = BLOB_MASKS.b;
-    const bC = BLOB_MASKS.c;
     return (
-      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
+      <div className="w-full max-w-2xl lg:max-w-3xl mx-auto px-4 sm:px-6">
         <h2
           ref={qRef}
           className="font-serif text-cream mb-12 leading-snug text-center max-w-lg mx-auto"
@@ -1546,22 +1543,11 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
         >
           {step.q}
         </h2>
-        {/* Triangle: A (tall narrow) + B (compact square) top, C (wide flat) bottom-center */}
-        <div className="flex flex-col items-center gap-14 md:scale-[1.15] lg:scale-[1.3] origin-top">
-          <div className="flex items-end justify-center gap-10">
-            {/* A — tall narrow teardrop */}
-            <div style={{ width: bA.containerW }}>
-              <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} imageOverride={step.images?.a} />
-            </div>
-            {/* B — compact rounder blob */}
-            <div style={{ width: bB.containerW }}>
-              <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} imageOverride={step.images?.b} />
-            </div>
-          </div>
-          {/* C — wide landscape pebble */}
-          <div style={{ width: bC.containerW }}>
-            <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
-          </div>
+        {/* 3-up row: A/B/C in natural proportions (tall · round · wide) */}
+        <div className="grid grid-cols-[168fr_185fr_248fr] items-end gap-3 sm:gap-5 md:gap-7 lg:gap-9 w-full">
+          <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} imageOverride={step.images?.a} />
+          <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} imageOverride={step.images?.b} />
+          <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
         </div>
       </div>
     );
@@ -1587,7 +1573,7 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
     </div>
   );
 
-  /* Default: A/B/C choice — question padded, cards capped for desktop */
+  /* Default: A/B/C choice - question padded, cards capped for desktop */
   return (
     <div className="w-full max-w-xl mx-auto">
       <h2 ref={qRef} className="font-serif text-cream mb-10 leading-snug text-center px-8 sm:px-12"
@@ -1604,7 +1590,7 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
 }
 
 /* ────────────────────────────────────────────────────────
-   Dev jump panel — first example of each type + layer jumps
+   Dev jump panel - first example of each type + layer jumps
    ──────────────────────────────────────────────────────── */
 const DEV_JUMPS = (() => {
   const seenTypes = new Set<string>();
@@ -1659,7 +1645,7 @@ export default function QuizBody() {
 
   useEffect(() => { stepIdxRef.current = stepIdx; });
 
-  /* Stable advance — reads stepIdx via ref to avoid stale closure */
+  /* Stable advance - reads stepIdx via ref to avoid stale closure */
   const advance = useCallback(() => {
     if (advancingRef.current) return;
     advancingRef.current = true;
@@ -1675,7 +1661,11 @@ export default function QuizBody() {
     };
 
     if (!content) { next(); return; }
-    gsap.to(content, { opacity: 0, y: -24, duration: 0.3, ease: FIRE, onComplete: next });
+    gsap.to(content, {
+      opacity: 0, y: -14, scale: 0.97,
+      duration: 0.38, ease: FIRE,
+      onComplete: () => { gsap.set(content, { clearProps: "scale" }); next(); },
+    });
   }, []);
 
   /* Per-step enter animation + layer auto-advance */
@@ -1692,10 +1682,10 @@ export default function QuizBody() {
       } else {
         /* TEMPO-1: last 5 questions use WATER easing + 1.4s duration. */
         gsap.fromTo(content,
-          { opacity: 0, y: 32 },
+          { opacity: 0, y: 28, scale: 0.96 },
           {
-            opacity: 1, y: 0,
-            duration: isLateTempo ? 1.4 : 1.0,
+            opacity: 1, y: 0, scale: 1,
+            duration: isLateTempo ? 1.5 : 1.05,
             ease: isLateTempo ? WATER : AIR,
             delay: 0.04,
           },
@@ -1774,7 +1764,7 @@ export default function QuizBody() {
         </div>
       </div>
 
-      {/* Bottom action area — CONTINUE for scale questions sits here so it
+      {/* Bottom action area - CONTINUE for scale questions sits here so it
          anchors to the viewport bottom, matching the intro screen layout.
          Other question types manage their own CTAs (auto-advance / inline). */}
       {step.kind === "question" && (step.qtype === "scale2" || step.qtype === "scale3") && (

@@ -56,7 +56,7 @@ export function QuizCTAButton({
 
   useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
 
-  /* Reveal animation on mount — "draw" traces the aura outline; "fade" is CSS-only */
+  /* Reveal animation on mount - "draw" traces the aura outline; "fade" is CSS-only */
   useEffect(() => {
     if (disabled) return;
     const path = pathRef.current;

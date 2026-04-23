@@ -7,7 +7,7 @@ gsap.registerPlugin(MorphSVGPlugin);
 
 const WATER = "sine.inOut";
 
-/* Balanced aura — horizontal oval, two organic variants to morph between.
+/* Balanced aura - horizontal oval, two organic variants to morph between.
    ViewBox 480×300 keeps it wider than tall so it frames the text naturally. */
 const AURA_A =
   "M 240,22 C 330,4 442,48 462,128 C 482,210 428,274 326,290 C 224,306 112,292 62,232 C 12,172 16,90 82,46 C 132,14 190,20 240,22";
@@ -38,17 +38,22 @@ export default function QuizInterstitial({
 
     const ctx = gsap.context(() => {
       gsap.fromTo(copyRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: reduced ? 0.01 : 1.1, ease: WATER, delay: reduced ? 0 : 0.3 },
+        { opacity: 0, y: 22 },
+        { opacity: 1, y: 0, duration: reduced ? 0.01 : 1.4, ease: WATER, delay: reduced ? 0 : 0.55 },
       );
 
       if (!reduced && pathRef.current) {
-        gsap.to(pathRef.current, {
+        const path = pathRef.current;
+        const len = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: len, strokeDashoffset: len, strokeOpacity: 0.45 });
+        gsap.to(path, { strokeDashoffset: 0, duration: 2.0, ease: "power1.inOut", delay: 0.1 });
+        gsap.to(path, {
           morphSVG: AURA_B,
           duration: 6,
           ease: WATER,
           yoyo: true,
           repeat: -1,
+          delay: 2.2,
         });
       }
     });
@@ -60,7 +65,7 @@ export default function QuizInterstitial({
 
   return (
     <div className="relative flex items-center justify-center w-full" style={{ minHeight: "60vh" }}>
-      {/* Balanced aura ring — static position, path breathes */}
+      {/* Balanced aura ring - static position, path breathes */}
       <svg
         className="pointer-events-none absolute"
         style={{ width: "min(80vw, 520px)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}

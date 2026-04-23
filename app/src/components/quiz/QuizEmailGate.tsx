@@ -26,9 +26,11 @@ function validFirstName(n: string): boolean {
 export default function QuizEmailGate({
   dosha,
   onSuccess,
+  onCancel,
 }: {
   dosha: Archetype;
   onSuccess: (email: string) => void;
+  onCancel?: () => void;
 }) {
   const data   = useQuizData();
   const result = data.getResult();
@@ -53,7 +55,7 @@ export default function QuizEmailGate({
   /* Escape to close + background inert while open */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onSuccess("");
+      if (e.key === "Escape") { onCancel?.(); return; }
     };
     window.addEventListener("keydown", onKey);
     const main = document.querySelector("main");
@@ -62,7 +64,7 @@ export default function QuizEmailGate({
       window.removeEventListener("keydown", onKey);
       main?.removeAttribute("aria-hidden");
     };
-  }, [onSuccess]);
+  }, [onCancel]);
 
   /* Simple focus-trap: loop Tab / Shift+Tab within the dialog */
   useEffect(() => {
@@ -165,7 +167,7 @@ export default function QuizEmailGate({
 
     writeQuizState({ firstName: firstName.trim(), email: email.trim() });
 
-    /* Success — fade gate out, reveal result beneath */
+    /* Success - fade gate out, reveal result beneath */
     gsap.to(overlayRef.current, {
       opacity: 0,
       duration: 0.7,
@@ -215,7 +217,7 @@ export default function QuizEmailGate({
       {/* Main content */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 py-16 text-center">
 
-        {/* Blurred teaser — same archetype as result page */}
+        {/* Blurred teaser - same archetype as result page */}
         <div
           ref={teaserRef}
           style={{ filter: "blur(7px)", opacity: 0, maxWidth: 440 }}
