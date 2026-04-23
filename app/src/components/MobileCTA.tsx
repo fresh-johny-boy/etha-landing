@@ -122,7 +122,7 @@ export default function MobileCTA(): React.ReactElement {
             ref={textRef}
             className="font-label relative z-10 text-[11px] text-aubergine"
           >
-            BEGIN SELF-DISCOVERY
+            BEGIN YOUR REMEMBERING
           </span>
         </Link>
       </div>

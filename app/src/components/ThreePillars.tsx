@@ -178,7 +178,7 @@ export default function ThreePillars(): React.ReactElement {
         {/* CTA — hidden on mobile */}
         <div ref={ctaRef} className="mt-16 hidden justify-center md:mt-20 md:flex">
           <AuraButton href="/quiz" className="text-aubergine">
-            DISCOVER YOUR DOSHA
+            BEGIN YOUR REMEMBERING
           </AuraButton>
         </div>
       </div>

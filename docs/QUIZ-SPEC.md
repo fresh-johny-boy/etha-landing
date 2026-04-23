@@ -63,6 +63,14 @@ All five "dropped" v1 items stay dropped. In addition, these disputed items now 
 
 **Audit item 7.2 (CHOICE micro-confirmation) — admin: "NOT SURE ABOUT WHAT THIS MEANS"** → clarified + folded into CHOICE-1 below. Admin reviews the concrete approach there.
 
+**Post-Sprint-2 admin calls (2026-04-22):**
+
+| Open question | Admin call | Applied to |
+|---|---|---|
+| **OPEN-Q-4** — Opening statement | (a) keep `Am I who I am supposed to be?` | VOICE-5 dropped |
+| **OPEN-Q-5** — Em dashes in answers | (b) remove them (period + line break; rewrite where awkward) | VOICE-3 now actionable |
+| **OPEN-Q-6** — Q1–Q3 template | Path A (reuse VISUAL) + ship with placeholder images; real photography later | OPENER-1 now actionable |
+
 ---
 
 ## Epic 1 — Result & Email Gate Surfaces  🔴
@@ -217,14 +225,23 @@ Cheap, high-impact. Should land before any A/B test of the flow.
 **Acceptance:**
 - No numeric string matching `/\b(43|15|minutes|questions)\b/i` in any `app/quiz/**/page.tsx` metadata or intro.
 
-### VOICE-3 🟠 — Em-dash decision  ❓
+### VOICE-3 🟠 ✅ — Remove em dashes from answers
 
-**Why:** Audit §4.4. Every CHOICE answer uses `—`. Brand rules ban em dashes in body copy; answers are a grey area.
+**Why:** Audit §4.4. Every CHOICE answer uses `—`. Brand rules ban em dashes in body copy; admin has now resolved this: **remove them** (OPEN-Q-5 → (b)).
 
-**Scope (if decision = remove):**
-- Edit: `QuizBody.tsx` QS[] (~45 answer strings).
+**Scope:**
+- Edit: `QuizBody.tsx` `QS[]` — every answer string with an em dash (scan `QS[]` for `—`; expect ~40 hits across CHOICE, SCALE, OPEN placeholders too).
 
-**Approach:** Admin picks one path. See OPEN-Q-5.
+**Approach:**
+- Replace ` — ` with a full stop + space (`. `). Capitalize the word that follows if the new clause is a standalone sentence; keep lowercase if it reads as a continuation (the second clause is usually descriptive, so most become sentences).
+- Where the result reads awkward (fragment becomes stub), rewrite the second clause as a short standalone sentence. Don't force period-break if the sentence actively resists — rewrite instead.
+- Scan SCALE2/SCALE3 pole copy + OPEN question strings too, not just CHOICE. Placeholders (`"rest, warmth, stillness, to be seen"`) use commas — leave alone; em-dash rule is specifically about prose em dashes.
+- Don't touch tied lines in layer titles / subtitles or intro screens unless they're em dashes in body copy (most intro lines use them stylistically — admin has not ruled on intro copy yet, so **leave intro screens alone**).
+
+**Acceptance:**
+- `grep " — " app/src/components/quiz/QuizBody.tsx` returns zero hits inside the `QS` array.
+- No answer reads as a stub sentence or runs two fragments together.
+- Meaning (Vata/Pitta/Kapha signal) is preserved on every rewritten line.
 
 ### VOICE-4 🟡 ✅ — Soften clinical-leaning answers
 
@@ -236,11 +253,9 @@ Cheap, high-impact. Should land before any A/B test of the flow.
 
 **Acceptance:** Softened strings still map unambiguously to Vata/Pitta/Kapha per Ayurvedic canon (admin QA).
 
-### VOICE-5 🟠 — Opening statement decision  ❓
+### VOICE-5 ❌ DROPPED — Opening statement stays as-is
 
-**Why:** Audit §5.1. See OPEN-Q-4 for options.
-
-**Scope:** Edit `QuizIntro.tsx:24`.
+**Admin resolved (OPEN-Q-4 → (a)):** keep `"Am I who I am supposed to be?"`. No code change.
 
 ---
 
@@ -272,42 +287,56 @@ Covered under VOICE-2.
 
 ## Epic 4 — Q1–Q3 visually-heavy opener  🟠
 
-### OPENER-1 🟠 — Reshuffle first three questions to visual-heavy  ❓
+### OPENER-1 🟠 ✅ — Reshuffle first three questions to visual-heavy
 
 **Why:** Audit §12. Admin comment: *"MAKE THE QUESTIONS VISUALLY HEAVY either think of a new template for questions just first 3 or use visual question template we already have."*
 
-Two implementation paths. Admin picks one (OPEN-Q-6), but both specs are plotted so we can start on whichever lands:
-
-#### Path A — Reuse the existing VISUAL template
+**Admin resolved (OPEN-Q-6):** **Path A — reuse the existing VISUAL template.** Ship with **image placeholders** for now; real photography lands later (admin may also search Splash/Pexels themselves). Path B is deferred.
 
 **Scope:**
-- Edit: `QuizBody.tsx` QS[] reordering.
-- New assets: 3 × `webp` images per question (sunrise / midday / evening variants, or morning-state aspirational imagery). 9 images total at 1200px wide, `app/public/images/`.
+- Edit: `QuizBody.tsx` `QS[]` — insert 3 new visual questions at the top, push current Q1–Q3 (body-frame / skin / hair) to Q4–Q6.
+- Edit: `QuizBody.tsx` `VisualQ` type + `VisualCard` — add per-question image override so each visual question can point at its own image trio. (Currently `VISUAL_IMG` is a single shared a/b/c map — which means **all four existing visual questions already reuse the same three element images.** We need per-question images going forward anyway.)
+- New: 9 placeholder images in `app/public/images/` — see placeholder approach below.
 
-**Approach:**
-- Q1: `How do you want to feel when you wake up?` (3 visual options — calm / energized / grounded; maps a/b/c → Vata/Pitta/Kapha).
-- Q2: aspirational mid-day (open / focused / steady).
-- Q3: aspirational evening (playful / still / soft).
-- All three use the existing `VisualCard` + `BLOB_MASKS` system unchanged.
-- Current Q1–Q3 (body-frame / skin / hair) move to Q4+ as standard CHOICE.
+**Content (exact copy + mapping):**
+- **Q1** — `How do you want to feel when you wake up?`
+  - a: `Calm and clear.` → Vata accent
+  - b: `Sharp and energized.` → Pitta accent
+  - c: `Grounded and rested.` → Kapha accent
+- **Q2** — `How do you want to move through your day?`
+  - a: `Light. Quick. Many things at once.` → Vata
+  - b: `Focused. One thing. Fully.` → Pitta
+  - c: `Steady. Unhurried. All the way through.` → Kapha
+- **Q3** — `How do you want the day to end?`
+  - a: `Playful. Loose. Talking late.` → Vata
+  - b: `Still. Done. Something completed.` → Pitta
+  - c: `Soft. Slow. Close to someone.` → Kapha
 
-#### Path B — New template for first 3 only
+(a/b/c → Vata/Pitta/Kapha mirrors the rest of the quiz. Remove any em dashes per VOICE-3.)
 
-**Scope:**
-- New: `src/components/quiz/VisualHero.tsx` — a full-bleed single-image choice where the whole screen is the option (swipe between or tap to select).
-- Edit: `QuizBody.tsx` — new `qtype: "visual-hero"` branch.
+**Placeholder approach (ship-it):**
+- Create 9 placeholder webp files: `opener-q1-a.webp`, `opener-q1-b.webp`, `opener-q1-c.webp`, `opener-q2-a.webp` … `opener-q3-c.webp`.
+- Each placeholder: aubergine → dosha-accent gradient (Citrine for a, Aquamarine for b, Carnelian for c), 1200×900, webp @ q80. Build with a tiny script (`sharp` in-repo, or a one-off node script) — OR reuse a single tinted placeholder and just copy it 9× with different filenames (faster).
+- Keep the aura blob-mask outlines from `BLOB_MASKS` — placeholders clipped to the same organic silhouettes, so the visual language reads right even without photography.
+- Once admin drops real webps at the same filenames, placeholders get overwritten — zero code change.
 
-**Approach:**
-- Image fills 100vh with 30% aubergine overlay gradient.
-- Option label large Plantin, cream, centered at bottom third.
-- User taps or swipes horizontally between the 3 options. Selecting = advance.
-- Motion cue: subtle parallax on aubergine aura overlay during swipe.
-- Only used for Q1–Q3. Disposable pattern.
+**Data shape (add to `VisualQ`):**
+```ts
+type VisualQ = {
+  kind: "question"; qtype: "visual"; layer: 1|2|3;
+  q: string; options: OptDef[];
+  images?: { a: string; b: string; c: string };  // NEW — filenames under /public/images/
+};
+```
+`VisualCard` reads `step.images?.[opt.id] ?? VISUAL_IMG[opt.id] ?? "earth.webp"`. Existing visual questions keep working with the default map.
 
-**Acceptance (either path):**
-- First 3 questions feel effortless, aspirational, visual-first.
-- Original body-frame / skin / hair questions preserved at Q4+ so diagnostic signal is unchanged.
-- Analytics: time-to-first-answer < 15s at median.
+**Acceptance:**
+- Quiz opens on a visual-first question. First three steps are all `qtype: "visual"`.
+- Original body-frame / skin / hair questions preserved at Q4+ — diagnostic signal unchanged.
+- No layout break on 360×640; blob masks render correctly for all three cards.
+- Every opener answer string is em-dash-free (coordinates with VOICE-3).
+- Placeholder webps load without 404s; each of the 9 files exists at the expected path.
+- Admin can swap in real photography by dropping files at the same paths — zero code change required.
 
 ---
 
@@ -590,9 +619,9 @@ Scoring-related decisions (old ARCH-1..4) are **deferred to backend**. Frontend-
 | **OPEN-Q-1** | Archetype naming in copy | RESULT-3, RESULT-4 | (a) full swap to poetic (Kinetic / Fiery / Grounded); (b) dual-name (`Kinetic Mind — the Vata rhythm`); (c) keep Sanskrit. Default if no decision: (b). |
 | **OPEN-Q-2** | Value-screen opener replacement | VOICE-2 | (a) `You are about to receive:`; (b) `Here is what will find you:`; (c) `What arrives:`. Default: (a). |
 | **OPEN-Q-3** | Email gate: required or skippable? | RESULT-2 | Strategy default: required. Admin confirm. |
-| **OPEN-Q-4** | Opening statement | VOICE-5 | (a) keep `Am I who I am supposed to be?`; (b) flip to `You are not who you should be. You are who you already are.`; (c) new. Default: (a). |
-| **OPEN-Q-5** | Em dashes in answers | VOICE-3 | (a) keep; (b) swap for period + line break; (c) only in long multi-clause answers. Default: (a) — defer. |
-| **OPEN-Q-6** | Q1–Q3 template | OPENER-1 | Path A (reuse VISUAL) vs Path B (new visual-hero template). Default: Path A unless admin explicitly picks B. |
+| **OPEN-Q-4** ✅ | Opening statement | VOICE-5 | **Resolved (a): keep.** |
+| **OPEN-Q-5** ✅ | Em dashes in answers | VOICE-3 | **Resolved (b): remove — period + line break; rewrite where awkward.** |
+| **OPEN-Q-6** ✅ | Q1–Q3 template | OPENER-1 | **Resolved: Path A + ship with placeholder images; real photography lands later.** |
 | **OPEN-Q-7** | Retake UX | RESULT-3 | Text link only, or full retake screen. Default: text link. |
 | **OPEN-Q-8** | Viewport scope v1 | (all) | Mobile-only, or mobile + desktop. Default: mobile-only. |
 | **OPEN-Q-9** | Result page composition | RESULT-3 | Editorial magazine vs vertical ritual scroll. Default: vertical ritual scroll (better cadence for ETHA). |
@@ -608,17 +637,14 @@ Scoring-related decisions (old ARCH-1..4) are **deferred to backend**. Frontend-
 
 Shipped the biggest gap + all P0 items. The quiz now has a conversion engine.
 
-**Sprint 2 (content + flow polish) — ✅ substantially shipped on branch `quiz-spec-sprint-1`:**
-- OPENER-1 (🟠) — ⛔ blocked on 9 new webp assets (sunrise/midday/evening). Admin must supply images or pick Path B.
+**Sprint 2 (content + flow polish) — ✅ shipped on branch `quiz-spec-sprint-1`:**
 - INTERSTITIAL-1, TEMPO-1 (🟠) ✅
 - SCALE-2, OPEN-2, OPEN-3, OPEN-4 (🟠) ✅
 - INTRO-1 (🟠) ✅
-- VOICE-3 (🟠) ❓ — deferred per OPEN-Q-5 default (keep em dashes).
 - VOICE-4 (🟡) ✅
-- VOICE-5 (🟠) ❓ — deferred per OPEN-Q-4 default (keep opening statement).
+- VOICE-5 (🟠) ❌ dropped per admin (keep opening).
 - CHOICE-1 (🟡) ✅
-
-Strategy-complete (pending OPENER-1 assets + admin ❓ decisions).
+- OPENER-1 + VOICE-3 (🟠) — carried to Sprint 4 after admin resolution.
 
 **Sprint 3 (craft pass) — ✅ DONE on branch `quiz-spec-sprint-1`:**
 - SCALE-3, SCALE-4, SCALE-5, SCALE-6 (🟡⚪) ✅
@@ -626,6 +652,21 @@ Strategy-complete (pending OPENER-1 assets + admin ❓ decisions).
 - RESULT-5 (🟠) ✅
 
 Ship-ready.
+
+---
+
+## Sprint 4 — ✅ DONE on branch `quiz-spec-sprint-1`
+
+Both items admin-resolved and shipped:
+
+1. **VOICE-3** ✅ — Em dashes removed from `QuizBody.tsx` `QS[]`. 67 ` — ` patterns replaced with `. ` + capitalized next word. One awkward fragment (`Slow to form, but once held — virtually permanent.`) rewritten to `Slow to form. Once held, virtually permanent.` Intro screens untouched per spec.
+2. **OPENER-1 (Path A)** ✅ — `VisualQ` now supports optional per-question `images: { a, b, c }` filenames under `/public/images/`. `VisualCard` accepts an `imageOverride` prop, falls back to the shared `VISUAL_IMG` map. Three new visual questions inserted at the top of `QS[]` (feel on waking / moving through day / ending the day). Original body-frame/skin/hair demoted to Q4–Q6; diagnostic signal unchanged. Shipped 9 placeholder webps generated via `sharp` — aubergine→accent radial gradients (Citrine/Aquamarine/Carnelian). Admin can overwrite at same filenames with real photography, zero code change.
+
+Sanity checks ran clean:
+- `npm run lint` — no new errors vs baseline (1 pre-existing error in `useQuizSounds.ts` unrelated to this work).
+- `npm run build` — TypeScript clean, static pages generated.
+
+Frontend side of this spec is now complete. All remaining work is backend (provider contract defined) or out-of-scope per the OOS block above.
 
 ---
 

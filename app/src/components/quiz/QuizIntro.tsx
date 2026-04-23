@@ -28,7 +28,7 @@ const SCREENS: ScreenDef[] = [
   { type: "reflection", text: "Your body has a blueprint. A rhythm it was born with. There is a 5,000-year-old system that mapped it with extraordinary precision. This is what you are about to discover." },
   {
     type: "value",
-    headline: "In the next 15 minutes, you will receive:",
+    headline: "You are about to receive:",
     items: [
       { num: "01", text: "Your personal rhythm map, the blueprint your body was born with." },
       { num: "02", text: "A morning-to-night ritual designed for your specific constitution." },
@@ -38,7 +38,7 @@ const SCREENS: ScreenDef[] = [
   {
     type: "gate",
     headline: "Are you ready to return to yourself?",
-    ctaA: "Discover yourself",
+    ctaA: "Begin your remembering",
     privacy: "Your answers are private. Be honest. That is the only way this works.",
   },
 ];
@@ -50,9 +50,12 @@ function StatementScreen({ text, size, entranceDelay = 0 }: { text: string; size
   const l2Ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    const reduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const base = reduced ? 0 : entranceDelay;
+    const gap  = reduced ? 0 : 0.5;
     const ctx = gsap.context(() => {
-      gsap.fromTo(l1Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: WATER, delay: entranceDelay });
-      gsap.fromTo(l2Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: WATER, delay: entranceDelay + 0.9 });
+      gsap.fromTo(l1Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: WATER, delay: base });
+      gsap.fromTo(l2Ref.current, { opacity: 0 }, { opacity: 1, duration: 1.2, ease: WATER, delay: base + gap });
     });
     return () => ctx.revert();
   }, [entranceDelay]);
@@ -82,9 +85,12 @@ function TwoLineStatement({ line1, line2 }: { line1: string; line2: string }) {
 
   useEffect(() => {
     if (!l1.current || !l2.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const d1 = reduced ? 0 : 0.2;
+    const d2 = reduced ? 0 : 1.0;
     const ctx = gsap.context(() => {
-      gsap.fromTo(l1.current, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: WATER, delay: 0.2 });
-      gsap.fromTo(l2.current, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: WATER, delay: 1.8 });
+      gsap.fromTo(l1.current, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: WATER, delay: d1 });
+      gsap.fromTo(l2.current, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: WATER, delay: d2 });
     });
     return () => ctx.revert();
   }, []);
@@ -107,8 +113,9 @@ function ReflectionScreen({ text }: { text: string }) {
 
   useEffect(() => {
     if (!ref.current) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ctx = gsap.context(() => {
-      gsap.fromTo(ref.current, { opacity: 0 }, { opacity: 1, duration: 1.1, ease: WATER, delay: 0.15 });
+      gsap.fromTo(ref.current, { opacity: 0 }, { opacity: 1, duration: reduced ? 0.01 : 0.8, ease: WATER, delay: reduced ? 0 : 0.15 });
     });
     return () => ctx.revert();
   }, []);
@@ -267,8 +274,9 @@ export default function QuizIntro() {
 
       if (hint) {
         gsap.set(hint, { opacity: 0 });
-        const hintDelay = isFirst ? 3.6 : isGate ? 2.8 : 2.2;
-        gsap.to(hint, { opacity: 1, duration: 1.4, ease: EARTH, delay: hintDelay });
+        const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const hintDelay = reduced ? 0 : (isFirst ? 3.0 : isGate ? 2.0 : 1.4);
+        gsap.to(hint, { opacity: 1, duration: reduced ? 0.01 : 1.4, ease: EARTH, delay: hintDelay });
       }
     });
     return () => ctx.revert();

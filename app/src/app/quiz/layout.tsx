@@ -1,5 +1,6 @@
 "use client";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
+import { QuizDataProvider } from "@/components/quiz/QuizDataProvider";
 
 export default function QuizLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -8,5 +9,9 @@ export default function QuizLayout({ children }: { children: React.ReactNode }) 
     return () => { document.body.style.backgroundColor = prev; };
   }, []);
 
-  return <>{children}</>;
+  return (
+    <Suspense fallback={null}>
+      <QuizDataProvider>{children}</QuizDataProvider>
+    </Suspense>
+  );
 }

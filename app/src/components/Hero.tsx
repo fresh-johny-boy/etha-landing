@@ -171,7 +171,7 @@ export default function Hero(): React.ReactElement {
               </p>
               <div ref={ctaRef} className="hidden md:block">
                 <AuraButton href="/quiz" className="text-cream">
-                  BEGIN SELF-DISCOVERY
+                  BEGIN YOUR REMEMBERING
                 </AuraButton>
               </div>
             </div>

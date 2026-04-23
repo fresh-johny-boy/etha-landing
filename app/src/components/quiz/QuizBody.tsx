@@ -100,41 +100,6 @@ const BLOB_MASKS = {
   },
 } as const;
 
-type BlobDef = { vb: string; w: number; h: number; containerW: number; d: string };
-
-/* ── Per-opener blob sets. Each preserves a→Vata / b→Pitta / c→Kapha
-     character but trades shape vocabulary per layout. ────────────── */
-
-/* COLUMN_BLOBS (Q1, sound) — tall vertical profiles, spectrogram-like. */
-const COLUMN_BLOBS: Record<"a"|"b"|"c", BlobDef> = {
-  a: { vb: "0 0 80 300", w: 80,  h: 300, containerW: 92,
-       d: "M 40 6 C 60 10 66 60 58 120 C 52 180 64 232 48 272 C 36 294 22 284 18 250 C 12 210 32 162 26 108 C 22 60 22 10 40 6 Z" },
-  b: { vb: "0 0 120 260", w: 120, h: 260, containerW: 108,
-       d: "M 60 10 C 92 14 106 76 96 128 C 88 178 100 218 78 246 C 60 268 38 258 30 224 C 22 182 32 144 26 106 C 20 64 28 14 60 10 Z" },
-  c: { vb: "0 0 160 220", w: 160, h: 220, containerW: 128,
-       d: "M 80 12 C 122 16 148 58 142 108 C 138 154 136 192 96 206 C 52 218 18 196 10 148 C 4 100 18 48 42 26 C 58 16 64 10 80 12 Z" },
-};
-
-/* TOUCH_BLOBS (Q2, touch) — object silhouettes scattered. */
-const TOUCH_BLOBS: Record<"a"|"b"|"c", BlobDef> = {
-  a: { vb: "0 0 60 300", w: 60, h: 300, containerW: 70,
-       d: "M 30 6 C 44 8 50 40 44 102 C 38 162 46 222 30 268 C 18 290 10 270 12 228 C 14 186 22 120 20 60 C 18 20 22 6 30 6 Z" },
-  b: { vb: "0 0 220 180", w: 220, h: 180, containerW: 188,
-       d: "M 100 12 C 158 8 202 34 208 82 C 212 126 194 158 146 166 C 100 174 44 168 22 130 C 4 92 20 46 56 26 C 76 16 88 12 100 12 Z M 210 70 C 224 66 232 78 228 90 C 224 102 212 100 204 94 C 198 88 200 76 210 70 Z" },
-  c: { vb: "0 0 260 120", w: 260, h: 120, containerW: 254,
-       d: "M 130 10 C 196 6 244 26 250 54 C 256 82 224 104 154 108 C 86 112 22 96 10 66 C 2 40 36 20 78 14 C 104 10 118 10 130 10 Z" },
-};
-
-/* TRACE_BLOBS (Q3, what you leave) — large soft impressions. */
-const TRACE_BLOBS: Record<"a"|"b"|"c", BlobDef> = {
-  a: { vb: "0 0 340 130", w: 340, h: 130, containerW: 300,
-       d: "M 170 12 C 266 8 316 26 322 56 C 326 84 284 114 200 120 C 116 126 20 110 12 78 C 6 48 50 22 106 16 C 136 12 154 12 170 12 Z" },
-  b: { vb: "0 0 180 320", w: 180, h: 320, containerW: 160,
-       d: "M 90 8 C 120 14 146 60 142 120 C 138 180 152 228 110 278 C 72 326 42 300 36 250 C 28 196 50 140 46 92 C 44 52 66 6 90 8 Z" },
-  c: { vb: "0 0 360 200", w: 360, h: 200, containerW: 320,
-       d: "M 180 14 C 272 10 334 46 344 102 C 350 148 318 180 240 188 C 172 194 96 192 50 172 C 10 154 14 118 32 86 C 52 46 108 18 150 14 C 166 12 174 14 180 14 Z" },
-};
-
 /* ── Element images — Vata/Pitta/Kapha semantic mapping ── */
 const VISUAL_IMG: Record<string, string> = {
   a: "air.webp",
@@ -147,7 +112,7 @@ type LayerScreen = { kind: "layer"; layer: 1 | 2 | 3; label: string; title: stri
 type OptDef      = { id: string; text: string };
 
 type ChoiceQ = { kind: "question"; qtype?: "choice"; layer: 1|2|3; q: string; options: OptDef[] };
-type VisualQ = { kind: "question"; qtype: "visual";  layer: 1|2|3; q: string; options: OptDef[]; images?: { a: string; b: string; c: string }; layout?: "triangle" | "columns" | "scatter" | "trace" };
+type VisualQ = { kind: "question"; qtype: "visual";  layer: 1|2|3; q: string; options: OptDef[]; images?: { a: string; b: string; c: string } };
 type Scale2Q = { kind: "question"; qtype: "scale2";  layer: 1|2|3; q: string; poleA: string; poleB: string };
 type Scale3Q = { kind: "question"; qtype: "scale3";  layer: 1|2|3; q: string; poleA: string; middle: string; poleB: string };
 type OpenQ   = { kind: "question"; qtype: "open";    layer: 1|2|3; q: string; placeholder: string; bonus?: { q: string; placeholder: string } };
@@ -170,7 +135,6 @@ const QS: Question[] = [
      so they read as three art pieces, not three versions of the same question.
      a→Vata, b→Pitta, c→Kapha. */
   { kind: "question", qtype: "visual", layer: 1, q: "Which one sounds like your morning?",
-    layout: "columns",
     images: { a: "opener-q1-a.webp", b: "opener-q1-b.webp", c: "opener-q1-c.webp" },
     options: [
       { id: "a", text: "Wind through a thin curtain." },
@@ -179,7 +143,6 @@ const QS: Question[] = [
     ],
   },
   { kind: "question", qtype: "visual", layer: 1, q: "Choose the one you'd hold.",
-    layout: "scatter",
     images: { a: "opener-q2-a.webp", b: "opener-q2-b.webp", c: "opener-q2-c.webp" },
     options: [
       { id: "a", text: "A silver needle, cold." },
@@ -188,7 +151,6 @@ const QS: Question[] = [
     ],
   },
   { kind: "question", qtype: "visual", layer: 1, q: "What do you leave behind in a room?",
-    layout: "trace",
     images: { a: "opener-q3-a.webp", b: "opener-q3-b.webp", c: "opener-q3-c.webp" },
     options: [
       { id: "a", text: "The door not quite closed." },
@@ -765,20 +727,16 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
    Each option uses a distinct organic blob shape.
    Entry: scale+fade stagger. Selection: outline draws, others dim.
    ──────────────────────────────────────────────────────── */
-function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride, blobOverride, labelMode = "default", strokeOpacityIdle = 0.22, imageOpacity = 1 }: {
+function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride }: {
   opt: OptDef; chosen: string | null;
   onPick: (id: string) => void;
   entryDelay?: number;
   imageOverride?: string;
-  blobOverride?: BlobDef;
-  labelMode?: "default" | "large";
-  strokeOpacityIdle?: number;
-  imageOpacity?: number;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  const blob     = blobOverride ?? (BLOB_MASKS[opt.id as keyof typeof BLOB_MASKS] ?? BLOB_MASKS.b);
-  const clipId   = `blob-clip-${opt.id}-${(blob.vb ?? "").replace(/\s/g, "-")}`;
+  const blob     = BLOB_MASKS[opt.id as keyof typeof BLOB_MASKS] ?? BLOB_MASKS.b;
+  const clipId   = `blob-clip-${opt.id}`;
   const imgFile  = imageOverride ?? VISUAL_IMG[opt.id] ?? "earth.webp";
 
   useEffect(() => {
@@ -842,7 +800,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride, blobOv
             width={blob.w} height={blob.h}
             preserveAspectRatio="xMidYMid slice"
             clipPath={`url(#${clipId})`}
-            style={{ opacity: imageOpacity }}
+            style={{ opacity: 1 }}
           />
           {/* Organic outline — ghost at rest, draws on selection */}
           <path
@@ -850,7 +808,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride, blobOv
             d={blob.d}
             stroke="#FFEFDE"
             strokeWidth="1.3"
-            strokeOpacity={strokeOpacityIdle}
+            strokeOpacity="0.22"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -858,10 +816,7 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride, blobOv
       </button>
       <p
         className="font-serif text-cream text-center leading-snug px-1"
-        style={{
-          fontSize: labelMode === "large" ? "clamp(1.15rem, 3.6vw, 1.55rem)" : "clamp(1rem, 2.8vw, 1.2rem)",
-          opacity: 1,
-        }}
+        style={{ fontSize: "clamp(1rem, 2.8vw, 1.2rem)", opacity: 1 }}
       >
         {opt.text}
       </p>
@@ -1503,127 +1458,37 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
 
   if (step.qtype === "visual") {
     const opts = step.options;
-    const layout = step.layout ?? "triangle";
-    const titleH = (
-      <h2
-        ref={qRef}
-        className="font-serif text-cream leading-snug text-center max-w-lg mx-auto"
-        style={{ fontSize: "clamp(1.75rem, 4.8vw, 2.8rem)", opacity: 0 }}
-      >
-        {step.q}
-      </h2>
+    const bA = BLOB_MASKS.a;
+    const bB = BLOB_MASKS.b;
+    const bC = BLOB_MASKS.c;
+    return (
+      <div className="w-full px-4 sm:px-6">
+        <h2
+          ref={qRef}
+          className="font-serif text-cream mb-12 leading-snug text-center max-w-lg mx-auto"
+          style={{ fontSize: "clamp(1.75rem, 4.8vw, 2.8rem)", opacity: 0 }}
+        >
+          {step.q}
+        </h2>
+        {/* Triangle: A (tall narrow) + B (compact square) top, C (wide flat) bottom-center */}
+        <div className="flex flex-col items-center gap-14">
+          <div className="flex items-end justify-center gap-10">
+            {/* A — tall narrow teardrop */}
+            <div style={{ width: bA.containerW }}>
+              <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} imageOverride={step.images?.a} />
+            </div>
+            {/* B — compact rounder blob */}
+            <div style={{ width: bB.containerW }}>
+              <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} imageOverride={step.images?.b} />
+            </div>
+          </div>
+          {/* C — wide landscape pebble */}
+          <div style={{ width: bC.containerW }}>
+            <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
+          </div>
+        </div>
+      </div>
     );
-
-    /* Triangle — shared layout for every visual question except the 3 openers. */
-    if (layout === "triangle") {
-      const bA = BLOB_MASKS.a;
-      const bB = BLOB_MASKS.b;
-      const bC = BLOB_MASKS.c;
-      return (
-        <div className="w-full px-4 sm:px-6">
-          <div className="mb-12">{titleH}</div>
-          <div className="flex flex-col items-center gap-14">
-            <div className="flex items-end justify-center gap-10">
-              <div style={{ width: bA.containerW }}>
-                <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} imageOverride={step.images?.a} />
-              </div>
-              <div style={{ width: bB.containerW }}>
-                <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} imageOverride={step.images?.b} />
-              </div>
-            </div>
-            <div style={{ width: bC.containerW }}>
-              <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* Columns (Q1 — sound). Three tall profiles on a shared baseline, left-to-right sweep. */
-    if (layout === "columns") {
-      return (
-        <div className="w-full px-4 sm:px-6">
-          <div className="mb-14">{titleH}</div>
-          <div className="flex items-end justify-center gap-5 sm:gap-7">
-            {opts.map((opt, i) => {
-              const key = opt.id as "a"|"b"|"c";
-              const blob = COLUMN_BLOBS[key];
-              return (
-                <div key={opt.id} style={{ width: blob.containerW, maxWidth: "30vw" }}>
-                  <VisualCard
-                    opt={opt}
-                    chosen={chosen}
-                    onPick={onPick}
-                    entryDelay={0.18 + i * 0.14}
-                    imageOverride={step.images?.[key]}
-                    blobOverride={blob}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-
-    /* Scatter (Q2 — touch). Objects at three positions, different scales. */
-    if (layout === "scatter") {
-      const ta = TOUCH_BLOBS.a, tb = TOUCH_BLOBS.b, tc = TOUCH_BLOBS.c;
-      return (
-        <div className="w-full px-4 sm:px-6">
-          <div className="mb-8">{titleH}</div>
-          <div className="relative mx-auto" style={{ maxWidth: 412, height: 580 }}>
-            {/* a — top-left needle */}
-            <div className="absolute" style={{ top: 0, left: 6, width: ta.containerW }}>
-              <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.20}
-                imageOverride={step.images?.a} blobOverride={ta} />
-            </div>
-            {/* b — mid-right iron handle */}
-            <div className="absolute" style={{ top: 150, right: 4, width: tb.containerW }}>
-              <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.50}
-                imageOverride={step.images?.b} blobOverride={tb} />
-            </div>
-            {/* c — bottom-center stone */}
-            <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: 0, width: tc.containerW, maxWidth: "92%" }}>
-              <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.80}
-                imageOverride={step.images?.c} blobOverride={tc} />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* Trace (Q3 — what you leave). Large soft impressions, vertical stack, faded outlines. */
-    if (layout === "trace") {
-      return (
-        <div className="w-full px-4 sm:px-6">
-          <div className="mb-10">{titleH}</div>
-          <div className="flex flex-col items-center gap-7">
-            {opts.map((opt, i) => {
-              const key = opt.id as "a"|"b"|"c";
-              const blob = TRACE_BLOBS[key];
-              return (
-                <div key={opt.id} style={{ width: blob.containerW, maxWidth: "92%" }}>
-                  <VisualCard
-                    opt={opt}
-                    chosen={chosen}
-                    onPick={onPick}
-                    entryDelay={0.22 + i * 0.32}
-                    imageOverride={step.images?.[key]}
-                    blobOverride={blob}
-                    labelMode="large"
-                    strokeOpacityIdle={0.12}
-                    imageOpacity={0.78}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    }
-
-    return null;
   }
 
   if (step.qtype === "scale2") return (

@@ -326,7 +326,7 @@ export default function Doshas(): React.ReactElement {
         </p>
         <div className="mt-8 hidden justify-center md:mt-10 md:flex">
           <AuraButton href="/quiz" className="text-aubergine">
-            DISCOVER YOUR DOSHA
+            BEGIN YOUR REMEMBERING
           </AuraButton>
         </div>
       </div>
