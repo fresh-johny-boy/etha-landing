@@ -443,7 +443,17 @@ export default function QuizEmailGate({
               onBlur={() => setNameFocus(false)}
               placeholder="Your first name"
               className="w-full bg-transparent font-serif text-center py-5 px-6 outline-none"
-              style={{ fontSize: "clamp(1rem, 2.5vw, 1.15rem)", color: "rgba(255,239,222,0.90)", colorScheme: "dark" }}
+              style={{
+                fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
+                color: "rgba(255,239,222,0.90)",
+                colorScheme: "dark",
+                borderRadius: 0,
+                border: "none",
+                appearance: "none",
+                WebkitAppearance: "none",
+                WebkitBoxShadow: `0 0 0 100px ${bgRgba[dosha]} inset`,
+                WebkitTextFillColor: "rgba(255,239,222,0.90)",
+              }}
               onClick={(e) => e.stopPropagation()}
             />
           </div>
@@ -495,6 +505,12 @@ export default function QuizEmailGate({
                 fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
                 color: "rgba(255,239,222,0.90)",
                 colorScheme: "dark",
+                borderRadius: 0,
+                border: "none",
+                appearance: "none",
+                WebkitAppearance: "none",
+                WebkitBoxShadow: `0 0 0 100px ${bgRgba[dosha]} inset`,
+                WebkitTextFillColor: "rgba(255,239,222,0.90)",
               }}
               onClick={(e) => e.stopPropagation()}
             />
