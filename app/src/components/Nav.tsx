@@ -108,13 +108,13 @@ export default function Nav({
 
       {/* Logo row — equal py gives visual balance above and below logo */}
       <div className="relative flex items-center justify-between px-6 py-6 md:px-12 md:py-8">
-        <span className="flex-1 flex items-center">
+        <span className="flex-1">
           {leftSlot ?? (hideLinks ? null : <a href="#" className={linkClass}>RITUALS</a>)}
         </span>
 
         <div
           ref={logoRef}
-          className="pointer-events-none absolute inset-0 flex items-center justify-center"
+          className="absolute inset-x-0 flex justify-center"
           style={{ opacity: animated ? 0 : undefined }}
         >
           <Image

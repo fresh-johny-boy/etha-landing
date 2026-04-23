@@ -18,7 +18,7 @@ export function QuizBackButton({
       style={{
         fontSize: "0.65rem",
         letterSpacing: "0.18em",
-        color: disabled ? "rgba(255,239,222,0.35)" : "rgba(255,239,222,0.85)",
+        color: disabled ? "rgba(255,239,222,0.28)" : "rgba(255,239,222,0.4)",
         pointerEvents: disabled ? "none" : "auto",
         background: "none",
         border: "none",

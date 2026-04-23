@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
+import { QuizBackButton } from "./QuizBackButton";
 import { writeQuizState } from "@/lib/quizState";
 
 /* ── Nature bezier language ── */
@@ -374,6 +375,12 @@ export default function QuizIntro() {
         hideLinks
         animated
         progress={screen / (SCREENS.length - 1)}
+        leftSlot={
+          <QuizBackButton
+            onClick={() => setScreen((s) => Math.max(0, s - 1))}
+            disabled={screen === 0}
+          />
+        }
       />
 
       {/* Screen content — key forces child remounts for per-screen useEffects */}
