@@ -296,15 +296,8 @@ export default function QuizResultPage() {
               {card.archetype.toUpperCase()}
             </p>
 
-            {/* Composition — primary % + organic dosha trio */}
-            <div style={{ marginTop: 28, textAlign: "center" }}>
-              <span
-                className="font-serif"
-                style={{ fontSize: "clamp(3rem, 11vw, 4rem)", lineHeight: 1, color: theme.nameColor }}
-              >
-                {card.comp[0].pct}%
-              </span>
-
+            {/* Composition bubble chart */}
+            <div style={{ marginTop: 28 }}>
               <AuraBubbleChart comp={card.comp} bgColor={theme.bg} />
             </div>
           </div>
@@ -507,11 +500,9 @@ function AuraBubbleChart({
     ].join(' ');
   }
 
-  const fOpacity = [0.82, 0.28, 0.15];
-  const sOpacity = [0.90, 0.55, 0.38];
-  const sWidth   = [1.2,  0.9,  0.7];
-  const pctSize  = [23,   15,   10];
-  const lblSize  = [8,    7,    0];
+  const sWidth  = [1.2, 0.9, 0.7];
+  const pctSize = [23,  15,  9];
+  const lblSize = [8,   7,   6];
 
   return (
     <svg
@@ -530,52 +521,42 @@ function AuraBubbleChart({
             <path
               d={ovalPath(s.cx, s.cy, s.rx, s.ry, s.warp)}
               fill={dc}
-              fillOpacity={fOpacity[i]}
+              fillOpacity={1}
               stroke={dc}
-              strokeOpacity={sOpacity[i]}
+              strokeOpacity={1}
               strokeWidth={sWidth[i]}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <text
               x={s.cx}
-              y={s.cy + (lSize > 0 ? -5 : 4)}
+              y={s.cy - 4}
               textAnchor="middle"
               dominantBaseline="middle"
               fill={bgColor}
-              fillOpacity={i === 0 ? 0.88 : 0.72}
+              fillOpacity={1}
               style={{ fontFamily: 'var(--font-plantin, Georgia, serif)', fontSize: pSize }}
             >
               {comp[i].pct}%
             </text>
-            {lSize > 0 && (
-              <text
-                x={s.cx}
-                y={s.cy + pSize * 0.72}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fill={bgColor}
-                fillOpacity={i === 0 ? 0.65 : 0.55}
-                style={{
-                  fontFamily: 'var(--font-brandon, "Arial Narrow", Arial, sans-serif)',
-                  fontSize: lSize,
-                  letterSpacing: '0.18em',
-                }}
-              >
-                {comp[i].label.toUpperCase()}
-              </text>
-            )}
+            <text
+              x={s.cx}
+              y={s.cy + pSize * 0.72}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill={bgColor}
+              fillOpacity={1}
+              style={{
+                fontFamily: 'var(--font-brandon, "Arial Narrow", Arial, sans-serif)',
+                fontSize: lSize,
+                letterSpacing: '0.18em',
+              }}
+            >
+              {comp[i].label.toUpperCase()}
+            </text>
           </g>
         );
       })}
-      <text
-        x={4} y={214}
-        fill="#FFEFDE"
-        fillOpacity={0.42}
-        style={{ fontFamily: 'var(--font-plantin, Georgia, serif)', fontStyle: 'italic', fontSize: 9 }}
-      >
-        based on your answers
-      </text>
     </svg>
   );
 }
