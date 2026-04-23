@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
-import QuizEmailGate from "./QuizEmailGate";
 import QuizInterstitial from "./QuizInterstitial";
 import { useQuizData } from "./QuizDataProvider";
 
@@ -1648,7 +1647,6 @@ const DEV_JUMPS = (() => {
 export default function QuizBody() {
   const [stepIdx, setStepIdx] = useState(0);
   const [chosen,  setChosen]  = useState<string | null>(null);
-  const [gateOpen, setGateOpen] = useState(false);
   /* Scale-question placement lives in parent so the CONTINUE button can
      render at the page bottom (outside the centred content) like the intro. */
   const [scalePlacedId, setScalePlacedId] = useState<string | null>(null);
@@ -1668,7 +1666,7 @@ export default function QuizBody() {
     const isLast  = stepIdxRef.current >= TOTAL - 1;
 
     const next = () => {
-      if (isLast) { setGateOpen(true); return; }
+      if (isLast) { router.push("/quiz/completion"); return; }
       advancingRef.current = false;
       setChosen(null);
       setScalePlacedId(null);
@@ -1714,7 +1712,7 @@ export default function QuizBody() {
     data.recordAnswer(stepIdxRef.current, id);
     quizSounds.play(id === "a" ? "chimeA" : id === "b" ? "chimeB" : "chimeC");
     setChosen(id);
-    setTimeout(advance, 760);
+    setTimeout(advance, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 180);
   }, [chosen, advance, data]);
 
   /* Dev: jump to any step instantly */
@@ -1732,17 +1730,6 @@ export default function QuizBody() {
                                     (step as Question).layer
   ) as 1 | 2 | 3;
   const progress = calcProgress(stepIdx, currentLayer);
-
-  if (gateOpen) {
-    const result = data.getResult();
-    const dosha  = result?.primary ?? "vata";
-    return (
-      <QuizEmailGate
-        dosha={dosha}
-        onSuccess={() => router.push("/quiz/result")}
-      />
-    );
-  }
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-aubergine select-none">
@@ -1818,7 +1805,7 @@ export default function QuizBody() {
             </button>
           ))}
           <button
-            onClick={() => setGateOpen(true)}
+            onClick={() => router.push("/quiz/completion")}
             style={{ color: "#f472b6", borderColor: "#f472b655", fontSize: 10 }}
             className="px-2 py-1 border hover:opacity-70 transition-opacity font-mono cursor-pointer"
           >

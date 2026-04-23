@@ -11,6 +11,7 @@ import {
   GATE_AURA_POS,
 } from "@/lib/doshaThemes";
 import type { Archetype } from "@/lib/quizDataContract";
+import { writeQuizState } from "@/lib/quizState";
 
 const EMAIL_AURA =
   "M 178,4 C 234,2 300,3 338,8 C 354,12 360,22 359,36 C 358,46 346,52 318,54 C 278,56 234,57 178,57 C 122,57 74,56 38,54 C 12,51 4,46 4,36 C 2,22 10,12 28,8 C 66,3 124,2 178,4 Z";
@@ -18,13 +19,16 @@ const EMAIL_AURA =
 function validEmail(e: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 }
+function validFirstName(n: string): boolean {
+  return n.trim().length > 0;
+}
 
 export default function QuizEmailGate({
   dosha,
   onSuccess,
 }: {
   dosha: Archetype;
-  onSuccess: () => void;
+  onSuccess: (email: string) => void;
 }) {
   const data   = useQuizData();
   const result = data.getResult();
@@ -32,22 +36,24 @@ export default function QuizEmailGate({
   const theme    = DOSHA_THEMES[dosha];
   const archetype = result ? ARCHETYPES[result.primary] : ARCHETYPES[dosha];
 
-  const [email, setEmail]         = useState("");
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError]           = useState<string | null>(null);
-  const [emailFocus, setEmailFocus] = useState(false);
+  const [firstName, setFirstName]       = useState("");
+  const [email, setEmail]               = useState("");
+  const [submitting, setSubmitting]     = useState(false);
+  const [error, setError]               = useState<string | null>(null);
+  const [emailFocus, setEmailFocus]     = useState(false);
+  const [nameFocus, setNameFocus]       = useState(false);
 
-  const overlayRef    = useRef<HTMLDivElement>(null);
-  const teaserRef     = useRef<HTMLDivElement>(null);
-  const formRef       = useRef<HTMLDivElement>(null);
-  const bottomRef     = useRef<HTMLDivElement>(null);
-  const emailAuraRef  = useRef<SVGPathElement>(null);
-  const bgAuraRef     = useRef<SVGSVGElement>(null);
+  const overlayRef        = useRef<HTMLDivElement>(null);
+  const teaserRef         = useRef<HTMLDivElement>(null);
+  const formRef           = useRef<HTMLDivElement>(null);
+  const bottomRef         = useRef<HTMLDivElement>(null);
+  const emailAuraRef      = useRef<SVGPathElement>(null);
+  const bgAuraRef         = useRef<SVGSVGElement>(null);
 
   /* Escape to close + background inert while open */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onSuccess();
+      if (e.key === "Escape") onSuccess("");
     };
     window.addEventListener("keydown", onKey);
     const main = document.querySelector("main");
@@ -139,26 +145,32 @@ export default function QuizEmailGate({
 
   const onSubmit = async () => {
     if (submitting) return;
-    if (!validEmail(email)) {
+    if (!validFirstName(firstName)) {
+      setError("Please enter your first name.");
+      return;
+    }
+    if (!validEmail(email.trim())) {
       setError("A complete email, please.");
       return;
     }
     setError(null);
     setSubmitting(true);
 
-    const ok = await data.submitEmail(email);
+    const ok = await data.submitEmail(email.trim());
     if (!ok) {
       setSubmitting(false);
       setError("Something held this back. Please try again.");
       return;
     }
 
+    writeQuizState({ firstName: firstName.trim(), email: email.trim() });
+
     /* Success — fade gate out, reveal result beneath */
     gsap.to(overlayRef.current, {
       opacity: 0,
       duration: 0.7,
       ease: "power2.in",
-      onComplete: onSuccess,
+      onComplete: () => onSuccess(email.trim()),
     });
   };
 
@@ -202,7 +214,7 @@ export default function QuizEmailGate({
           className="font-label text-[10px] mb-7"
           style={{ letterSpacing: "0.3em", color: "rgba(255,239,222,0.62)" }}
         >
-          YOUR MAP IS READY
+          YOUR DOSHA HAS BEEN IDENTIFIED
         </p>
 
         {/* Blurred teaser — same archetype as result page */}
@@ -232,23 +244,68 @@ export default function QuizEmailGate({
           </p>
         </div>
 
-        {/* Email form */}
+        {/* Form */}
         <div
           ref={formRef}
           className="w-full mt-14"
           style={{ maxWidth: 380, opacity: 0 }}
         >
-          <label
-            htmlFor="quiz-email"
-            className="font-serif block mb-5 leading-relaxed"
+          <h3
+            className="font-serif mb-2 leading-tight"
             style={{
-              fontSize: "clamp(1rem, 2.3vw, 1.12rem)",
-              color: "rgba(255,239,222,0.78)",
+              fontSize: "clamp(1.3rem, 3vw, 1.6rem)",
+              color: "rgba(255,239,222,0.92)",
             }}
           >
-            Leave the name of your inbox, and your map will find you there.
-          </label>
+            Where should we send your report?
+          </h3>
+          <p
+            className="font-serif italic mb-7 leading-relaxed"
+            style={{
+              fontSize: "clamp(0.9rem, 2vw, 1rem)",
+              color: "rgba(255,239,222,0.65)",
+            }}
+          >
+            Your complete rhythm map, your daily ritual, and your botanical recommendations, written for you alone. Enter your name and email to read it in full.
+          </p>
 
+          {/* First name input */}
+          <div className="relative mb-4">
+            <svg
+              className="pointer-events-none absolute overflow-visible"
+              viewBox="0 0 360 58"
+              preserveAspectRatio="none"
+              fill="none"
+              aria-hidden="true"
+              style={{ left: "-10px", top: "-8px", width: "calc(100% + 20px)", height: "calc(100% + 16px)" }}
+            >
+              <path d={EMAIL_AURA} fill={theme.dimAccent} stroke="none" />
+              <path
+                d={EMAIL_AURA}
+                fill="none"
+                stroke={theme.nameColor}
+                strokeWidth="0.9"
+                strokeOpacity={nameFocus ? 0.7 : 0.28}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <input
+              id="quiz-firstname"
+              type="text"
+              autoComplete="given-name"
+              maxLength={80}
+              value={firstName}
+              onChange={(e) => { setFirstName(e.target.value); if (error) setError(null); }}
+              onFocus={() => setNameFocus(true)}
+              onBlur={() => setNameFocus(false)}
+              placeholder="Your first name"
+              className="w-full bg-transparent font-serif text-center py-5 px-6 outline-none"
+              style={{ fontSize: "clamp(1rem, 2.5vw, 1.15rem)", color: "rgba(255,239,222,0.90)" }}
+            />
+          </div>
+
+          {/* Email input */}
           <div className="relative">
             <svg
               className="pointer-events-none absolute overflow-visible"
@@ -263,13 +320,11 @@ export default function QuizEmailGate({
                 height: "calc(100% + 16px)",
               }}
             >
-              {/* Subtle fill tint */}
               <path
                 d={EMAIL_AURA}
                 fill={theme.dimAccent}
                 stroke="none"
               />
-              {/* Dosha-coloured aura stroke */}
               <path
                 ref={emailAuraRef}
                 d={EMAIL_AURA}
@@ -286,6 +341,7 @@ export default function QuizEmailGate({
               type="email"
               inputMode="email"
               autoComplete="email"
+              maxLength={254}
               value={email}
               onChange={(e) => { setEmail(e.target.value); if (error) setError(null); }}
               onFocus={() => setEmailFocus(true)}
@@ -310,31 +366,39 @@ export default function QuizEmailGate({
         </div>
       </div>
 
-      {/* CTA */}
+      {/* CTA + legal */}
       <div
         ref={bottomRef}
         className="relative z-10 flex flex-col items-center px-8 pt-3 pb-10 sm:pb-14"
         style={{ opacity: 0 }}
       >
-        <div className="w-full text-center" style={{ maxWidth: 380 }}>
+        <div className="w-full text-center">
           <QuizCTAButton
-            label={submitting ? "SENDING" : "BEGIN YOUR REMEMBERING"}
+            label={submitting ? "SENDING" : "SEND MY FULL REPORT"}
             onClick={onSubmit}
-            disabled={submitting || !validEmail(email)}
+            disabled={submitting || !validFirstName(firstName) || !validEmail(email.trim())}
             strokeColor={theme.nameColor}
           />
-          <p
-            className="font-serif italic mt-5 mx-auto"
-            style={{
-              fontSize: "clamp(0.82rem, 1.9vw, 0.92rem)",
-              color: "rgba(255,239,222,0.62)",
-              maxWidth: 300,
-              lineHeight: 1.55,
-            }}
-          >
-            Your answers are private. We send your map, and then we wait for you to ask for more.
-          </p>
         </div>
+
+        {/* Legal consent */}
+        <p
+          className="font-serif mt-4 leading-relaxed"
+          style={{ fontSize: "0.75rem", color: "rgba(255,239,222,0.40)", maxWidth: 320, textAlign: "center" }}
+        >
+          By continuing you agree to our{" "}
+          <a href="/legal/terms" style={{ textDecoration: "underline" }}>Terms and Conditions</a>
+          {" "}and{" "}
+          <a href="/legal/privacy" style={{ textDecoration: "underline" }}>Privacy Policy</a>.
+        </p>
+
+        {/* Privacy note */}
+        <p
+          className="font-serif mt-2"
+          style={{ fontSize: "0.75rem", color: "rgba(255,239,222,0.40)", textAlign: "center" }}
+        >
+          Private. Never shared. Unsubscribe at any moment.
+        </p>
       </div>
     </div>
   );

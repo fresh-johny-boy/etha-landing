@@ -44,6 +44,7 @@ interface NavProps {
   progress?: number;
   animated?: boolean;
   quizMilestones?: { currentLayer: 1 | 2 | 3 };
+  leftSlot?: React.ReactNode;
 }
 
 export default function Nav({
@@ -53,6 +54,7 @@ export default function Nav({
   progress,
   animated = false,
   quizMilestones,
+  leftSlot,
 }: NavProps): React.ReactElement {
   const isLight    = variant === "light";
   const linkClass  = `font-label text-[11px] transition-opacity hover:opacity-60 ${isLight ? "text-cream/65" : "text-aubergine/70"}`;
@@ -106,7 +108,9 @@ export default function Nav({
 
       {/* Logo row — equal py gives visual balance above and below logo */}
       <div className="relative flex items-center justify-between px-6 py-6 md:px-12 md:py-8">
-        <span className="flex-1">{hideLinks ? null : <a href="#" className={linkClass}>RITUALS</a>}</span>
+        <span className="flex-1">
+          {leftSlot ?? (hideLinks ? null : <a href="#" className={linkClass}>RITUALS</a>)}
+        </span>
 
         <div
           ref={logoRef}

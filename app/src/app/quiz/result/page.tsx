@@ -2,8 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import Nav from "@/components/Nav";
-import { QuizCTAButton } from "@/components/quiz/QuizCTAButton";
-import QuizEmailGate from "@/components/quiz/QuizEmailGate";
 import { useQuizData } from "@/components/quiz/QuizDataProvider";
 import type { Archetype } from "@/lib/quizDataContract";
 import {
@@ -67,7 +65,6 @@ export default function QuizResultPage() {
   const result = data.getResult();
 
   const [devDosha, setDevDosha]   = useState<Archetype>(result?.primary ?? "vata");
-  const [showGate, setShowGate]   = useState(false);
   const auraRef     = useRef<SVGSVGElement>(null);
   const labelRef    = useRef<HTMLParagraphElement>(null);
   const nameRef     = useRef<HTMLHeadingElement>(null);
@@ -119,6 +116,9 @@ export default function QuizResultPage() {
 
     return () => ctx.revert();
   }, [devDosha]);
+
+  const primaryDosha = result?.primary ?? devDosha;
+  const isPreview    = devDosha !== primaryDosha;
 
   const theme     = DOSHA_THEMES[devDosha];
   const auraVb    = AURA_VIEWBOXES[devDosha];
@@ -249,7 +249,7 @@ export default function QuizResultPage() {
         </div>
 
         {/* Content column */}
-        <div className="relative z-10 mx-auto px-8 sm:px-12 max-w-[440px] md:max-w-[580px]">
+        <div className="relative z-10 mx-auto px-8 sm:px-12 max-w-[520px] md:max-w-[680px]">
 
           {/* Identity reveal */}
           <div style={{ marginTop: 64 }}>
@@ -289,16 +289,35 @@ export default function QuizResultPage() {
             ref={metaRef}
             style={{ marginTop: 22, opacity: 0 }}
           >
-            <p
-              className="font-label"
-              style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(255,239,222,0.70)", textAlign: "center" }}
-            >
-              {card.archetype.toUpperCase()}
-            </p>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+              <p
+                className="font-label"
+                style={{ fontSize: 11, letterSpacing: "0.22em", color: "rgba(255,239,222,0.70)" }}
+              >
+                {card.archetype.toUpperCase()}
+              </p>
+              {isPreview && (
+                <span
+                  className="font-label"
+                  style={{
+                    fontSize: "0.6rem",
+                    letterSpacing: "0.2em",
+                    color: theme.dimAccent,
+                    border: "1px solid",
+                    borderColor: theme.dimAccent,
+                    padding: "2px 6px",
+                    borderRadius: 0,
+                    lineHeight: 1,
+                  }}
+                >
+                  PREVIEW
+                </span>
+              )}
+            </div>
 
             {/* Composition bubble chart */}
             <div style={{ marginTop: 28 }}>
-              <AuraBubbleChart comp={card.comp} bgColor={theme.bg} />
+              <AuraBubbleChart comp={card.comp} />
             </div>
           </div>
 
@@ -379,20 +398,9 @@ export default function QuizResultPage() {
               </p>
             </div>
 
-            {/* CTA */}
-            <div style={{ marginTop: 60, textAlign: "center" }}>
-              <QuizCTAButton label="BEGIN THE REMEMBERING" onClick={() => setShowGate(true)} />
-            </div>
           </div>
         </div>
       </section>
-      {/* ── EMAIL GATE OVERLAY ───────────────────────────────────── */}
-      {showGate && (
-        <QuizEmailGate
-          dosha={devDosha}
-          onSuccess={() => setShowGate(false)}
-        />
-      )}
 
     </main>
   );
@@ -434,58 +442,23 @@ function AuraOrnament({
   );
 }
 
-function MiniAura({
-  pct,
-  color,
-  strokeOpacity,
-}: {
-  pct: number;
-  color: string;
-  strokeOpacity: number;
-}): React.ReactElement {
-  const w = Math.max(28, Math.round(28 + (pct / 100) * 200));
-  const h = Math.max(18, Math.round(18 + (pct / 100) * 22));
-  return (
-    <svg
-      viewBox="0 0 100 40"
-      width={w}
-      height={h}
-      fill="none"
-      preserveAspectRatio="none"
-      style={{ overflow: "visible", flexShrink: 0 }}
-    >
-      <path
-        d="M 8,20 C 18,6 38,4 52,10 C 68,16 86,10 94,18 C 98,26 84,34 62,32 C 42,30 20,34 8,28 C 2,24 2,26 8,20 Z"
-        stroke={color}
-        strokeWidth="1.2"
-        strokeOpacity={strokeOpacity}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
-const DOSHA_COLORS: Record<string, string> = {
-  Vata:  '#F5A800',
-  Pitta: '#A2E8F2',
-  Kapha: '#FFB3A5',
+const DOSHA_FILLS: Record<string, { fill: string; text: string }> = {
+  Vata:  { fill: '#F5A800', text: '#3D233B' },
+  Pitta: { fill: '#A2E8F2', text: '#3D233B' },
+  Kapha: { fill: '#FFB3A5', text: '#3D233B' },
 };
 
 function AuraBubbleChart({
   comp,
-  bgColor,
 }: {
   comp: readonly { pct: number; label: string }[];
-  bgColor: string;
 }): React.ReactElement {
   const K = 0.552;
 
   const slots = [
-    { cx: 108, cy: 102, rx: 78, ry: 73, warp: [6,  5, -3,  5] },
-    { cx: 244, cy:  80, rx: 53, ry: 49, warp: [4, -3,  4, -3] },
-    { cx: 252, cy: 167, rx: 32, ry: 30, warp: [2, -2,  2, -1] },
+    { cx: 102, cy: 114, rx: 90, ry: 84, warp: [7,  6, -4,  6] },
+    { cx: 268, cy:  86, rx: 62, ry: 57, warp: [5, -4,  5, -4] },
+    { cx: 278, cy: 192, rx: 42, ry: 39, warp: [3, -3,  3, -2] },
   ];
 
   function ovalPath(cx: number, cy: number, rx: number, ry: number, w: number[]): string {
@@ -500,29 +473,29 @@ function AuraBubbleChart({
     ].join(' ');
   }
 
-  const sWidth  = [1.2, 0.9, 0.7];
-  const pctSize = [23,  15,  9];
-  const lblSize = [8,   7,   6];
+  const sWidth  = [1.4, 1.0, 0.8];
+  const pctSize = [28,  19,  13];
+  const lblSize = [10,   8,   7];
 
   return (
     <svg
-      viewBox="0 0 360 220"
+      viewBox="0 0 400 250"
       fill="none"
       style={{ width: '100%', marginTop: 20, overflow: 'visible' }}
       aria-label="Dosha composition"
       role="img"
     >
       {slots.map((s, i) => {
-        const dc    = DOSHA_COLORS[comp[i].label] ?? '#FFEFDE';
+        const fills = DOSHA_FILLS[comp[i].label] ?? { fill: '#FFEFDE', text: '#3D233B' };
         const pSize = pctSize[i];
         const lSize = lblSize[i];
         return (
           <g key={comp[i].label}>
             <path
               d={ovalPath(s.cx, s.cy, s.rx, s.ry, s.warp)}
-              fill={dc}
+              fill={fills.fill}
               fillOpacity={1}
-              stroke={dc}
+              stroke={fills.fill}
               strokeOpacity={1}
               strokeWidth={sWidth[i]}
               strokeLinecap="round"
@@ -533,7 +506,7 @@ function AuraBubbleChart({
               y={s.cy - 4}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={bgColor}
+              fill={fills.text}
               fillOpacity={1}
               style={{ fontFamily: 'var(--font-plantin, Georgia, serif)', fontSize: pSize }}
             >
@@ -541,15 +514,15 @@ function AuraBubbleChart({
             </text>
             <text
               x={s.cx}
-              y={s.cy + pSize * 0.72}
+              y={s.cy + pSize * 0.75}
               textAnchor="middle"
               dominantBaseline="middle"
-              fill={bgColor}
+              fill={fills.text}
               fillOpacity={1}
               style={{
                 fontFamily: 'var(--font-brandon, "Arial Narrow", Arial, sans-serif)',
                 fontSize: lSize,
-                letterSpacing: '0.18em',
+                letterSpacing: '0.2em',
               }}
             >
               {comp[i].label.toUpperCase()}

@@ -1,17 +1,14 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import QuizBody from "@/components/quiz/QuizBody";
+import QuizSent from "@/components/quiz/QuizSent";
 import { hasQuizState } from "@/lib/quizState";
 
-export default function QuizBodyPage() {
+export default function SentPage() {
   const router = useRouter();
-
   useEffect(() => {
-    if (!hasQuizState()) {
-      router.replace("/quiz");
-    }
+    if (!hasQuizState()) router.replace("/quiz");
   }, [router]);
 
-  return <QuizBody />;
+  return <QuizSent onAdvance={() => router.push("/quiz/result")} />;
 }

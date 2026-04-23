@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
+import { QuizBackButton } from "./QuizBackButton";
+import { writeQuizState } from "@/lib/quizState";
 
 /* ── Nature bezier language ── */
 const AIR   = "expo.out";
@@ -21,24 +23,29 @@ type ScreenDef =
   | { type: "gate"; headline: string; ctaA: string; privacy: string };
 
 const SCREENS: ScreenDef[] = [
-  { type: "statement",  size: "massive", text: "Am I who I am supposed to be?" },
-  { type: "reflection", text: "If this question has ever moved through you, even once, even briefly, then you already know there is more to you than what the world sees." },
-  { type: "reflection", text: "There is a system, older than medicine, older than modern science, that mapped the human body not by disease, but by nature." },
-  { type: "twoLine",   line1: "Not who you should become.", line2: "Who you already are." },
-  { type: "reflection", text: "Your body has a blueprint. A rhythm it was born with. There is a 5,000-year-old system that mapped it with extraordinary precision. This is what you are about to discover." },
+  {
+    type: "statement",
+    size: "massive",
+    text: "Am I who I am supposed to be?",
+  },
+  {
+    type: "reflection",
+    text: "There is a system older than modern medicine that mapped the human body not by disease, but by nature. Not who you should become. Who you already are.",
+  },
   {
     type: "value",
-    headline: "You are about to receive:",
+    headline: "In the next 15 minutes, you will receive",
     items: [
-      { num: "01", text: "Your personal rhythm map, the blueprint your body was born with." },
+      { num: "01", text: "Your personal rhythm map, a blueprint your body was born with." },
       { num: "02", text: "A morning-to-night ritual designed for your specific constitution." },
       { num: "03", text: "Botanical recommendations matched to where you are right now." },
     ],
+    footer: "43 questions. One map that belongs only to you.",
   },
   {
     type: "gate",
     headline: "Are you ready to return to yourself?",
-    ctaA: "Begin your remembering",
+    ctaA: "Yes, begin.",
     privacy: "Your answers are private. Be honest. That is the only way this works.",
   },
 ];
@@ -200,6 +207,45 @@ function GateScreen({ headline }: { headline: string }) {
   );
 }
 
+function GateActions({ ctaA, privacy, onBegin }: { ctaA: string; privacy: string; onBegin: () => void }) {
+  const [softExit, setSoftExit] = useState(false);
+  const softRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (softExit && softRef.current) {
+      gsap.fromTo(softRef.current, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: WATER });
+    }
+  }, [softExit]);
+
+  if (softExit) {
+    return (
+      <>
+        <p
+          ref={softRef}
+          className="font-serif text-cream/80 text-center leading-relaxed max-w-sm"
+          style={{ fontSize: "clamp(1.1rem,2.5vw,1.35rem)", opacity: 0 }}
+        >
+          This will be here. Come back when the moment is right.
+        </p>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <div className="w-full">
+        <QuizCTAButton label={ctaA} onClick={onBegin} />
+      </div>
+      <p
+        className="font-serif text-cream/80 text-center leading-relaxed max-w-sm"
+        style={{ fontSize: "clamp(0.95rem,2.2vw,1.1rem)" }}
+      >
+        {privacy}
+      </p>
+    </>
+  );
+}
+
 function renderScreen(s: ScreenDef) {
   switch (s.type) {
     case "statement":  return <StatementScreen  text={s.text} size={s.size} />;
@@ -245,6 +291,17 @@ export default function QuizIntro() {
       quizSounds.playIntroMelody(0);
     }
   }, []);
+
+  /* Keyboard back navigation — Escape or ArrowLeft goes to previous screen */
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if ((e.key === "Escape" || e.key === "ArrowLeft") && screen > 0) {
+        setScreen((s) => Math.max(0, s - 1));
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [screen]);
 
   const current = SCREENS[screen];
   const isGate  = current.type === "gate";
@@ -299,6 +356,7 @@ export default function QuizIntro() {
 
   const handleBegin = useCallback(() => {
     quizSounds.playIntroMelody(6);
+    writeQuizState({});
     const content = contentRef.current;
     const go = () => router.push("/quiz/body");
     if (!content) { go(); return; }
@@ -312,7 +370,18 @@ export default function QuizIntro() {
 
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-aubergine select-none">
-      <Nav variant="light" hideLinks animated progress={screen / (SCREENS.length - 1)} />
+      <Nav
+        variant="light"
+        hideLinks
+        animated
+        progress={screen / (SCREENS.length - 1)}
+        leftSlot={
+          <QuizBackButton
+            onClick={() => setScreen((s) => Math.max(0, s - 1))}
+            disabled={screen === 0}
+          />
+        }
+      />
 
       {/* Screen content — key forces child remounts for per-screen useEffects */}
       <div
@@ -344,7 +413,7 @@ export default function QuizIntro() {
             </button>
           ))}
           <button
-            onClick={() => router.push("/quiz/body")}
+            onClick={() => { writeQuizState({}); router.push("/quiz/body"); }}
             style={{ color: "#f472b6", borderColor: "#f472b655", fontSize: 10 }}
             className="px-2 py-1 border hover:opacity-70 transition-opacity font-mono cursor-pointer"
           >
@@ -371,17 +440,7 @@ export default function QuizIntro() {
         onClick={(e) => e.stopPropagation()}
       >
         {isGate && current.type === "gate" ? (
-          <>
-            <div className="w-full">
-              <QuizCTAButton label={current.ctaA} onClick={handleBegin} />
-            </div>
-            <p
-              className="font-serif text-cream/80 text-center leading-relaxed max-w-sm"
-              style={{ fontSize: "clamp(0.95rem,2.2vw,1.1rem)" }}
-            >
-              {current.privacy}
-            </p>
-          </>
+          <GateActions ctaA={current.ctaA} privacy={current.privacy} onBegin={handleBegin} />
         ) : (
           <div className="w-full" onClick={(e) => e.stopPropagation()}>
             <QuizCTAButton label="CONTINUE" onClick={advance} />
