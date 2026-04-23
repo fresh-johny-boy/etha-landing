@@ -81,7 +81,7 @@ export default function QuizInterstitial({
 
       <p
         ref={copyRef}
-        className="font-serif text-cream leading-snug max-w-xs sm:max-w-sm relative z-10 text-center px-6"
+        className="font-serif text-cream leading-snug max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg relative z-10 text-center px-6"
         style={{ fontSize: "clamp(1.6rem, 4.5vw, 2.4rem)", opacity: 0 }}
       >
         {text}

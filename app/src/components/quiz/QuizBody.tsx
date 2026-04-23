@@ -1547,7 +1547,7 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
           {step.q}
         </h2>
         {/* Triangle: A (tall narrow) + B (compact square) top, C (wide flat) bottom-center */}
-        <div className="flex flex-col items-center gap-14">
+        <div className="flex flex-col items-center gap-14 md:scale-[1.15] lg:scale-[1.3] origin-top">
           <div className="flex items-end justify-center gap-10">
             {/* A — tall narrow teardrop */}
             <div style={{ width: bA.containerW }}>

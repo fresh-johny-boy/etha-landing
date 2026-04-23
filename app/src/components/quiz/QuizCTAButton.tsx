@@ -113,7 +113,7 @@ export function QuizCTAButton({
       onTouchMove={onTouch}
       onTouchEnd={onRelease}
       aria-disabled={disabled || undefined}
-      className={`group relative w-full px-12 py-6 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+      className={`group relative block mx-auto w-full max-w-[360px] px-12 py-6 ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
     >
       <svg
         className="absolute inset-0 h-full w-full overflow-visible"
