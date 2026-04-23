@@ -1,13 +1,17 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
-import { QuizCTAButton } from "./QuizCTAButton";
+import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
+
+gsap.registerPlugin(MorphSVGPlugin);
 
 const WATER = "sine.inOut";
 
-/* Ambient balanced aura — same language as Hero / Closure, stroke-only. */
-const AURA_PATH =
+/* Balanced aura — two subtly different organic ovals to morph between. */
+const AURA_A =
   "M 220,30 C 300,6 394,38 416,112 C 438,188 410,286 350,344 C 288,400 194,422 118,406 C 46,390 -2,328 4,250 C 10,176 58,92 130,50 C 160,32 198,44 220,30";
+const AURA_B =
+  "M 215,34 C 294,8 390,44 412,118 C 434,194 404,290 342,348 C 280,404 186,424 112,408 C 40,392 -6,330 2,252 C 8,174 60,88 134,48 C 164,30 194,48 215,34";
 
 export default function QuizInterstitial({
   text,
@@ -20,7 +24,6 @@ export default function QuizInterstitial({
 }) {
   const copyRef = useRef<HTMLParagraphElement>(null);
   const auraRef = useRef<SVGSVGElement>(null);
-  const ctaRef  = useRef<HTMLDivElement>(null);
   const advancedRef = useRef(false);
 
   const go = () => {
@@ -36,10 +39,6 @@ export default function QuizInterstitial({
       gsap.fromTo(copyRef.current,
         { opacity: 0, y: 14 },
         { opacity: 1, y: 0, duration: reduced ? 0.01 : 1.1, ease: WATER, delay: reduced ? 0 : 0.25 },
-      );
-      gsap.fromTo(ctaRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: reduced ? 0.01 : 1.0, ease: WATER, delay: reduced ? 0 : 1.4 },
       );
       /* Aura breath — 1.02 scale loop. */
       if (!reduced && auraRef.current) {
@@ -81,13 +80,6 @@ export default function QuizInterstitial({
         {text}
       </p>
 
-      <div
-        ref={ctaRef}
-        className="mt-14 w-full max-w-sm relative z-10"
-        style={{ opacity: 0 }}
-      >
-        <QuizCTAButton label="CONTINUE" onClick={go} />
-      </div>
     </div>
   );
 }

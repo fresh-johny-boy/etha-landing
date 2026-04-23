@@ -117,7 +117,7 @@ type Scale2Q = { kind: "question"; qtype: "scale2";  layer: 1|2|3; q: string; po
 type Scale3Q = { kind: "question"; qtype: "scale3";  layer: 1|2|3; q: string; poleA: string; middle: string; poleB: string };
 type OpenQ   = { kind: "question"; qtype: "open";    layer: 1|2|3; q: string; placeholder: string; bonus?: { q: string; placeholder: string } };
 type Question = ChoiceQ | VisualQ | Scale2Q | Scale3Q | OpenQ;
-type InterstitialStep = { kind: "interstitial"; id: string; text: string; layer: 1|2|3; variant: "reassure" | "tempo" };
+type InterstitialStep = { kind: "interstitial"; id: string; text: string; layer: 1|2|3; variant: "transition" | "tempo" };
 type Step     = LayerScreen | Question | InterstitialStep;
 
 /* ── Layer definitions ── */
@@ -416,7 +416,7 @@ const LAYER_ICONS: Record<1|2|3, { viewBox: string; paths: { d: string; sw: numb
    Interstitials are injected before each new layer (except the first) — a
    reassurance beat between BODY→MIND and MIND→SPIRIT. One more interstitial
    (tempo) lands before the final 5 questions to shift the rhythm. */
-const REASSURE_COPY: Record<1|2|3, string | null> = {
+const TRANSITION_COPY: Record<1|2|3, string | null> = {
   1: null,
   2: "Your body has shown us its rhythm. Now — your mind.",
   3: "We see you. One more pass, softer this time.",
@@ -430,14 +430,14 @@ function buildSteps(): Step[] {
   QS.forEach((q, qi) => {
     if (q.layer !== lastLayer) {
       const nextLayer = q.layer as 1 | 2 | 3;
-      const copy = REASSURE_COPY[nextLayer];
+      const copy = TRANSITION_COPY[nextLayer];
       if (copy) {
         steps.push({
           kind: "interstitial",
-          id: `reassure-${nextLayer}`,
+          id: `transition-${nextLayer}`,
           text: copy,
           layer: nextLayer,
-          variant: "reassure",
+          variant: "transition",
         });
       }
       steps.push(LAYER_DEF[nextLayer]);
@@ -1462,7 +1462,7 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
     const bB = BLOB_MASKS.b;
     const bC = BLOB_MASKS.c;
     return (
-      <div className="w-full px-4 sm:px-6">
+      <div className="w-full max-w-2xl mx-auto px-4 sm:px-6">
         <h2
           ref={qRef}
           className="font-serif text-cream mb-12 leading-snug text-center max-w-lg mx-auto"
@@ -1492,7 +1492,7 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
   }
 
   if (step.qtype === "scale2") return (
-    <div className="w-full max-w-2xl px-8 sm:px-10">
+    <div className="w-full max-w-2xl mx-auto px-8 sm:px-10">
       <h2 ref={qRef} className="font-serif text-cream mb-12 leading-snug"
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
@@ -1502,7 +1502,7 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
   );
 
   if (step.qtype === "scale3") return (
-    <div className="w-full max-w-2xl px-8 sm:px-10">
+    <div className="w-full max-w-2xl mx-auto px-8 sm:px-10">
       <h2 ref={qRef} className="font-serif text-cream mb-12 leading-snug"
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
@@ -1511,10 +1511,10 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
     </div>
   );
 
-  /* Default: A/B/C choice — question padded, cards full-width */
+  /* Default: A/B/C choice — question padded, cards capped for desktop */
   return (
-    <div className="w-full">
-      <h2 ref={qRef} className="font-serif text-cream mb-10 leading-snug text-center px-8 sm:px-12 max-w-2xl mx-auto"
+    <div className="w-full max-w-xl mx-auto">
+      <h2 ref={qRef} className="font-serif text-cream mb-10 leading-snug text-center px-8 sm:px-12"
           style={{ fontSize: "clamp(2rem, 5.5vw, 3.5rem)", opacity: 0 }}>
         {step.q}
       </h2>
@@ -1547,7 +1547,7 @@ const DEV_JUMPS = (() => {
       if (!seenTypes.has(`i-${step.variant}`)) {
         seenTypes.add(`i-${step.variant}`);
         jumps.push({
-          label: step.variant === "tempo" ? "TEMPO" : `→L${step.layer}`,
+          label: step.variant === "tempo" ? `→TEMPO` : `→L${step.layer}`,
           idx,
           color: "#fde68a",
         });
@@ -1670,7 +1670,7 @@ export default function QuizBody() {
 
       <div
         ref={contentRef}
-        className="relative z-10 flex flex-1 items-center justify-center py-8"
+        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" ? "items-center" : "items-start pt-40 pb-8 md:pt-44"}`}
         style={{ opacity: 0 }}
       >
         <div key={stepIdx} className="w-full flex justify-center">
