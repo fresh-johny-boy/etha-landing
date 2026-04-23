@@ -40,11 +40,30 @@ export default function QuizInterstitial({
         { opacity: 0, y: 14 },
         { opacity: 1, y: 0, duration: reduced ? 0.01 : 1.1, ease: WATER, delay: reduced ? 0 : 0.25 },
       );
-      /* Aura breath — 1.02 scale loop. */
+      /* Aura — gentle morph between two near-identical ovals + slow drift. */
       if (!reduced && auraRef.current) {
+        const path = auraRef.current.querySelector("path");
+        if (path) {
+          gsap.to(path, {
+            morphSVG: AURA_B,
+            duration: 5.5,
+            ease: WATER,
+            yoyo: true,
+            repeat: -1,
+          });
+        }
         gsap.to(auraRef.current, {
-          scale: 1.02,
-          duration: 4,
+          x: 6,
+          y: -5,
+          duration: 7,
+          ease: WATER,
+          yoyo: true,
+          repeat: -1,
+          transformOrigin: "center center",
+        });
+        gsap.to(auraRef.current, {
+          rotate: 1.5,
+          duration: 9,
           ease: WATER,
           yoyo: true,
           repeat: -1,
@@ -64,12 +83,12 @@ export default function QuizInterstitial({
       <svg
         ref={auraRef}
         className="pointer-events-none absolute"
-        style={{ width: "68vw", maxWidth: 520, opacity: 0.09, top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+        style={{ width: "68vw", maxWidth: 520, opacity: 1, top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
         viewBox="0 0 420 430"
         fill="none"
         aria-hidden="true"
       >
-        <path d={AURA_PATH} stroke="#FFEFDE" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={AURA_A} stroke="#FFEFDE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
 
       <p
