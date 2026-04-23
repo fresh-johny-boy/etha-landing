@@ -71,7 +71,7 @@ export default function QuizSent({ onAdvance }: { onAdvance: () => void }) {
 
   return (
     <div
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-dvh flex items-center justify-center overflow-hidden"
       style={{ backgroundColor: "#3D233B" }}
       onClick={advance}
     >

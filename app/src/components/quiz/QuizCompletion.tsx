@@ -6,13 +6,14 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
   const containerRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linesRef = useRef<HTMLParagraphElement[]>([]);
+  const hintRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     const prefersReduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const delay = prefersReduced ? 10 : 3000;
+    const delay = prefersReduced ? 10 : 5500;
     const timer = setTimeout(onAdvance, delay);
 
     if (!prefersReduced) {
@@ -34,6 +35,7 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
             delay: 0.3 * (i + 1),
           });
         });
+        gsap.to(hintRef.current, { opacity: 1, duration: 0.8, delay: 3.5 });
       }, containerRef);
       return () => {
         ctx.revert();
@@ -45,7 +47,7 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
   }, [onAdvance]);
 
   const bodyLines = [
-    "Forty-three answers. Three layers.",
+    "Forty-five answers. Three layers.",
     "Something rare has been assembled here,",
     "a map that belongs only to you.",
     "It is almost ready.",
@@ -100,6 +102,13 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
             </p>
           ))}
         </div>
+        <p
+          ref={hintRef}
+          className="font-label text-cream mt-8"
+          style={{ opacity: 0, fontSize: 10, letterSpacing: "0.28em", color: "rgba(255,239,222,0.5)" }}
+        >
+          TAP TO CONTINUE
+        </p>
       </div>
     </div>
   );

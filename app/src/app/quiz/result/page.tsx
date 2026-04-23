@@ -86,6 +86,12 @@ export default function QuizResultPage() {
   }, []);
 
   useEffect(() => {
+    if (!result && process.env.NODE_ENV !== "development") {
+      router.replace("/quiz");
+    }
+  }, [result, router]);
+
+  useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
@@ -614,7 +620,7 @@ function AuraBubbleChart({
               dominantBaseline="middle"
               fill={fills.text}
               style={{
-                fontFamily: 'var(--font-brandon, "Arial Narrow", Arial, sans-serif)',
+                fontFamily: 'var(--font-brandon)',
                 fontSize: lSize,
                 letterSpacing: '0.2em',
               }}

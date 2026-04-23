@@ -770,8 +770,8 @@ function OptionRow({ opt, chosen, onPick, entryDelay = 0 }: {
   return (
     <div ref={wrapRef as React.RefObject<HTMLDivElement>} className="relative" style={{ opacity: 0 }}>
       <button
-        onClick={() => chosen === null && onPick(opt.id)}
-        tabIndex={chosen !== null ? -1 : 0}
+        onClick={() => onPick(opt.id)}
+        tabIndex={0}
         className={`relative w-full text-center px-10 ${aura.pad} min-h-[52px] cursor-pointer`}
       >
         {/* Per-option organic aura ring - unique shape per A/B/C */}
@@ -858,8 +858,8 @@ function VisualCard({ opt, chosen, onPick, entryDelay = 0, imageOverride }: {
   return (
     <div ref={wrapRef} className="flex flex-col items-center gap-3" style={{ opacity: 0 }}>
       <button
-        onClick={() => chosen === null && onPick(opt.id)}
-        tabIndex={chosen !== null ? -1 : 0}
+        onClick={() => onPick(opt.id)}
+        tabIndex={0}
         className="cursor-pointer w-full block"
         style={{ WebkitTapHighlightColor: "transparent" }}
       >
@@ -946,8 +946,8 @@ function ScaleNode({ id, text, pos, total, chosen, onPick, entryDelay = 0 }: {
 
       {/* Text + aura */}
       <button
-        onClick={() => chosen === null && onPick(id)}
-        tabIndex={chosen !== null ? -1 : 0}
+        onClick={() => onPick(id)}
+        tabIndex={0}
         className="relative flex-1 text-left py-5 min-h-[60px] cursor-pointer"
       >
         <AuraSvg pathRef={pathRef} />
@@ -1414,7 +1414,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
             className="mt-10"
             style={{ overflow: "hidden" }}
           >
-            <p className="font-label text-[9px] text-cream/32 mb-5">{step.bonus.q}</p>
+            <p className="font-label text-[9px] text-cream/30 mb-5">{step.bonus.q}</p>
             <div className="relative">
               <svg
                 className="pointer-events-none absolute overflow-visible"
@@ -1641,13 +1641,18 @@ export default function QuizBody() {
   /* Scale-question placement lives in parent so the CONTINUE button can
      render at the page bottom (outside the centred content) like the intro. */
   const [scalePlacedId, setScalePlacedId] = useState<string | null>(null);
-  const contentRef   = useRef<HTMLDivElement>(null);
-  const advancingRef = useRef(false);
-  const stepIdxRef   = useRef(0);
+  const contentRef    = useRef<HTMLDivElement>(null);
+  const advancingRef  = useRef(false);
+  const pickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stepIdxRef    = useRef(0);
   const data   = useQuizData();
   const router = useRouter();
 
   useEffect(() => { stepIdxRef.current = stepIdx; });
+
+  useEffect(() => {
+    return () => { if (pickTimeoutRef.current) clearTimeout(pickTimeoutRef.current); };
+  }, []);
 
   /* Stable advance - reads stepIdx via ref to avoid stale closure */
   const advance = useCallback(() => {
@@ -1703,12 +1708,13 @@ export default function QuizBody() {
 
   /* Answer selection → auto-advance after aura starts drawing */
   const handlePick = useCallback((id: string) => {
-    if (chosen || advancingRef.current) return;
+    if (advancingRef.current) return;
+    if (pickTimeoutRef.current) clearTimeout(pickTimeoutRef.current);
     data.recordAnswer(stepIdxRef.current, id);
     quizSounds.play(id === "a" ? "chimeA" : id === "b" ? "chimeB" : "chimeC");
     setChosen(id);
-    setTimeout(advance, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 180);
-  }, [chosen, advance, data]);
+    pickTimeoutRef.current = setTimeout(advance, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 180);
+  }, [advance, data]);
 
   const handleBack = useCallback(() => {
     if (advancingRef.current) return;

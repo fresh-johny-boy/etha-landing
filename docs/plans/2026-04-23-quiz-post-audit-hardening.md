@@ -1,9 +1,9 @@
 # Quiz Post-Audit Hardening Implementation Plan
 
 Created: 2026-04-23
-Status: PENDING
-Approved: No
-Iterations: 0
+Status: COMPLETE
+Approved: Yes
+Iterations: 1
 Worktree: No
 Type: Feature
 
@@ -188,13 +188,13 @@ Type: Feature
 
 ## Progress Tracking
 
-- [ ] Task 1: Answer re-select window during 180ms auto-advance
-- [ ] Task 2: Completion screen timing + copy + tap-to-advance hint
-- [ ] Task 3: Route guard on `/quiz/result` in production
-- [ ] Task 4: Polish — Arial fallback, min-h-dvh, cream/32 typo
-- [ ] Task 5: Re-audit via `/critique` and confirm ≥ 33/40
+- [x] Task 1: Answer re-select window during 180ms auto-advance
+- [x] Task 2: Completion screen timing + copy + tap-to-advance hint
+- [x] Task 3: Route guard on `/quiz/result` in production
+- [x] Task 4: Polish — Arial fallback, min-h-dvh, cream/32 typo
+- [x] Task 5: Re-audit via `/critique` and confirm ≥ 33/40
 
-**Total Tasks:** 5 | **Completed:** 0 | **Remaining:** 5
+**Total Tasks:** 5 | **Completed:** 5 | **Remaining:** 0
 
 ## Implementation Tasks
 
