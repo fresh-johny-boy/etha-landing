@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
+import { QuizCTAButton } from "@/components/quiz/QuizCTAButton";
 import { useQuizData } from "@/components/quiz/QuizDataProvider";
 import QuizEmailGate from "@/components/quiz/QuizEmailGate";
 import { writeQuizState, readQuizState } from "@/lib/quizState";
@@ -71,11 +72,11 @@ export default function QuizResultPage() {
   const [devDosha, setDevDosha]   = useState<Archetype>(result?.primary ?? "vata");
   const [showGate, setShowGate]   = useState(false);
   const [emailDone, setEmailDone] = useState(() => !!readQuizState()?.email);
-  const auraRef     = useRef<SVGSVGElement>(null);
-  const labelRef    = useRef<HTMLParagraphElement>(null);
-  const nameRef     = useRef<HTMLHeadingElement>(null);
-  const metaRef     = useRef<HTMLDivElement>(null);
-  const contentRef  = useRef<HTMLDivElement>(null);
+  const auraRef      = useRef<SVGSVGElement>(null);
+  const labelRef     = useRef<HTMLParagraphElement>(null);
+  const nameRef      = useRef<HTMLHeadingElement>(null);
+  const archetypeRef = useRef<HTMLDivElement>(null);
+  const contentRef   = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!result) return;
@@ -87,29 +88,51 @@ export default function QuizResultPage() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ctx = gsap.context(() => {
-      gsap.set(nameRef.current,    { y: 18 });
-      gsap.set(contentRef.current, { y: 8 });
+      gsap.set(nameRef.current,    { y: 24, opacity: 0 });
+      gsap.set(contentRef.current, { y: 10, opacity: 0 });
 
       if (reduced) {
-        // Respect reduced-motion but keep a short stagger so arrival still reads as sequence
         const tl = gsap.timeline({ delay: 0.05 });
-        tl.to(auraRef.current,    { opacity: 1, duration: 0.3 }, 0);
-        tl.to(labelRef.current,   { opacity: 1, duration: 0.3 }, 0.1);
-        tl.to(nameRef.current,    { opacity: 1, y: 0, duration: 0.3 }, 0.2);
-        tl.to(metaRef.current,    { opacity: 1, duration: 0.3 }, 0.3);
-        tl.to(contentRef.current, { opacity: 1, y: 0, duration: 0.3 }, 0.4);
+        tl.to(auraRef.current,      { opacity: 1, duration: 0.3 }, 0);
+        tl.to(labelRef.current,     { opacity: 1, duration: 0.3 }, 0.1);
+        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.3 }, 0.2);
+        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3 }, 0.3);
+        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.3 }, 0.4);
         return;
       }
 
-      /* Entry — unhurried but earned */
+      /*
+       * Sequential reveal — each group waits for the previous to land.
+       * Eases: power2/power3 for smooth deceleration, no bounce/elastic.
+       *
+       * 0.0s  aura breathes in (ambient, long)
+       * 0.2s  "YOUR NATURE IS" label
+       * 0.7s  dosha name — the hero moment, given the most space
+       * 2.0s  archetype label
+       * 2.7s  blobs (handled in AuraBubbleChart via startDelay prop)
+       * 4.5s  content (reframe + signals + ritual)
+       */
       const tl = gsap.timeline({ delay: 0.1 });
-      tl.to(auraRef.current,     { opacity: 1, duration: 2.0, ease: "power2.out" }, 0);
-      tl.to(labelRef.current,    { opacity: 1, duration: 0.7, ease: "power2.out" }, 0.3);
-      tl.to(nameRef.current,     { opacity: 1, y: 0, duration: 1.0, ease: "expo.out" }, 0.6);
-      tl.to(metaRef.current,     { opacity: 1, duration: 0.8, ease: "power2.out" }, 1.2);
-      tl.to(contentRef.current,  { opacity: 1, y: 0, duration: 0.9, ease: "power2.out" }, 1.8);
 
-      /* Aura: slow breathe only — no rotation, no spin */
+      /*
+       * Waterfall chain — each starts 0.06s before the previous finishes.
+       * Aura runs in parallel (ambient, doesn't block chain).
+       *
+       * label:      0.00 → 0.50
+       * name:       0.44 → 1.34
+       * archetype:  1.28 → 1.73
+       * blob 0:     1.67  (startDelay passed to AuraBubbleChart)
+       * blob 1:     1.95
+       * blob 2:     2.23 → 2.93
+       * content:    2.87
+       */
+      tl.to(auraRef.current,      { opacity: 1, duration: 1.4, ease: "power2.out" }, 0);
+      tl.to(labelRef.current,     { opacity: 1, duration: 0.5, ease: "circ.out" }, 0);
+      tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.06");
+      tl.to(archetypeRef.current, { opacity: 1, duration: 0.45, ease: "circ.out" }, "-=0.06");
+      tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 2.87);
+
+      /* Aura ambient breathe — starts after initial reveal settles */
       gsap.to(auraRef.current, {
         scale: 1.02, duration: 12, ease: "sine.inOut",
         yoyo: true, repeat: -1, transformOrigin: "center", delay: 2.0,
@@ -231,7 +254,7 @@ export default function QuizResultPage() {
       )}
 
       {/* ── CARD ──────────────────────────────────────────────────── */}
-      <section className="relative" aria-labelledby="dosha-name" style={{ minHeight: "100dvh", paddingTop: 100, paddingBottom: 112 }}>
+      <section className="relative" aria-labelledby="dosha-name" style={{ minHeight: "100dvh", paddingTop: 100, paddingBottom: 64 }}>
 
         {/* Atmospheric aura — one per dosha, connected closed loop, breathes only */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -245,8 +268,8 @@ export default function QuizResultPage() {
             <path
               d={auraPath}
               stroke="#FFEFDE"
-              strokeOpacity="0.09"
-              strokeWidth="0.9"
+              strokeOpacity="0.14"
+              strokeWidth="1.1"
               strokeLinecap="round"
               strokeLinejoin="round"
               fill="none"
@@ -290,9 +313,9 @@ export default function QuizResultPage() {
             </h1>
           </div>
 
-          {/* Archetype + composition */}
+          {/* Archetype label */}
           <div
-            ref={metaRef}
+            ref={archetypeRef}
             style={{ marginTop: 22, opacity: 0 }}
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
@@ -320,55 +343,59 @@ export default function QuizResultPage() {
                 </span>
               )}
             </div>
+          </div>
 
-            {/* Composition bubble chart */}
-            <div style={{ marginTop: 28 }}>
-              <AuraBubbleChart comp={card.comp} />
-            </div>
+          {/* Composition bubble chart — animates independently, blobs stagger from startDelay */}
+          <div style={{ marginTop: 28 }}>
+            <AuraBubbleChart comp={card.comp} startDelay={1.67} />
           </div>
 
           {/* Main content */}
-          <div ref={contentRef} style={{ marginTop: 40, opacity: 0 }}>
+          <div ref={contentRef} style={{ marginTop: 64, opacity: 0 }}>
 
-            {/* Reframe quote — emotional core */}
+            {/* Reframe quote — emotional core, given full stage */}
             <blockquote
               className="font-serif italic"
               style={{
-                fontSize: "clamp(1.28rem, 3.2vw, 1.55rem)",
-                lineHeight: 1.55,
+                fontSize: "clamp(1.7rem, 4.5vw, 2.1rem)",
+                lineHeight: 1.5,
                 color: "#FFEFDE",
                 textAlign: "center",
                 margin: 0,
                 fontWeight: 400,
+                maxWidth: "34ch",
+                marginLeft: "auto",
+                marginRight: "auto",
               }}
             >
               {card.reframe}
             </blockquote>
 
-            {/* Mirror signals — no bullets, indented italic */}
-            <div style={{ marginTop: 52 }}>
+            {/* Mirror signals — left-aligned, editorial feel */}
+            <div style={{ marginTop: 64 }}>
               <p
                 className="font-label"
                 style={{
-                  fontSize: 11,
-                  letterSpacing: "0.22em",
-                  color: "rgba(255,239,222,0.75)",
-                  marginBottom: 22,
-                  textAlign: "center",
+                  fontSize: 10,
+                  letterSpacing: "0.26em",
+                  color: "rgba(255,239,222,0.55)",
+                  marginBottom: 32,
+                  textAlign: "left",
                 }}
               >
                 WHAT YOUR ANSWERS REVEALED
               </p>
-              <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 18 }}>
+              <ul style={{ listStyle: "none", padding: 0, display: "flex", flexDirection: "column", gap: 28 }}>
                 {card.signals.map((s, idx) => (
                   <li
                     key={`signal-${idx}`}
                     className="font-serif italic"
                     style={{
-                      fontSize: "1.05rem",
-                      color: "rgba(255,239,222,0.92)",
-                      lineHeight: 1.55,
-                      textAlign: "center",
+                      fontSize: "1.22rem",
+                      color: "rgba(255,239,222,0.88)",
+                      lineHeight: 1.6,
+                      textAlign: "left",
+                      paddingLeft: 0,
                     }}
                   >
                     {s}
@@ -377,16 +404,16 @@ export default function QuizResultPage() {
               </ul>
             </div>
 
-            {/* Ritual */}
-            <div style={{ marginTop: 56, position: "relative" }}>
+            {/* Ritual — the gift. More weight, more separation, left-aligned */}
+            <div style={{ marginTop: 72, position: "relative" }}>
               <p
                 className="font-label"
                 style={{
-                  fontSize: 11,
-                  letterSpacing: "0.22em",
-                  color: "rgba(255,239,222,0.75)",
-                  marginBottom: 16,
-                  textAlign: "center",
+                  fontSize: 10,
+                  letterSpacing: "0.26em",
+                  color: "rgba(255,239,222,0.55)",
+                  marginBottom: 20,
+                  textAlign: "left",
                 }}
               >
                 {card.ritualLabel.toUpperCase()}
@@ -394,10 +421,10 @@ export default function QuizResultPage() {
               <p
                 className="font-serif italic"
                 style={{
-                  fontSize: "1.15rem",
-                  color: "rgba(255,239,222,0.95)",
-                  lineHeight: 1.55,
-                  textAlign: "center",
+                  fontSize: "clamp(1.3rem, 3.2vw, 1.55rem)",
+                  color: "#FFEFDE",
+                  lineHeight: 1.65,
+                  textAlign: "left",
                 }}
               >
                 {card.ritual}
@@ -409,31 +436,19 @@ export default function QuizResultPage() {
 
         {/* Email CTA */}
         {!emailDone && (
-          <div style={{ marginTop: 64, textAlign: "center", paddingBottom: 80 }}>
-            <p
-              className="font-label"
-              style={{ fontSize: 10, letterSpacing: "0.25em", color: "rgba(255,239,222,0.55)", marginBottom: 20 }}
-            >
-              YOUR FULL REPORT IS WAITING
-            </p>
-            <button
+          <div
+            className="mx-auto px-8 sm:px-12 max-w-[520px] md:max-w-[680px]"
+            style={{ marginTop: 72, textAlign: "center", paddingBottom: 48 }}
+          >
+            <QuizCTAButton
+              label="READ MY FULL REPORT"
               onClick={() => setShowGate(true)}
-              className="font-label"
-              style={{
-                fontSize: 11,
-                letterSpacing: "0.22em",
-                color: "rgba(255,239,222,0.92)",
-                border: "1px solid rgba(255,239,222,0.35)",
-                padding: "14px 32px",
-                background: "none",
-                cursor: "pointer",
-              }}
-            >
-              READ MY FULL REPORT
-            </button>
+              strokeColor={theme.nameColor}
+              revealMode="draw"
+            />
             <p
               className="font-serif italic"
-              style={{ marginTop: 14, fontSize: "0.82rem", color: "rgba(255,239,222,0.40)" }}
+              style={{ marginTop: 14, fontSize: "0.82rem", color: "rgba(255,239,222,0.72)" }}
             >
               Private. Never shared. Unsubscribe at any moment.
             </p>
@@ -501,32 +516,70 @@ const DOSHA_FILLS: Record<string, { fill: string; text: string }> = {
 
 function AuraBubbleChart({
   comp,
+  startDelay = 2.7,
 }: {
   comp: readonly { pct: number; label: string }[];
+  startDelay?: number;
 }): React.ReactElement {
-  const K = 0.552;
+  const groupRefs = useRef<(SVGGElement | null)[]>([]);
 
-  const slots = [
-    { cx: 102, cy: 114, rx: 90, ry: 84, warp: [7,  6, -4,  6] },
-    { cx: 268, cy:  86, rx: 62, ry: 57, warp: [5, -4,  5, -4] },
-    { cx: 278, cy: 192, rx: 42, ry: 39, warp: [3, -3,  3, -2] },
+  /*
+   * Hand-crafted C1-continuous paths — every anchor has mathematically balanced
+   * control handles so the tangent direction is identical on both sides.
+   * No warp arrays, no kinks, no algorithmic ugliness.
+   *
+   * Blob 0: wide horizontal pebble  (cx≈93, cy≈117)
+   * Blob 1: tall narrow standing-stone (cx≈268, cy≈78)
+   * Blob 2: small compact disc       (cx≈276, cy≈204)
+   *
+   * Gap between 0→1: ~18px horizontal. Gap between 1→2: ~26px vertical.
+   */
+  const BLOBS = [
+    {
+      path: "M 80,36 C 138,20 196,68 196,112 C 196,156 148,202 90,202 C 32,202 2,162 6,116 C 10,70 22,52 80,36 Z",
+      tx: 93, ty: 116,
+    },
+    {
+      path: "M 268,14 C 298,12 322,36 322,76 C 322,116 300,140 268,142 C 236,144 214,120 214,80 C 214,40 238,16 268,14 Z",
+      tx: 268, ty: 78,
+    },
+    {
+      path: "M 276,168 C 300,165 318,180 318,204 C 318,228 298,240 276,240 C 254,240 234,226 234,204 C 234,182 252,171 276,168 Z",
+      tx: 276, ty: 204,
+    },
   ];
 
-  function ovalPath(cx: number, cy: number, rx: number, ry: number, w: number[]): string {
-    const kx = K * rx, ky = K * ry;
-    return [
-      `M ${cx},${cy - ry}`,
-      `C ${cx + kx + w[0]},${cy - ry} ${cx + rx},${cy - ky + w[1]} ${cx + rx},${cy}`,
-      `C ${cx + rx},${cy + ky + w[2]} ${cx + kx},${cy + ry + w[3]} ${cx},${cy + ry}`,
-      `C ${cx - kx},${cy + ry} ${cx - rx},${cy + ky} ${cx - rx},${cy}`,
-      `C ${cx - rx},${cy - ky} ${cx - kx + w[0]},${cy - ry} ${cx},${cy - ry}`,
-      `Z`,
-    ].join(' ');
-  }
+  const centers = [[93,117],[268,78],[276,204]];
 
-  const sWidth  = [1.4, 1.0, 0.8];
-  const pctSize = [28,  19,  13];
-  const lblSize = [10,   8,   7];
+  useEffect(() => {
+    const groups = groupRefs.current.filter((g): g is SVGGElement => g !== null);
+    if (!groups.length) return;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    groups.forEach((g, i) => {
+      gsap.set(g, { svgOrigin: `${centers[i][0]} ${centers[i][1]}`, scale: 0, opacity: 0 });
+    });
+
+    if (reduced) {
+      gsap.to(groups, { opacity: 1, scale: 1, duration: 0.3, stagger: 0.15, delay: startDelay });
+      return;
+    }
+
+    groups.forEach((g, i) => {
+      gsap.to(g, {
+        scale: 1,
+        opacity: 1,
+        duration: 0.7,
+        ease: "back.out(1.3)",
+        delay: startDelay + i * 0.28,
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [comp, startDelay]);
+
+  const pctSize = [28, 19, 13];
+  const lblSize = [10,  8,  7];
 
   return (
     <svg
@@ -536,40 +589,32 @@ function AuraBubbleChart({
       aria-label="Dosha composition"
       role="img"
     >
-      {slots.map((s, i) => {
+      {BLOBS.map((b, i) => {
         const fills = DOSHA_FILLS[comp[i].label] ?? { fill: '#FFEFDE', text: '#3D233B' };
         const pSize = pctSize[i];
         const lSize = lblSize[i];
         return (
-          <g key={comp[i].label}>
-            <path
-              d={ovalPath(s.cx, s.cy, s.rx, s.ry, s.warp)}
-              fill={fills.fill}
-              fillOpacity={1}
-              stroke={fills.fill}
-              strokeOpacity={1}
-              strokeWidth={sWidth[i]}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+          <g
+            key={comp[i].label}
+            ref={(el) => { groupRefs.current[i] = el; }}
+          >
+            <path d={b.path} fill={fills.fill} />
             <text
-              x={s.cx}
-              y={s.cy - 4}
+              x={b.tx}
+              y={b.ty - 4}
               textAnchor="middle"
               dominantBaseline="middle"
               fill={fills.text}
-              fillOpacity={1}
               style={{ fontFamily: 'var(--font-plantin, Georgia, serif)', fontSize: pSize }}
             >
               {comp[i].pct}%
             </text>
             <text
-              x={s.cx}
-              y={s.cy + pSize * 0.75}
+              x={b.tx}
+              y={b.ty + pSize * 0.75}
               textAnchor="middle"
               dominantBaseline="middle"
               fill={fills.text}
-              fillOpacity={1}
               style={{
                 fontFamily: 'var(--font-brandon, "Arial Narrow", Arial, sans-serif)',
                 fontSize: lSize,

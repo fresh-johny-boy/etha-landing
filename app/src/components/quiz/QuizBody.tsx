@@ -7,6 +7,7 @@ import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
 import QuizInterstitial from "./QuizInterstitial";
 import { useQuizData } from "./QuizDataProvider";
+import { QuizBackButton } from "./QuizBackButton";
 
 /* Easing vocabulary:
    AIR   — entrances (default)
@@ -1715,6 +1716,15 @@ export default function QuizBody() {
     setTimeout(advance, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 10 : 180);
   }, [chosen, advance, data]);
 
+  const handleBack = useCallback(() => {
+    if (advancingRef.current) return;
+    if (stepIdx === 0) { router.push("/quiz"); return; }
+    advancingRef.current = false;
+    setChosen(null);
+    setScalePlacedId(null);
+    setStepIdx((s) => Math.max(0, s - 1));
+  }, [stepIdx, router]);
+
   /* Dev: jump to any step instantly */
   const handleDevJump = useCallback((idx: number) => {
     advancingRef.current = false;
@@ -1739,11 +1749,12 @@ export default function QuizBody() {
         animated
         progress={progress}
         quizMilestones={{ currentLayer }}
+        leftSlot={<QuizBackButton onClick={handleBack} />}
       />
 
       <div
         ref={contentRef}
-        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" || step.kind === "interstitial" ? "items-center" : "items-start pt-40 pb-8 md:pt-44"}`}
+        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" || step.kind === "interstitial" ? "items-center" : "items-start pt-56 pb-8 md:pt-60"}`}
         style={{ opacity: 0 }}
       >
         <div key={stepIdx} className="w-full flex justify-center">

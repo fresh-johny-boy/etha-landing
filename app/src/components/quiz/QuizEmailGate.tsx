@@ -137,7 +137,7 @@ export default function QuizEmailGate({
   useEffect(() => {
     if (!emailAuraRef.current) return;
     gsap.to(emailAuraRef.current, {
-      strokeOpacity: emailFocus ? 0.7 : 0.28,
+      strokeOpacity: emailFocus ? 0.65 : 0.22,
       duration: 0.4,
       ease: "power2.out",
     });
@@ -176,6 +176,12 @@ export default function QuizEmailGate({
 
   const auraPos = GATE_AURA_POS[dosha];
 
+  const bgRgba: Record<Archetype, string> = {
+    vata:  "rgba(16,31,106,0.92)",
+    pitta: "rgba(125,0,40,0.92)",
+    kapha: "rgba(0,74,69,0.92)",
+  };
+
   return (
     <div
       ref={overlayRef}
@@ -183,7 +189,7 @@ export default function QuizEmailGate({
       aria-modal="true"
       aria-labelledby="gate-heading"
       className="fixed inset-0 z-50 flex flex-col overflow-hidden"
-      style={{ background: theme.bg, opacity: 0 }}
+      style={{ background: bgRgba[dosha], backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)", opacity: 0 }}
     >
       {/* Atmospheric background aura */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -209,14 +215,6 @@ export default function QuizEmailGate({
       {/* Main content */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8 py-16 text-center">
 
-        <p
-          id="gate-heading"
-          className="font-label text-[10px] mb-7"
-          style={{ letterSpacing: "0.3em", color: "rgba(255,239,222,0.62)" }}
-        >
-          YOUR DOSHA HAS BEEN IDENTIFIED
-        </p>
-
         {/* Blurred teaser — same archetype as result page */}
         <div
           ref={teaserRef}
@@ -237,7 +235,7 @@ export default function QuizEmailGate({
             className="font-serif italic mt-4 leading-relaxed"
             style={{
               fontSize: "clamp(1rem, 2.5vw, 1.25rem)",
-              color: "rgba(255,239,222,0.65)",
+              color: "rgba(255,239,222,0.90)",
             }}
           >
             {archetype.heroLine}
@@ -247,30 +245,30 @@ export default function QuizEmailGate({
         {/* Form */}
         <div
           ref={formRef}
-          className="w-full mt-14"
+          className="w-full mt-20"
           style={{ maxWidth: 380, opacity: 0 }}
         >
           <h3
             className="font-serif mb-2 leading-tight"
             style={{
-              fontSize: "clamp(1.3rem, 3vw, 1.6rem)",
-              color: "rgba(255,239,222,0.92)",
+              fontSize: "clamp(1.65rem, 4vw, 2.1rem)",
+              color: "#FFEFDE",
             }}
           >
             Where should we send your report?
           </h3>
           <p
-            className="font-serif italic mb-7 leading-relaxed"
+            className="font-serif italic mb-12 leading-relaxed"
             style={{
-              fontSize: "clamp(0.9rem, 2vw, 1rem)",
-              color: "rgba(255,239,222,0.65)",
+              fontSize: "clamp(0.95rem, 2vw, 1.1rem)",
+              color: "rgba(255,239,222,0.90)",
             }}
           >
             Your complete rhythm map, your daily ritual, and your botanical recommendations, written for you alone. Enter your name and email to read it in full.
           </p>
 
           {/* First name input */}
-          <div className="relative mb-4">
+          <div className="relative mb-6">
             <svg
               className="pointer-events-none absolute overflow-visible"
               viewBox="0 0 360 58"
@@ -279,13 +277,13 @@ export default function QuizEmailGate({
               aria-hidden="true"
               style={{ left: "-10px", top: "-8px", width: "calc(100% + 20px)", height: "calc(100% + 16px)" }}
             >
-              <path d={EMAIL_AURA} fill={theme.dimAccent} stroke="none" />
+              <path d={EMAIL_AURA} fill="rgba(255,239,222,0.07)" stroke="none" />
               <path
                 d={EMAIL_AURA}
                 fill="none"
-                stroke={theme.nameColor}
+                stroke="#FFEFDE"
                 strokeWidth="0.9"
-                strokeOpacity={nameFocus ? 0.7 : 0.28}
+                strokeOpacity={nameFocus ? 0.65 : 0.22}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -322,16 +320,16 @@ export default function QuizEmailGate({
             >
               <path
                 d={EMAIL_AURA}
-                fill={theme.dimAccent}
+                fill="rgba(255,239,222,0.07)"
                 stroke="none"
               />
               <path
                 ref={emailAuraRef}
                 d={EMAIL_AURA}
                 fill="none"
-                stroke={theme.nameColor}
+                stroke="#FFEFDE"
                 strokeWidth="0.9"
-                strokeOpacity="0.28"
+                strokeOpacity="0.22"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -384,7 +382,7 @@ export default function QuizEmailGate({
         {/* Legal consent */}
         <p
           className="font-serif mt-4 leading-relaxed"
-          style={{ fontSize: "0.75rem", color: "rgba(255,239,222,0.40)", maxWidth: 320, textAlign: "center" }}
+          style={{ fontSize: "0.75rem", color: "rgba(255,239,222,0.70)", maxWidth: 320, textAlign: "center" }}
         >
           By continuing you agree to our{" "}
           <a href="/legal/terms" style={{ textDecoration: "underline" }}>Terms and Conditions</a>
@@ -395,7 +393,7 @@ export default function QuizEmailGate({
         {/* Privacy note */}
         <p
           className="font-serif mt-2"
-          style={{ fontSize: "0.75rem", color: "rgba(255,239,222,0.40)", textAlign: "center" }}
+          style={{ fontSize: "0.75rem", color: "rgba(255,239,222,0.70)", textAlign: "center" }}
         >
           Private. Never shared. Unsubscribe at any moment.
         </p>

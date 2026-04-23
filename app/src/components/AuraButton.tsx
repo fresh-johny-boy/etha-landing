@@ -6,9 +6,11 @@ import { gsap } from "gsap";
 import { quizSounds } from "@/lib/quizSounds";
 
 interface AuraButtonProps {
-  href: string;
+  href?: string;
+  onClick?: () => void;
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 /* ── Balanced oval decomposed into 22 control points ── */
@@ -86,11 +88,13 @@ function distort(normX: number, normY: number): string {
 
 export default function AuraButton({
   href,
+  onClick,
   children,
   className = "",
+  style,
 }: AuraButtonProps): React.ReactElement {
   const pathRef = useRef<SVGPathElement>(null);
-  const wrapRef = useRef<HTMLAnchorElement>(null);
+  const wrapRef = useRef<HTMLAnchorElement | HTMLButtonElement>(null);
   const rafRef = useRef<number>(0);
   const activeRef = useRef(false);
 
@@ -99,7 +103,7 @@ export default function AuraButton({
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  const handleMove = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleMove = useCallback((e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
     if (!wrapRef.current || !pathRef.current) return;
     activeRef.current = true;
 
@@ -137,16 +141,16 @@ export default function AuraButton({
     quizSounds.play("chime", { volume: 0.4 });
   }, []);
 
-  return (
-    <Link
-      ref={wrapRef}
-      href={href}
-      className={`group relative inline-flex items-center justify-center px-14 py-6 ${className}`}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      onMouseEnter={handleEnter}
-      onClick={() => quizSounds.prime()}
-    >
+  const sharedProps = {
+    className: `group relative inline-flex items-center justify-center px-14 py-6 ${className}`,
+    style,
+    onMouseMove: handleMove,
+    onMouseLeave: handleLeave,
+    onMouseEnter: handleEnter,
+  };
+
+  const inner = (
+    <>
       <svg
         className="absolute inset-0 h-full w-full overflow-visible"
         viewBox="0 0 280 80"
@@ -166,6 +170,30 @@ export default function AuraButton({
         />
       </svg>
       <span className="font-label relative z-10 text-[11px]">{children}</span>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <button
+        ref={wrapRef as React.RefObject<HTMLButtonElement>}
+        type="button"
+        onClick={onClick}
+        {...sharedProps}
+      >
+        {inner}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      ref={wrapRef as React.RefObject<HTMLAnchorElement>}
+      href={href!}
+      onClick={() => quizSounds.prime()}
+      {...sharedProps}
+    >
+      {inner}
     </Link>
   );
 }

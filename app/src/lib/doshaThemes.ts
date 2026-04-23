@@ -49,9 +49,9 @@ export const AURA_PATHS: Record<Archetype, string> = {
 };
 
 export const RESULT_AURA_POS: Record<Archetype, AuraPos> = {
-  vata:  { top: "3%",  right: "-18%", height: "85vh", width: "auto" },
-  pitta: { top: "5%",  left:  "-18%", height: "90vh", width: "auto" },
-  kapha: { top: "6%",  right: "-20%", height: "90vh", width: "auto" },
+  vata:  { top: "2%",  right: "-24%", height: "105vh", width: "auto" },
+  pitta: { top: "3%",  left:  "-24%", height: "110vh", width: "auto" },
+  kapha: { top: "4%",  right: "-26%", height: "110vh", width: "auto" },
 };
 
 export const GATE_AURA_POS: Record<Archetype, AuraPos> = {

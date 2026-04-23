@@ -67,6 +67,7 @@ export default function Nav({
   const logoRef         = useRef<HTMLDivElement>(null);
   const trackRef        = useRef<SVGPathElement>(null);
   const checkpointsRef  = useRef<HTMLDivElement>(null);
+  const leftSlotRef     = useRef<HTMLSpanElement>(null);
   const revealedRef     = useRef(!animated);
   const [visibleP, setVisibleP] = useState(animated ? 0 : p);
 
@@ -93,6 +94,9 @@ export default function Nav({
       // 3. Checkpoints container fades up after wave finishes
       if (checkpointsRef.current)
         gsap.to(checkpointsRef.current, { opacity: 1, y: 0, duration: 0.65, ease: "power2.out", delay: 1.85 });
+      // 4. Left slot (back button) fades in last, matching checkpoints timing
+      if (leftSlotRef.current)
+        gsap.fromTo(leftSlotRef.current, { opacity: 0 }, { opacity: 1, duration: 0.65, ease: "power2.out", delay: 1.85 });
     });
     // 4. Reveal progress fill after wave draw completes
     const t = setTimeout(() => {
@@ -108,13 +112,17 @@ export default function Nav({
 
       {/* Logo row — equal py gives visual balance above and below logo */}
       <div className="relative flex items-center justify-between px-6 py-6 md:px-12 md:py-8">
-        <span className="flex-1">
+        <span
+          ref={leftSlot ? leftSlotRef : undefined}
+          className="flex-1"
+          style={animated && leftSlot ? { opacity: 0 } : undefined}
+        >
           {leftSlot ?? (hideLinks ? null : <a href="#" className={linkClass}>RITUALS</a>)}
         </span>
 
         <div
           ref={logoRef}
-          className="absolute inset-x-0 flex justify-center"
+          className="pointer-events-none absolute inset-x-0 flex justify-center"
           style={{ opacity: animated ? 0 : undefined }}
         >
           <Image
