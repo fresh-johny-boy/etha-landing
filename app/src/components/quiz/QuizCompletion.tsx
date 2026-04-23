@@ -6,44 +6,37 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
   const containerRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const linesRef = useRef<HTMLParagraphElement[]>([]);
-  const hintRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
     const prefersReduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const delay = prefersReduced ? 10 : 5500;
-    const timer = setTimeout(onAdvance, delay);
-
-    if (!prefersReduced) {
-      const ctx = gsap.context(() => {
-        gsap.set([headingRef.current, ...linesRef.current], { opacity: 0, y: 12 });
-        gsap.to(headingRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          ease: "sine.inOut",
-          delay: 0,
-        });
-        linesRef.current.forEach((el, i) => {
-          gsap.to(el, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: "sine.inOut",
-            delay: 0.3 * (i + 1),
-          });
-        });
-        gsap.to(hintRef.current, { opacity: 1, duration: 0.8, delay: 3.5 });
-      }, containerRef);
-      return () => {
-        ctx.revert();
-        clearTimeout(timer);
-      };
+    if (prefersReduced) {
+      const timer = setTimeout(onAdvance, 10);
+      return () => clearTimeout(timer);
     }
 
-    return () => clearTimeout(timer);
+    const ctx = gsap.context(() => {
+      gsap.set([headingRef.current, ...linesRef.current], { opacity: 0, y: 12 });
+      gsap.to(headingRef.current, { opacity: 1, y: 0, duration: 0.6, ease: "sine.inOut", delay: 0 });
+      linesRef.current.forEach((el, i) => {
+        gsap.to(el, { opacity: 1, y: 0, duration: 0.6, ease: "sine.inOut", delay: 0.3 * (i + 1) });
+      });
+
+      /* Exit: content rises and fades out, then navigate */
+      const exitDelay = 3.6;
+      gsap.to(headingRef.current, { opacity: 0, y: -18, duration: 0.55, ease: "power2.in", delay: exitDelay });
+      linesRef.current.forEach((el, i) => {
+        gsap.to(el, { opacity: 0, y: -12, duration: 0.45, ease: "power2.in", delay: exitDelay + 0.06 * (i + 1) });
+      });
+    }, containerRef);
+
+    const timer = setTimeout(onAdvance, 4400);
+    return () => {
+      ctx.revert();
+      clearTimeout(timer);
+    };
   }, [onAdvance]);
 
   const bodyLines = [
@@ -57,7 +50,7 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
     <div
       ref={containerRef}
       onClick={onAdvance}
-      className="fixed inset-0 flex items-center justify-center cursor-pointer select-none"
+      className="fixed inset-0 flex items-center justify-center select-none"
       style={{ backgroundColor: "#3D233B" }}
     >
       {/* Decorative aura SVG */}
@@ -102,13 +95,6 @@ export default function QuizCompletion({ onAdvance }: { onAdvance: () => void })
             </p>
           ))}
         </div>
-        <p
-          ref={hintRef}
-          className="font-label text-cream mt-8"
-          style={{ opacity: 0, fontSize: 10, letterSpacing: "0.28em", color: "rgba(255,239,222,0.5)" }}
-        >
-          TAP TO CONTINUE
-        </p>
       </div>
     </div>
   );

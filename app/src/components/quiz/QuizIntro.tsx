@@ -158,8 +158,8 @@ function ValueScreen({ headline, items }: {
 
   return (
     <div className="w-full max-w-lg">
-      <p className="font-serif text-cream mb-12" style={{ fontSize: "clamp(2rem,6vw,3.5rem)", lineHeight: 1.3, textShadow: "0 2px 18px rgba(15,5,15,0.75)" }}>{headline}</p>
-      <ol ref={listRef} className="space-y-20">
+      <p className="font-serif text-cream mb-6 sm:mb-12" style={{ fontSize: "clamp(2rem,6vw,3.5rem)", lineHeight: 1.3, textShadow: "0 2px 18px rgba(15,5,15,0.75)" }}>{headline}</p>
+      <ol ref={listRef} className="space-y-8 sm:space-y-16">
         {items.map((item, idx) => {
           const align = (["text-left", "text-right", "text-center"] as const)[idx % 3];
           return (
@@ -555,7 +555,7 @@ export default function QuizIntro() {
       {/* Screen content - key forces child remounts for per-screen useEffects */}
       <div
         ref={contentRef}
-        className="relative z-10 flex flex-1 items-center justify-center px-7 py-16 sm:px-14"
+        className="relative z-10 flex flex-1 items-center justify-center px-7 pt-24 pb-16 sm:px-14 sm:pt-20"
         style={{ opacity: 0 }}
       >
         <div key={screen} className="flex w-full items-center justify-center">

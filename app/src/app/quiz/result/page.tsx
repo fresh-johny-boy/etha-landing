@@ -78,6 +78,7 @@ export default function QuizResultPage() {
   const nameRef       = useRef<HTMLHeadingElement>(null);
   const archetypeRef  = useRef<HTMLDivElement>(null);
   const contentRef    = useRef<HTMLDivElement>(null);
+  const veilRef       = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!result) return;
@@ -90,6 +91,18 @@ export default function QuizResultPage() {
       router.replace("/quiz");
     }
   }, [result, router]);
+
+  /* Veil fade — lifts the aubergine curtain from the completion screen */
+  useEffect(() => {
+    if (!veilRef.current) return;
+    gsap.to(veilRef.current, {
+      opacity: 0,
+      duration: 0.9,
+      ease: "power2.out",
+      delay: 0.15,
+      onComplete: () => { if (veilRef.current) veilRef.current.style.display = "none"; },
+    });
+  }, []);
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -219,6 +232,12 @@ export default function QuizResultPage() {
       style={{ background: theme.bg, minHeight: "100dvh" }}
       className="relative overflow-x-hidden"
     >
+      {/* Curtain veil — matches completion screen bg, dissolves to reveal dosha card */}
+      <div
+        ref={veilRef}
+        className="fixed inset-0 z-[60] pointer-events-none"
+        style={{ background: "#3D233B" }}
+      />
       <Nav variant="light" hideLinks progress={1} animated />
 
       {/* ── DEV PANEL ─────────────────────────────────────────────── */}
@@ -246,6 +265,13 @@ export default function QuizResultPage() {
               </button>
             );
           })}
+          <button
+            onClick={() => { setEmailDone(false); setShowGate(false); }}
+            style={{ color: "#f472b6", borderColor: "#f472b655", fontSize: 9, letterSpacing: "0.18em" }}
+            className="font-label px-2 py-1 border hover:opacity-70 transition-opacity cursor-pointer"
+          >
+            GATE
+          </button>
           <span
             style={{ color: "rgba(255,239,222,0.5)", fontSize: 9, letterSpacing: "0.18em" }}
             className="font-label self-center ml-auto"
@@ -467,7 +493,6 @@ export default function QuizResultPage() {
             writeQuizState({ email });
             setEmailDone(true);
             setShowGate(false);
-            router.push("/quiz/sent");
           }}
           onCancel={() => setShowGate(false)}
         />
