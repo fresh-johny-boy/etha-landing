@@ -42,11 +42,13 @@ export function QuizCTAButton({
   onClick,
   disabled = false,
   revealMode = "fade",
+  strokeColor = "#FFEFDE",
 }: {
   label: string;
   onClick: () => void;
   disabled?: boolean;
   revealMode?: "fade" | "draw";
+  strokeColor?: string;
 }) {
   const pathRef = useRef<SVGPathElement>(null);
   const btnRef  = useRef<HTMLButtonElement>(null);
@@ -98,7 +100,7 @@ export function QuizCTAButton({
   const onRelease = useCallback(() => {
     cancelAnimationFrame(rafRef.current);
     if (pathRef.current)
-      gsap.to(pathRef.current, { attr: { d: BTN_D }, duration: 1.1, ease: "elastic.out(1,0.35)", overwrite: true });
+      gsap.to(pathRef.current, { attr: { d: BTN_D }, duration: 0.9, ease: "power3.out", overwrite: true });
   }, []);
 
   return (
@@ -123,9 +125,9 @@ export function QuizCTAButton({
         <path
           ref={pathRef}
           d={BTN_D}
-          stroke="#FFEFDE"
+          stroke={strokeColor}
           strokeWidth="0.9"
-          strokeOpacity={disabled ? 0.14 : 0.4}
+          strokeOpacity={disabled ? 0.28 : 0.4}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ transition: "stroke-opacity 500ms ease" }}
@@ -133,7 +135,7 @@ export function QuizCTAButton({
       </svg>
       <span
         className="font-label relative z-10 text-[11px] text-cream"
-        style={{ transition: "opacity 300ms ease", opacity: disabled ? 0.3 : 1 }}
+        style={{ transition: "opacity 300ms ease", opacity: disabled ? 0.55 : 1 }}
       >
         {label}
       </span>

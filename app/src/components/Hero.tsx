@@ -185,7 +185,7 @@ export default function Hero(): React.ReactElement {
         >
           <div className="flex flex-col items-center gap-1">
             <div className="h-6 w-[1px] bg-cream/40" />
-            <div className="h-1.5 w-1.5 rounded-full bg-cream/50" />
+            <div className="h-[1px] w-2 bg-cream/50" />
           </div>
         </div>
       </div>

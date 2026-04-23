@@ -7,11 +7,12 @@ gsap.registerPlugin(MorphSVGPlugin);
 
 const WATER = "sine.inOut";
 
-/* Balanced aura — two subtly different organic ovals to morph between. */
+/* Balanced aura — horizontal oval, two organic variants to morph between.
+   ViewBox 480×300 keeps it wider than tall so it frames the text naturally. */
 const AURA_A =
-  "M 220,30 C 300,6 394,38 416,112 C 438,188 410,286 350,344 C 288,400 194,422 118,406 C 46,390 -2,328 4,250 C 10,176 58,92 130,50 C 160,32 198,44 220,30";
+  "M 240,22 C 330,4 442,48 462,128 C 482,210 428,274 326,290 C 224,306 112,292 62,232 C 12,172 16,90 82,46 C 132,14 190,20 240,22";
 const AURA_B =
-  "M 215,34 C 294,8 390,44 412,118 C 434,194 404,290 342,348 C 280,404 186,424 112,408 C 40,392 -6,330 2,252 C 8,174 60,88 134,48 C 164,30 194,48 215,34";
+  "M 244,18 C 336,2 448,50 466,132 C 484,214 424,276 320,294 C 216,310 106,294 56,234 C 6,174 12,88 80,42 C 130,10 194,16 244,18";
 
 export default function QuizInterstitial({
   text,
@@ -23,7 +24,7 @@ export default function QuizInterstitial({
   autoHoldMs?: number;
 }) {
   const copyRef = useRef<HTMLParagraphElement>(null);
-  const auraRef = useRef<SVGSVGElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
   const advancedRef = useRef(false);
 
   const go = () => {
@@ -37,68 +38,54 @@ export default function QuizInterstitial({
 
     const ctx = gsap.context(() => {
       gsap.fromTo(copyRef.current,
-        { opacity: 0, y: 14 },
-        { opacity: 1, y: 0, duration: reduced ? 0.01 : 1.1, ease: WATER, delay: reduced ? 0 : 0.25 },
+        { opacity: 0 },
+        { opacity: 1, duration: reduced ? 0.01 : 1.1, ease: WATER, delay: reduced ? 0 : 0.3 },
       );
-      /* Aura — gentle morph between two near-identical ovals + slow drift. */
-      if (!reduced && auraRef.current) {
-        const path = auraRef.current.querySelector("path");
-        if (path) {
-          gsap.to(path, {
-            morphSVG: AURA_B,
-            duration: 5.5,
-            ease: WATER,
-            yoyo: true,
-            repeat: -1,
-          });
-        }
-        gsap.to(auraRef.current, {
-          x: 6,
-          y: -5,
-          duration: 7,
+
+      if (!reduced && pathRef.current) {
+        gsap.to(pathRef.current, {
+          morphSVG: AURA_B,
+          duration: 6,
           ease: WATER,
           yoyo: true,
           repeat: -1,
-          transformOrigin: "center center",
-        });
-        gsap.to(auraRef.current, {
-          rotate: 1.5,
-          duration: 9,
-          ease: WATER,
-          yoyo: true,
-          repeat: -1,
-          transformOrigin: "center center",
         });
       }
     });
 
-    /* Auto-advance hold. */
     const t = setTimeout(go, autoHoldMs);
     return () => { ctx.revert(); clearTimeout(t); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full px-8 sm:px-12 text-center">
+    <div className="relative flex items-center justify-center w-full" style={{ minHeight: "60vh" }}>
+      {/* Balanced aura ring — static position, path breathes */}
       <svg
-        ref={auraRef}
         className="pointer-events-none absolute"
-        style={{ width: "68vw", maxWidth: 520, opacity: 1, top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
-        viewBox="0 0 420 430"
+        style={{ width: "min(80vw, 520px)", top: "50%", left: "50%", transform: "translate(-50%, -50%)" }}
+        viewBox="0 0 480 300"
         fill="none"
         aria-hidden="true"
       >
-        <path d={AURA_A} stroke="#FFEFDE" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path
+          ref={pathRef}
+          d={AURA_A}
+          stroke="#FFEFDE"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeOpacity="0.45"
+        />
       </svg>
 
       <p
         ref={copyRef}
-        className="font-serif text-cream leading-snug max-w-xl relative z-10"
-        style={{ fontSize: "clamp(1.8rem, 5vw, 2.8rem)", opacity: 0 }}
+        className="font-serif text-cream leading-snug max-w-xs sm:max-w-sm relative z-10 text-center px-6"
+        style={{ fontSize: "clamp(1.6rem, 4.5vw, 2.4rem)", opacity: 0 }}
       >
         {text}
       </p>
-
     </div>
   );
 }

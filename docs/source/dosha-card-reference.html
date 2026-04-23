@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETHA Dosha Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --vata-bg: #221329;
+  --vata-card: #2e1a38;
+  --vata-accent: #c9a87c;
+  --vata-accent2: #b89ac5;
+  --vata-muted: rgba(255,239,222,0.55);
+  --vata-dim: rgba(255,239,222,0.22);
+  --vata-bar1: #c4b2c2;
+  --vata-bar2: #a898b8;
+  --vata-bar3: #d97b58;
+  --vata-bar4: #7ca0b8;
+  --vata-bar5: #7d9e7d;
+  --vata-glow: rgba(185,138,210,0.18);
+
+  --pitta-bg: #0e1f1a;
+  --pitta-card: #132920;
+  --pitta-accent: #7abfa0;
+  --pitta-accent2: #d4956a;
+  --pitta-muted: rgba(224,248,238,0.55);
+  --pitta-dim: rgba(224,248,238,0.22);
+  --pitta-bar1: #d97b58;
+  --pitta-bar2: #e8a87c;
+  --pitta-bar3: #7abfa0;
+  --pitta-bar4: #5a9b80;
+  --pitta-bar5: #a8c8b0;
+  --pitta-glow: rgba(100,200,155,0.15);
+
+  --kapha-bg: #1e1008;
+  --kapha-card: #2a1510;
+  --kapha-accent: #c97b4a;
+  --kapha-accent2: #e8b87c;
+  --kapha-muted: rgba(255,240,228,0.55);
+  --kapha-dim: rgba(255,240,228,0.22);
+  --kapha-bar1: #7d9e7d;
+  --kapha-bar2: #9eb89e;
+  --kapha-bar3: #d97b58;
+  --kapha-bar4: #7ca0b8;
+  --kapha-bar5: #c4b2c2;
+  --kapha-glow: rgba(200,120,70,0.18);
+
+  --cream: rgba(255,239,222,0.9);
+  --cream-dim: rgba(255,239,222,0.38);
+  --cream-ghost: rgba(255,239,222,0.08);
+  --cream-line: rgba(255,239,222,0.12);
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px 60px;
+  transition: background 0.8s ease;
+  font-family: 'DM Sans', sans-serif;
+}
+
+body.vata  { background: radial-gradient(ellipse at 30% 20%, rgba(140,80,180,0.2) 0%, var(--vata-bg) 60%); }
+body.pitta { background: radial-gradient(ellipse at 70% 20%, rgba(60,160,110,0.2) 0%, var(--pitta-bg) 60%); }
+body.kapha { background: radial-gradient(ellipse at 50% 30%, rgba(180,90,40,0.2) 0%, var(--kapha-bg) 60%); }
+
+/* --- SWITCHER --- */
+.switcher {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 32px;
+  background: rgba(255,239,222,0.06);
+  border-radius: 40px;
+  padding: 4px;
+  border: 1px solid rgba(255,239,222,0.1);
+}
+.switcher button {
+  background: none;
+  border: none;
+  color: rgba(255,239,222,0.4);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 7px 18px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.35s ease;
+}
+.switcher button.active {
+  background: rgba(255,239,222,0.12);
+  color: rgba(255,239,222,0.85);
+}
+
+/* --- CARD --- */
+.card {
+  width: 360px;
+  max-width: 100%;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  transition: background 0.7s ease, box-shadow 0.7s ease;
+  padding: 36px 24px 30px;
+}
+body.vata  .card { background: var(--vata-card);  box-shadow: 0 32px 80px rgba(130,60,180,0.25), 0 0 0 1px rgba(255,239,222,0.06); }
+body.pitta .card { background: var(--pitta-card); box-shadow: 0 32px 80px rgba(40,120,80,0.3),  0 0 0 1px rgba(224,248,238,0.06); }
+body.kapha .card { background: var(--kapha-card); box-shadow: 0 32px 80px rgba(160,80,30,0.3),  0 0 0 1px rgba(255,240,228,0.06); }
+
+/* Ambient glow sphere */
+.card::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: background 0.7s ease;
+  filter: blur(50px);
+  opacity: 0.6;
+}
+body.vata  .card::before { background: var(--vata-glow); }
+body.pitta .card::before { background: var(--pitta-glow); }
+body.kapha .card::before { background: var(--kapha-glow); }
+
+/* --- WORDMARK --- */
+.wordmark {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.35em;
+  color: rgba(255,239,222,0.25);
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+/* --- AURA --- */
+.aura-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.aura {
+  width: 72px;
+  height: 72px;
+  position: relative;
+}
+.aura svg {
+  width: 100%;
+  height: 100%;
+  transition: all 0.6s ease;
+}
+
+/* --- PERSONALIZATION --- */
+.persona-line {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 6px;
+  transition: color 0.6s;
+}
+body.vata  .persona-line { color: rgba(201,168,124,0.6); }
+body.pitta .persona-line { color: rgba(122,191,160,0.6); }
+body.kapha .persona-line { color: rgba(201,123,74,0.6); }
+
+/* --- DOSHA NAME --- */
+.dosha-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 58px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-align: center;
+  margin-bottom: 4px;
+  transition: color 0.6s;
+}
+body.vata  .dosha-name { color: #e8d8f5; }
+body.pitta .dosha-name { color: #cef0e0; }
+body.kapha .dosha-name { color: #f5e0ce; }
+
+/* --- ARCHETYPE --- */
+.archetype {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 16px;
+  transition: color 0.6s;
+}
+body.vata  .archetype { color: rgba(184,154,197,0.5); }
+body.pitta .archetype { color: rgba(122,191,160,0.5); }
+body.kapha .archetype { color: rgba(201,123,74,0.5); }
+
+/* --- COMPOSITION NUMBERS --- */
+.comp-numbers {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 20px;
+}
+.comp-num-item {
+  text-align: center;
+  flex: 1;
+  position: relative;
+}
+.comp-num-item + .comp-num-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 28px;
+  background: rgba(255,239,222,0.1);
+}
+.comp-num-pct {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  display: block;
+  transition: color 0.6s;
+}
+body.vata  .comp-num-pct.primary   { color: #c4b2c2; }
+body.vata  .comp-num-pct.secondary { color: #d97b58; }
+body.vata  .comp-num-pct.tertiary  { color: #7d9e7d; }
+body.pitta .comp-num-pct.primary   { color: #d97b58; }
+body.pitta .comp-num-pct.secondary { color: #7abfa0; }
+body.pitta .comp-num-pct.tertiary  { color: #5a9b80; }
+body.kapha .comp-num-pct.primary   { color: #7d9e7d; }
+body.kapha .comp-num-pct.secondary { color: #d97b58; }
+body.kapha .comp-num-pct.tertiary  { color: #c4b2c2; }
+.comp-num-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,239,222,0.3);
+  display: block;
+  margin-top: 3px;
+}
+
+/* --- RULE --- */
+.rule {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,239,222,0.1), transparent);
+  margin: 0 0 18px;
+}
+
+/* --- REFRAME QUOTE --- */
+.reframe {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 15.5px;
+  font-weight: 300;
+  line-height: 1.65;
+  text-align: center;
+  color: rgba(255,239,222,0.72);
+  padding: 0 8px;
+  margin-bottom: 22px;
+}
+
+/* --- SECONDARY DOSHA NOTE --- */
+.secondary-note {
+  background: rgba(255,239,222,0.04);
+  border-left: 2px solid;
+  border-radius: 0 8px 8px 0;
+  padding: 10px 13px;
+  margin-bottom: 20px;
+  transition: border-color 0.6s;
+}
+body.vata  .secondary-note { border-color: rgba(184,154,197,0.35); }
+body.pitta .secondary-note { border-color: rgba(122,191,160,0.35); }
+body.kapha .secondary-note { border-color: rgba(201,123,74,0.35); }
+.secondary-note-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255,239,222,0.28);
+  margin-bottom: 5px;
+}
+.secondary-note-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,239,222,0.6);
+  line-height: 1.55;
+}
+
+/* --- BLOCK LABEL --- */
+.block-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,239,222,0.28);
+  margin-bottom: 12px;
+}
+
+/* --- MIRROR SIGNALS --- */
+.signals-block {
+  margin-bottom: 18px;
+}
+.signal-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.signal-row:last-child { margin-bottom: 0; }
+.sig-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,239,222,0.22);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+.sig-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 14px;
+  color: rgba(255,239,222,0.68);
+  line-height: 1.5;
+}
+
+/* --- RITUAL BLOCK --- */
+.ritual-block {
+  border-radius: 10px;
+  padding: 13px 15px;
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.6s, border-color 0.6s;
+  border: 1px solid;
+}
+body.vata  .ritual-block { background: rgba(184,154,197,0.08); border-color: rgba(184,154,197,0.15); }
+body.pitta .ritual-block { background: rgba(122,191,160,0.08); border-color: rgba(122,191,160,0.15); }
+body.kapha .ritual-block { background: rgba(201,123,74,0.08);  border-color: rgba(201,123,74,0.15); }
+.ritual-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 7px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255,239,222,0.3);
+  margin-bottom: 8px;
+}
+.ritual-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 13.5px;
+  color: rgba(255,239,222,0.75);
+  line-height: 1.65;
+}
+
+/* --- CTA --- */
+.cta-btn {
+  width: 100%;
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.2s, transform 0.15s;
+  margin-bottom: 8px;
+  color: #1a0f1e;
+}
+body.vata  .cta-btn { background: #e8d8f5; }
+body.pitta .cta-btn { background: #cef0e0; }
+body.kapha .cta-btn { background: #f5e0ce; }
+.cta-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+.cta-btn:active { transform: translateY(0); }
+.cta-hint {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8.5px;
+  color: rgba(255,239,222,0.22);
+  text-align: center;
+  letter-spacing: 0.08em;
+  margin-bottom: 20px;
+}
+
+/* --- TEASER STRIP --- */
+.teaser-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,239,222,0.07);
+}
+.teaser-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,239,222,0.15);
+  flex-shrink: 0;
+}
+.teaser-text {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8.5px;
+  letter-spacing: 0.07em;
+  color: rgba(255,239,222,0.22);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* --- ENTRANCE ANIMATION --- */
+.card {
+  animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+.dosha-name  { animation: fadeUp 0.6s 0.15s both; }
+.reframe     { animation: fadeUp 0.6s 0.3s both; }
+.comp-numbers { animation: fadeUp 0.6s 0.2s both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* bar fill load animation */
+.bar-fill { width: 0; }
+.loaded .bar-fill { }
+</style>
+</head>
+<body class="vata">
+
+<div class="switcher">
+  <button class="active" onclick="setDosha('vata',this)">Vata</button>
+  <button onclick="setDosha('pitta',this)">Pitta</button>
+  <button onclick="setDosha('kapha',this)">Kapha</button>
+</div>
+
+<div class="card" id="card">
+
+  <div class="wordmark">E T H A</div>
+
+  <!-- AURA -->
+  <div class="aura-wrap">
+    <div class="aura" id="aura">
+      <!-- injected by JS -->
+    </div>
+  </div>
+
+  <!-- PERSONA + NAME -->
+  <div class="persona-line" id="persona">JOANA, YOU ARE</div>
+  <div class="dosha-name" id="dosha-name">Vata</div>
+  <div class="archetype" id="archetype">The Kinetic Mind</div>
+
+  <!-- COMPOSITION NUMBERS -->
+  <div class="comp-numbers" id="comp-numbers">
+    <!-- injected by JS -->
+  </div>
+
+  <div class="rule"></div>
+
+  <!-- REFRAME QUOTE -->
+  <div class="reframe" id="reframe">
+    "You were built to move.<br>Right now you are being asked<br>to also burn."
+  </div>
+
+  <!-- SECONDARY DOSHA NOTE -->
+  <div class="secondary-note" id="secondary-note">
+    <div class="secondary-note-label">Your secondary nature</div>
+    <div class="secondary-note-text" id="secondary-note-text"></div>
+  </div>
+
+  <!-- MIRROR SIGNALS -->
+  <div class="signals-block">
+    <div class="block-label">What your answers revealed</div>
+    <div id="signals"><!-- injected --></div>
+  </div>
+
+  <!-- RITUAL BLOCK -->
+  <div class="ritual-block">
+    <div class="ritual-label" id="ritual-label">One thing for tonight</div>
+    <div class="ritual-text" id="ritual-text"></div>
+  </div>
+
+  <!-- TEASER STRIP -->
+  <div class="teaser-strip">
+    <div class="teaser-dot"></div>
+    <div class="teaser-text" id="teaser-text"></div>
+    <div class="teaser-dot"></div>
+  </div>
+
+</div><!-- /card -->
+
+<script>
+const DATA = {
+  vata: {
+    name: 'Vata',
+    archetype: 'The Kinetic Mind',
+    reframe: '"You were built to move.<br>Right now you are being asked<br>to also burn."',
+    comp: [
+      { label: 'Vata', pct: 60, cls: 'primary' },
+      { label: 'Pitta', pct: 30, cls: 'secondary' },
+      { label: 'Kapha', pct: 10, cls: 'tertiary' }
+    ],
+    secondaryNote: 'With Pitta secondary, your creativity carries an edge of precision - and your burnout arrives faster than most Vatas.',
+    elements: [
+      { name: 'Air',   pct: 36, color: '#c4b2c2', dosha: 'vata' },
+      { name: 'Ether', pct: 24, color: '#a898b8', dosha: 'vata' },
+      { name: 'Fire',  pct: 20, color: '#d97b58', dosha: 'pitta' },
+      { name: 'Water', pct: 10, color: '#7ca0b8', dosha: 'kapha' },
+      { name: 'Earth', pct: 10, color: '#7d9e7d', dosha: 'kapha' }
+    ],
+    signals: [
+      'Your mind races when your body needs to land',
+      'You push through tired instead of stopping',
+      'Your thoughts arrive faster than you can place them'
+    ],
+    ritualLabel: 'One thing for tonight',
+    ritual: 'Lie on your back. Both hands on your belly. Breathe out completely before breathing in. Three times. Let the weight of your hands tell your nervous system the day is finished.',
+    hint: 'Your complete Vata profile is waiting',
+    teaser: 'Includes the one plant Vata has relied on for grounding for centuries',
+    auraColor1: 'rgba(184,154,197,0.6)',
+    auraColor2: 'rgba(201,168,124,0.4)',
+    legendColors: ['#c4b2c2', '#d97b58', '#7d9e7d']
+  },
+  pitta: {
+    name: 'Pitta',
+    archetype: 'The Fiery Drive',
+    reframe: '"You are not burning out.<br>You are Pitta - and what you need<br>is not less fire. It is a cooler vessel."',
+    comp: [
+      { label: 'Pitta', pct: 58, cls: 'primary' },
+      { label: 'Vata',  pct: 32, cls: 'secondary' },
+      { label: 'Kapha', pct: 10, cls: 'tertiary' }
+    ],
+    secondaryNote: 'With Vata secondary, your fire moves fast and can scatter - brilliant and creative, but prone to burnout from doing too many things at full intensity.',
+    elements: [
+      { name: 'Fire',  pct: 38, color: '#d97b58', dosha: 'pitta' },
+      { name: 'Air',   pct: 22, color: '#e8a87c', dosha: 'pitta' },
+      { name: 'Ether', pct: 16, color: '#7abfa0', dosha: 'vata' },
+      { name: 'Water', pct: 14, color: '#5a9b80', dosha: 'kapha' },
+      { name: 'Earth', pct: 10, color: '#a8c8b0', dosha: 'kapha' }
+    ],
+    signals: [
+      'Your precision turns inward when there is no outlet',
+      'You finish the day in your head long after your body has stopped',
+      'Your frustration rises before you can name its source'
+    ],
+    ritualLabel: 'One thing for tonight',
+    ritual: 'Roll your tongue or part your lips. Inhale slowly through the mouth - feel the cool air travel inward. Hold briefly. Exhale through the nose. Three rounds. This is Sheetali - the oldest Pitta cooling practice in Ayurveda.',
+    hint: 'Your complete Pitta profile is waiting',
+    teaser: 'Includes the one plant that cools Pitta\'s fire without dimming its light',
+    auraColor1: 'rgba(122,191,160,0.6)',
+    auraColor2: 'rgba(212,149,106,0.4)',
+    legendColors: ['#d97b58', '#7abfa0', '#a8c8b0']
+  },
+  kapha: {
+    name: 'Kapha',
+    archetype: 'The Grounded Core',
+    reframe: '"You are not stuck.<br>You are Kapha - and the bloom<br>is already there. It simply needs the right conditions."',
+    comp: [
+      { label: 'Kapha', pct: 60, cls: 'primary' },
+      { label: 'Pitta', pct: 28, cls: 'secondary' },
+      { label: 'Vata',  pct: 12, cls: 'tertiary' }
+    ],
+    secondaryNote: 'With Pitta secondary, your depth has an edge - a will beneath the steadiness that, when activated, is formidable.',
+    elements: [
+      { name: 'Earth', pct: 34, color: '#7d9e7d', dosha: 'kapha' },
+      { name: 'Water', pct: 26, color: '#9eb89e', dosha: 'kapha' },
+      { name: 'Fire',  pct: 20, color: '#d97b58', dosha: 'pitta' },
+      { name: 'Air',   pct: 12, color: '#7ca0b8', dosha: 'vata' },
+      { name: 'Ether', pct: 8,  color: '#c4b2c2', dosha: 'vata' }
+    ],
+    signals: [
+      'Your mornings need more than one reason to begin',
+      'You carry what others put down',
+      'Your energy arrives slowly - and lasts the longest'
+    ],
+    ritualLabel: 'One thing for tomorrow morning',
+    ritual: 'Before anything else - five minutes of movement. Brisk, warm, arms and legs. Then fresh ginger tea, drunk standing. Kapha wakes from the inside out - and you already know this.',
+    hint: 'Your complete Kapha profile is waiting',
+    teaser: 'Includes the sacred plant that tells Kapha the morning has genuinely arrived',
+    auraColor1: 'rgba(125,158,125,0.6)',
+    auraColor2: 'rgba(201,123,74,0.5)',
+    legendColors: ['#7d9e7d', '#d97b58', '#c4b2c2']
+  }
+};
+
+const AURA_SVGS = {
+  vata: `<svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="30" cy="34" rx="18" ry="20" stroke="rgba(184,154,197,0.55)" stroke-width="1" fill="none"/>
+    <ellipse cx="42" cy="30" rx="14" ry="16" stroke="rgba(201,168,124,0.45)" stroke-width="0.8" fill="none"/>
+    <circle cx="36" cy="32" r="4" fill="rgba(184,154,197,0.15)"/>
+    <circle cx="36" cy="32" r="1.5" fill="rgba(184,154,197,0.5)"/>
+  </svg>`,
+  pitta: `<svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="36,10 58,54 14,54" stroke="rgba(122,191,160,0.5)" stroke-width="1" fill="none"/>
+    <polygon points="36,18 52,50 20,50" stroke="rgba(212,149,106,0.4)" stroke-width="0.8" fill="none"/>
+    <circle cx="36" cy="38" r="4" fill="rgba(122,191,160,0.15)"/>
+    <circle cx="36" cy="38" r="1.5" fill="rgba(122,191,160,0.5)"/>
+  </svg>`,
+  kapha: `<svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="36" cy="36" r="20" stroke="rgba(125,158,125,0.5)" stroke-width="1" fill="none"/>
+    <circle cx="36" cy="36" r="14" stroke="rgba(201,123,74,0.4)" stroke-width="0.8" fill="none"/>
+    <circle cx="36" cy="36" r="4" fill="rgba(125,158,125,0.15)"/>
+    <circle cx="36" cy="36" r="1.5" fill="rgba(125,158,125,0.5)"/>
+  </svg>`
+};
+
+function render(dosha) {
+  const d = DATA[dosha];
+
+  // Aura
+  document.getElementById('aura').innerHTML = AURA_SVGS[dosha];
+
+  // Name + archetype
+  document.getElementById('dosha-name').textContent = d.name;
+  document.getElementById('archetype').textContent = d.archetype;
+  document.getElementById('reframe').innerHTML = d.reframe;
+
+  // Composition numbers
+  const cn = document.getElementById('comp-numbers');
+  cn.innerHTML = d.comp.map(c => `
+    <div class="comp-num-item">
+      <span class="comp-num-pct ${c.cls}">${c.pct}%</span>
+      <span class="comp-num-label">${c.label}</span>
+    </div>
+  `).join('');
+
+  // Secondary note
+  document.getElementById('secondary-note-text').textContent = d.secondaryNote;
+
+  // Signals
+  document.getElementById('signals').innerHTML = d.signals.map(s => `
+    <div class="signal-row">
+      <div class="sig-dot"></div>
+      <div class="sig-text">${s}</div>
+    </div>
+  `).join('');
+
+  // Ritual
+  document.getElementById('ritual-label').textContent = d.ritualLabel;
+  document.getElementById('ritual-text').textContent = d.ritual;
+
+  // CTA hint + teaser
+  document.getElementById('cta-hint').textContent = d.hint;
+  document.getElementById('teaser-text').textContent = d.teaser;
+}
+
+function setDosha(dosha, btn) {
+  document.body.className = dosha;
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render(dosha);
+}
+
+// Init
+render('vata');
+</script>
+</body>
+</html>

@@ -6,12 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ETHA landing page — a single-page site for an Ayurvedic wellness brand ("the Apple of Ayurveda"). The page educates users about Ayurveda, the five elements, and three Doshas (Vata, Pitta, Kapha), then funnels them to a Dosha quiz. Built to Awwwards-level design quality with scroll animations.
 
+**Funnel context:** The landing page + quiz is step 01–03 of an 8-step customer journey (Social → Quiz → Dosha Card → Emails → Ritual Landing → Purchase). See `docs/JOURNEY.md` for the full flow and Think/Feel/Do map per touchpoint.
+
 ## Repository Structure
 
 ```
 etha-landing/
 ├── CLAUDE.md                          # This file
 ├── docs/                              # Design & brand documentation
+│   ├── JOURNEY.md                     # Full funnel: Social → Quiz → Card → Emails → Purchase (Think/Feel/Do)
+│   ├── DOSHA-CARD.md                  # Dosha Card result screen — structure + copy per dosha
 │   ├── DESIGN.md                      # Visual design system — THE source of truth
 │   ├── SECTIONS.md                    # Section-by-section creative direction + layouts
 │   ├── landing-brief.md               # Condensed brief (mobile-first, single CTA focus)
@@ -20,7 +24,8 @@ etha-landing/
 │   ├── guides.md                      # Awwwards best practices + animation guidance
 │   ├── CREATIVE-TECH.md               # Creative + tech roadmap (prioritized enhancements)
 │   ├── CLAUDE_FIGMA_SKILL.md          # Figma MCP server usage guide
-│   └── PERFORMANCE.md                 # Animation performance audit + fixes
+│   ├── PERFORMANCE.md                 # Animation performance audit + fixes
+│   └── source/                        # Original source files (PDFs, reference HTML, DOCX)
 ├── assets/                            # Source brand assets (not served by Next.js)
 │   ├── fonts/                         # Source OTF files (Plantin + Brandon Grotesque)
 │   ├── logos/                         # SVG + PNG logo variants
@@ -140,6 +145,8 @@ Rules: always `fill: none`, stroke-only, continuous path, cubic bezier curves on
 
 | Doc | Use For |
 |-----|---------|
+| `docs/JOURNEY.md` | Full 8-step funnel map — Think/Feel/Do per touchpoint, what gets built next |
+| `docs/DOSHA-CARD.md` | Dosha Card result screen — card structure, all copy per dosha, aura + email gate notes |
 | `docs/DESIGN.md` | Visual system: colors, typography, components, spacing, Tailwind tokens |
 | `docs/SECTIONS.md` | Creative direction per section: layouts, aura behavior, image placement |
 | `.claude/rules/aura-svg.md` | Generating new Aura SVG paths: states, colors, animation patterns |

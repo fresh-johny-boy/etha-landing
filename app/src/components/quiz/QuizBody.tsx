@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "gsap";
+import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
@@ -127,257 +128,335 @@ const LAYER_DEF: Record<1|2|3, LayerScreen> = {
   3: { kind: "layer", layer: 3, label: "III", title: "Spirit", sub: "What this moment reveals."         },
 };
 
-/* ── 45 Questions (all 5 interaction types) ── */
+/* ── 45 Questions — matches ETHA Dosha Quiz Final Version doc ── */
+/* a→Vata, b→Pitta, c→Kapha throughout */
 const QS: Question[] = [
-  /* ─ Layer 1 / Body ─────────────────────────────────────────── */
-  /* Q1–Q3: visually-heavy openers (placeholder images, swap-in-place later).
-     Each opener sits in a different sensory register — sound, touch, trace —
-     so they read as three art pieces, not three versions of the same question.
-     a→Vata, b→Pitta, c→Kapha. */
-  { kind: "question", qtype: "visual", layer: 1, q: "Which one sounds like your morning?",
+  /* ─ Layer 1 / Body (Q1-Q15) ────────────────────────────────── */
+  { kind: "question", qtype: "visual", layer: 1,
+    q: "Think about the first moments of waking. The first breath of morning. What wakes with you?",
     images: { a: "opener-q1-a.webp", b: "opener-q1-b.webp", c: "opener-q1-c.webp" },
     options: [
-      { id: "a", text: "Wind through a thin curtain." },
-      { id: "b", text: "Water coming to boil." },
-      { id: "c", text: "Rain on a heavy roof." },
+      { id: "a", text: "My mind." },
+      { id: "b", text: "My will." },
+      { id: "c", text: "The bed." },
     ],
   },
-  { kind: "question", qtype: "visual", layer: 1, q: "Choose the one you'd hold.",
+  { kind: "question", qtype: "visual", layer: 1,
+    q: "Not what you feel now. What you are moving toward. When your body is at its best, unhurried, rested, held, what does that feel like?",
     images: { a: "opener-q2-a.webp", b: "opener-q2-b.webp", c: "opener-q2-c.webp" },
     options: [
-      { id: "a", text: "A silver needle, cold." },
-      { id: "b", text: "A cast-iron handle, still warm." },
-      { id: "c", text: "A stone the sea has polished." },
+      { id: "a", text: "Light. Like I could lift off." },
+      { id: "b", text: "Warm. Like everything is flowing." },
+      { id: "c", text: "Still. Like I am finally where I belong." },
     ],
   },
-  { kind: "question", qtype: "visual", layer: 1, q: "What do you leave behind in a room?",
+  { kind: "question", qtype: "visual", layer: 1,
+    q: "Your body has a favourite moment in the day. Which one?",
     images: { a: "opener-q3-a.webp", b: "opener-q3-b.webp", c: "opener-q3-c.webp" },
     options: [
-      { id: "a", text: "The door not quite closed." },
-      { id: "b", text: "A candle burning after you left." },
-      { id: "c", text: "A warm indent in the cushion." },
+      { id: "a", text: "The morning, before anyone needs anything from me." },
+      { id: "b", text: "The middle of it, when everything is moving." },
+      { id: "c", text: "The evening, when the world finally slows down." },
     ],
   },
-  { kind: "question", layer: 1, q: "My body frame is naturally…", options: [
-    { id: "a", text: "Lean and light. Hard to gain weight no matter what I eat." },
-    { id: "b", text: "Medium and muscular. I gain and lose weight with relative ease." },
-    { id: "c", text: "Solid and sturdy. I gain weight easily and hold it." },
-  ]},
-  { kind: "question", layer: 1, q: "My skin tends to be…", options: [
-    { id: "a", text: "Dry, thin, and rough. Cool to the touch." },
-    { id: "b", text: "Warm, flushed, sensitive. Quick to redden when things heat up." },
-    { id: "c", text: "Thick, smooth, oily. Cool and moist." },
-  ]},
-  { kind: "question", layer: 1, q: "My hair is naturally…", options: [
-    { id: "a", text: "Dry, fine, frizzy, or curly." },
-    { id: "b", text: "Fine and oily. Tends to thin or grey early." },
-    { id: "c", text: "Thick, wavy, lush. Naturally oily." },
-  ]},
-  { kind: "question", layer: 1, q: "My hands and feet are usually…", options: [
-    { id: "a", text: "Cold with variable temperature. Always reaching for warmth." },
-    { id: "b", text: "Warm, even hot. I consistently run warm." },
-    { id: "c", text: "Cool and steady. Neither cold nor hot." },
-  ]},
-  { kind: "question", layer: 1, q: "My digestion is…", options: [
-    { id: "a", text: "Irregular. Sometimes strong, sometimes completely off." },
-    { id: "b", text: "Sharp and intense. I become irritable when hunger strikes." },
-    { id: "c", text: "Slow but steady. I rarely feel hunger urgently." },
-  ]},
-  { kind: "question", layer: 1, q: "My appetite day to day is…", options: [
-    { id: "a", text: "Variable. I forget to eat, then am suddenly ravenous." },
-    { id: "b", text: "Strong and consistent. I must eat on schedule." },
-    { id: "c", text: "Moderate. I could eat or skip a meal and feel fine." },
-  ]},
-  { kind: "question", layer: 1, q: "My sleep is…", options: [
-    { id: "a", text: "Light and interrupted. I'm a restless sleeper." },
-    { id: "b", text: "Moderate. I wake early with my mind already running." },
-    { id: "c", text: "Deep and long. I could sleep ten hours without effort." },
-  ]},
-  { kind: "question", layer: 1, q: "My energy moves in…", options: [
-    { id: "a", text: "Unpredictable bursts. Intense, then suddenly exhausted." },
-    { id: "b", text: "Sustained peaks. Most productive in the middle of the day." },
-    { id: "c", text: "Slow crescendos. I build and hold energy through the day." },
-  ]},
-  /* scale2 */
-  { kind: "question", qtype: "scale2", layer: 1, q: "Your body has known this for years. The temperature you keep.",
+  { kind: "question", layer: 1, q: "Not posing. Just passing by. The mirror. What do you actually see?",
+    options: [
+      { id: "a", text: "Barely register it." },
+      { id: "b", text: "The details. What is working. What is not. I see it clearly." },
+      { id: "c", text: "A softness I wish was sharper." },
+    ],
+  },
+  { kind: "question", layer: 1, q: "When your body loses its anchor. Your digestion when the rhythm breaks?",
+    options: [
+      { id: "a", text: "Disappears. Then arrives at the wrong time, uninvited." },
+      { id: "b", text: "Accelerates. My body decides urgency before I do." },
+      { id: "c", text: "Hardly stirs. Steady, even when everything else shifts." },
+    ],
+  },
+  { kind: "question", qtype: "visual", layer: 1,
+    q: "Not what you wish. What your body actually holds. If your body had a texture right now, what would it be?",
+    options: [
+      { id: "a", text: "Dry, cool, always a little thin." },
+      { id: "b", text: "Warm, flushed, quick to react." },
+      { id: "c", text: "Soft, full, holds moisture easily." },
+    ],
+  },
+  { kind: "question", layer: 1, q: "It is 11pm. You are in bed. What is actually happening?",
+    options: [
+      { id: "a", text: "Mind still on. Replaying today, rearranging tomorrow." },
+      { id: "b", text: "Asleep in ten, unless something is unresolved." },
+      { id: "c", text: "Already asleep. The pillow won." },
+    ],
+  },
+  { kind: "question", qtype: "scale2", layer: 1,
+    q: "Your body has known this for years. The temperature your body keeps.",
     poleA: "Cold. Always borrowing warmth from the world.",
     poleB: "Hot. Always trying to release some of it.",
   },
-  /* visual */
-  { kind: "question", qtype: "visual", layer: 1, q: "If your body had a texture right now, what would it be?", options: [
-    { id: "a", text: "Dry, cool, always a little thin." },
-    { id: "b", text: "Warm, flushed, quick to react." },
-    { id: "c", text: "Soft, full, holds moisture easily." },
-  ]},
-  { kind: "question", layer: 1, q: "When illness comes, it tends toward…", options: [
-    { id: "a", text: "Restlessness, nervous exhaustion, dryness and cold." },
-    { id: "b", text: "Fever, heat, and things that flare up fast." },
-    { id: "c", text: "Heaviness, thickness in the chest, and anything that lingers." },
-  ]},
-  /* open */
-  { kind: "question", qtype: "open", layer: 1, q: "One sentence, or skip. What does your body most need right now that it is not getting?",
-    placeholder: "rest, warmth, stillness, to be seen",
+  { kind: "question", qtype: "visual", layer: 1, q: "Lately. Be honest. Your energy. Which curve?",
+    options: [
+      { id: "a", text: "Spikes and crashes." },
+      { id: "b", text: "Steep climb, plateau, drop." },
+      { id: "c", text: "Flat and low." },
+    ],
   },
-  { kind: "question", layer: 1, q: "My body's daily rhythm of release is…", options: [
-    { id: "a", text: "Uneven. Some days light and easy, other days held back." },
-    { id: "b", text: "Frequent and quick. Sometimes urgent when things move fast." },
-    { id: "c", text: "Heavy and steady. Predictable like clockwork." },
-  ]},
-  { kind: "question", layer: 1, q: "My voice naturally is…", options: [
-    { id: "a", text: "Quick, high-pitched, variable. I speak fast." },
-    { id: "b", text: "Clear, direct, sharp. I say exactly what I mean." },
-    { id: "c", text: "Deep, resonant, melodious. I choose words slowly." },
-  ]},
-  { kind: "question", layer: 1, q: "My lips tend to be…", options: [
-    { id: "a", text: "Thin, dry, frequently chapped." },
-    { id: "b", text: "Medium, quick to chap or crack when I run hot." },
-    { id: "c", text: "Full, soft, and well-defined." },
-  ]},
+  { kind: "question", layer: 1, q: "If your body could send you one message about the last few weeks. Which one?",
+    options: [
+      { id: "a", text: "Let me land. I have been dry, tight, running on air. Digestion scattered, skin tight." },
+      { id: "b", text: "Let me cool. I have been running hot and reactive. Digestion urgent, skin flushed." },
+      { id: "c", text: "Wake me up. I have been heavy, slow. Digestion sluggish, skin dull." },
+    ],
+  },
+  { kind: "question", qtype: "open", layer: 1,
+    q: "Your body has been asking for something. What is it? One word. Or skip.",
+    placeholder: "warmth, rest, movement, quiet",
+  },
+  { kind: "question", layer: 1, q: "Look at your hands right now. What do you notice?",
+    options: [
+      { id: "a", text: "Dry. Cool. Always reaching for cream." },
+      { id: "b", text: "Warm. Flushed. Sometimes red at the knuckles." },
+      { id: "c", text: "Soft. Smooth. They hold moisture easily." },
+    ],
+  },
+  { kind: "question", qtype: "scale2", layer: 1,
+    q: "The truth, not the goal. Your body when you wake up.",
+    poleA: "Like gravity doubled overnight.",
+    poleB: "Restless before the eyes open. Already on its way.",
+  },
+  { kind: "question", layer: 1, q: "Be honest. Your body's relationship with rhythm.",
+    options: [
+      { id: "a", text: "It resists it. Rhythm feels like a cage." },
+      { id: "b", text: "It demands it. Skip a meal or a sleep and my body makes sure I know." },
+      { id: "c", text: "It craves it. Same time, same pace." },
+    ],
+  },
+  { kind: "question", layer: 1,
+    q: "Your body keeps its own calendar. Some months your body feels like a stranger. Which pattern do you recognise?",
+    options: [
+      { id: "a", text: "My mood shifts before I understand why. My skin, my appetite, my sleep all change together." },
+      { id: "b", text: "I run hot and irritable in cycles. My body tightens before it releases." },
+      { id: "c", text: "I go heavy and slow. My energy drops and I retreat without choosing to." },
+    ],
+  },
 
-  /* ─ Layer 2 / Mind ──────────────────────────────────────────── */
-  { kind: "question", layer: 2, q: "My thinking style is…", options: [
-    { id: "a", text: "Quick and creative. Many ideas at once, hard to settle." },
-    { id: "b", text: "Sharp and analytical. I think in systems and conclusions." },
-    { id: "c", text: "Steady and methodical. I think slowly but think it through." },
-  ]},
-  /* scale3 */
-  { kind: "question", qtype: "scale3", layer: 2, q: "When you have something important to do. Your energy shows up like:",
+  /* ─ Layer 2 / Mind (Q16-Q28) ────────────────────────────────── */
+  { kind: "question", layer: 2, q: "When you have a decision to make. Where does your mind go first?",
+    options: [
+      { id: "a", text: "Everywhere. Twelve possibilities." },
+      { id: "b", text: "Straight to the consequences. What breaks if I choose wrong?" },
+      { id: "c", text: "Nowhere. I wait. The right answer will arrive." },
+    ],
+  },
+  { kind: "question", qtype: "scale3", layer: 2,
+    q: "When you have something important to do. Your energy shows up like:",
     poleA: "Strong at the start, hard to keep going.",
     middle: "I lock in and push through, even when I should rest.",
     poleB: "Takes time to start. Once it does, I do not stop.",
   },
-  { kind: "question", layer: 2, q: "My memory tends to be…", options: [
-    { id: "a", text: "Quick to grasp but quick to lose. It moves with me." },
-    { id: "b", text: "Sharp and clear for what matters most." },
-    { id: "c", text: "Slow to form. Once held, virtually permanent." },
-  ]},
-  { kind: "question", layer: 2, q: "Under pressure, I tend to…", options: [
-    { id: "a", text: "Scatter. Anxiety rises, I lose my centre." },
-    { id: "b", text: "Sharpen. I become focused but also controlling." },
-    { id: "c", text: "Withdraw. I become quiet, stubborn, or close down." },
-  ]},
-  /* visual */
-  { kind: "question", qtype: "visual", layer: 2, q: "Two doors. What do you actually do? Which one?", options: [
-    { id: "a", text: "Open both. Look for a third." },
-    { id: "b", text: "Wait until one feels right." },
-    { id: "c", text: "Pick one. Walk through. Do not look back." },
-  ]},
-  { kind: "question", layer: 2, q: "In conversation, I…", options: [
-    { id: "a", text: "Jump between topics quickly. I love ideas more than conclusions." },
-    { id: "b", text: "Speak precisely. I make my point and defend it." },
-    { id: "c", text: "Listen more than I speak. Words are chosen carefully." },
-  ]},
-  { kind: "question", layer: 2, q: "My relationship with time is…", options: [
-    { id: "a", text: "Loose. I'm often late, time escapes me effortlessly." },
-    { id: "b", text: "Precise. I'm punctual and dislike being kept waiting." },
-    { id: "c", text: "Steady. I move at my own unhurried pace." },
-  ]},
-  /* scale3 */
-  { kind: "question", qtype: "scale3", layer: 2, q: "When you need to focus on something important. What actually happens?",
+  { kind: "question", qtype: "visual", layer: 2, q: "Two doors. What do you actually do? Which one?",
+    options: [
+      { id: "a", text: "Open both. Look for a third." },
+      { id: "b", text: "Pick one. Walk through. Do not look back." },
+      { id: "c", text: "Wait until one feels right." },
+    ],
+  },
+  { kind: "question", layer: 2,
+    q: "A friend calls at 11pm, voice shaking. What happens in you before you speak?",
+    options: [
+      { id: "a", text: "I feel everything they feel. Their world floods mine." },
+      { id: "b", text: "My mind sharpens. I need the story, the facts." },
+      { id: "c", text: "I soften. I hold the phone close. Just being here is enough." },
+    ],
+  },
+  { kind: "question", layer: 2, q: "When you cannot sleep at 2am. Where does your mind go?",
+    options: [
+      { id: "a", text: "Twelve different directions. None helpful." },
+      { id: "b", text: "One problem. Turning it over and over." },
+      { id: "c", text: "Nowhere. Just heavy." },
+    ],
+  },
+  { kind: "question", qtype: "visual", layer: 2,
+    q: "If someone could see inside your mind this week. What would they find?",
+    options: [
+      { id: "a", text: "Scattered papers flying." },
+      { id: "b", text: "Pressure gauge in the red." },
+      { id: "c", text: "Empty, still room." },
+    ],
+  },
+  { kind: "question", layer: 2, q: "You made a mistake. A real one. What does your mind do with it?",
+    options: [
+      { id: "a", text: "Replays it. Over and over. I see it from every angle." },
+      { id: "b", text: "Builds a fix. My mind is already three steps ahead." },
+      { id: "c", text: "Holds it quietly. It sits there, heavy." },
+    ],
+  },
+  { kind: "question", qtype: "scale3", layer: 2,
+    q: "When you need to focus on something important. What actually happens?",
     poleA: "My mind wanders. Ten minutes in, I am somewhere else.",
     middle: "I lock in. Nothing else exists. Sometimes for too long.",
     poleB: "Takes forever to start. Once I do, I can go for hours.",
   },
-  { kind: "question", layer: 2, q: "I am most motivated by…", options: [
-    { id: "a", text: "Freedom, creativity, and the call of the new." },
-    { id: "b", text: "Achievement, mastery, and being recognised for it." },
-    { id: "c", text: "Belonging, security, and deep harmony." },
-  ]},
-  { kind: "question", layer: 2, q: "My emotional expression is…", options: [
-    { id: "a", text: "Expansive and changing. I wear feelings openly." },
-    { id: "b", text: "Controlled but intense. I feel deeply beneath stillness." },
-    { id: "c", text: "Slow and contained. Emotions simmer quietly inside." },
-  ]},
-  /* open */
-  { kind: "question", qtype: "open", layer: 2, q: "One detail is enough. Or skip. If you could design a space for your mind to rest in, what would be there?",
+  { kind: "question", layer: 2,
+    q: "Someone disagrees with you. First reaction, before you speak. What does your mind do?",
+    options: [
+      { id: "a", text: "Scatter. Wait, what did they say?" },
+      { id: "b", text: "Defense. My mind gathers evidence." },
+      { id: "c", text: "Uncertainty. Did I miss something? Maybe they are right." },
+    ],
+  },
+  { kind: "question", layer: 2, q: "What has been visiting your mind lately. The one that keeps returning.",
+    options: [
+      { id: "a", text: "The same thought, going in circles. Plans that keep changing." },
+      { id: "b", text: "Impatience. Things are not moving fast enough." },
+      { id: "c", text: "A low heaviness. Not quite sadness." },
+    ],
+  },
+  { kind: "question", qtype: "open", layer: 2,
+    q: "One detail is enough. Or skip. If you could design a space for your mind to rest in, what would be there?",
     placeholder: "silence, water, soft light, nothing",
   },
-  /* visual */
-  { kind: "question", qtype: "visual", layer: 2, q: "Your mental energy this month. Which image?", options: [
-    { id: "a", text: "Fire burning too bright." },
-    { id: "b", text: "Candle flickering in wind." },
-    { id: "c", text: "Embers under ash." },
-  ]},
-  { kind: "question", layer: 2, q: "I trust…", options: [
-    { id: "a", text: "My intuition and spontaneous inner knowing." },
-    { id: "b", text: "Logic, evidence, and my own proven competence." },
-    { id: "c", text: "Tradition, time, and those who have truly earned it." },
-  ]},
-  { kind: "question", layer: 2, q: "My mind at rest…", options: [
-    { id: "a", text: "Rarely stops. Thoughts race even in moments of stillness." },
-    { id: "b", text: "Analyses and plans. True rest doesn't come easily." },
-    { id: "c", text: "Settles quickly. I am naturally inclined to peace." },
-  ]},
-  { kind: "question", layer: 2, q: "The thing I crave most is…", options: [
-    { id: "a", text: "Movement, stimulation, variety." },
-    { id: "b", text: "Challenge, impact, and excellence." },
-    { id: "c", text: "Comfort, connection, and deep stillness." },
-  ]},
+  { kind: "question", qtype: "visual", layer: 2, q: "Your mental energy this month. Which image?",
+    options: [
+      { id: "a", text: "Candle flickering in wind." },
+      { id: "b", text: "Fire burning too bright." },
+      { id: "c", text: "Embers under ash." },
+    ],
+  },
+  { kind: "question", layer: 2,
+    q: "Alone with yourself. The voice in your head when no one is watching. What does it sound like?",
+    options: [
+      { id: "a", text: "Fast. Jumping. Like a conversation with ten people." },
+      { id: "b", text: "Sharp. Directed. Planning, solving, always working." },
+      { id: "c", text: "Quiet. Sometimes too quiet." },
+    ],
+  },
 
-  /* ─ Layer 3 / Spirit ────────────────────────────────────────── */
-  { kind: "question", layer: 3, q: "Lately, my energy has been…", options: [
-    { id: "a", text: "Scattered. I start things and don't finish." },
-    { id: "b", text: "Driven but burning. I'm doing too much." },
-    { id: "c", text: "Low and heavy. Hard to begin anything at all." },
-  ]},
-  { kind: "question", layer: 3, q: "My mind lately feels…", options: [
-    { id: "a", text: "Restless and racing. Hard to settle or focus." },
-    { id: "b", text: "Sharp but stretched. Edging toward exhaustion." },
-    { id: "c", text: "Foggy and slow. Unmotivated without clear reason." },
-  ]},
-  { kind: "question", layer: 3, q: "My sleep lately is…", options: [
-    { id: "a", text: "Disrupted. I wake in the night and struggle to return." },
-    { id: "b", text: "Shortened. I can't turn my mind off." },
-    { id: "c", text: "Excessive. I sleep long but still wake feeling tired." },
-  ]},
-  { kind: "question", layer: 3, q: "My digestion lately is…", options: [
-    { id: "a", text: "Bloated, unsettled, never quite the same two days in a row." },
-    { id: "b", text: "Sharp and burning. Quick to turn on me." },
-    { id: "c", text: "Sluggish and heavy. Slow to move through." },
-  ]},
-  { kind: "question", layer: 3, q: "The emotion I'm most sitting with…", options: [
-    { id: "a", text: "Fear, anxiety, or a sense of being unmoored." },
-    { id: "b", text: "Anger, frustration, or a feeling of being blocked." },
-    { id: "c", text: "Sadness, heaviness, or a quiet withdrawal." },
-  ]},
-  { kind: "question", layer: 3, q: "I feel most out of balance when…", options: [
-    { id: "a", text: "I haven't had space, freedom, or spontaneity." },
-    { id: "b", text: "I'm not in control or not making visible progress." },
-    { id: "c", text: "I'm isolated, without purpose, or without routine." },
-  ]},
-  { kind: "question", layer: 3, q: "My body lately has been…", options: [
-    { id: "a", text: "Dry, stiff, cold. Hard to warm." },
-    { id: "b", text: "Hot, flushed, and quick to react." },
-    { id: "c", text: "Heavy, thick, and slow to recover." },
-  ]},
-  /* scale2 */
-  { kind: "question", qtype: "scale2", layer: 3, q: "When something ends. A chapter, a relationship, a phase. How do you leave?",
+  /* ─ Layer 3 / Spirit (Q29-Q45) ──────────────────────────────── */
+  { kind: "question", layer: 3,
+    q: "A relationship, a job, a habit that stopped working. What are you doing about it?",
+    options: [
+      { id: "a", text: "I already left. Maybe too fast." },
+      { id: "b", text: "I am still trying to fix it. I do not give up easily." },
+      { id: "c", text: "I am still there. Loyalty runs deep." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "A phone call that changes everything. New city, new life. First reaction?",
+    options: [
+      { id: "a", text: "Yes. My heart already said it. The rest of me will catch up." },
+      { id: "b", text: "Maybe. But only if it fits what I am already building." },
+      { id: "c", text: "I need a week, a list, and someone to talk me through it." },
+    ],
+  },
+  { kind: "question", layer: 3, q: "One full day off. No obligations. What actually happens?",
+    options: [
+      { id: "a", text: "Twelve different plans. I start two. Finish neither. The day scattered beautifully." },
+      { id: "b", text: "One project. Finally space for it. I work through the whole thing and forget to rest." },
+      { id: "c", text: "I mean to do something. But the day fills with comfort instead - food, sleep, familiar things." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "The last real argument with someone you love. What were you actually fighting for?",
+    options: [
+      { id: "a", text: "To be understood. Being misread was the real pain." },
+      { id: "b", text: "For air. I was not fighting against them. I just needed space." },
+      { id: "c", text: "To feel safe again. The fight was never about the fight." },
+    ],
+  },
+  { kind: "question", layer: 3, q: "No one watching. Nothing expected. One full month. What do you do?",
+    options: [
+      { id: "a", text: "Disappear somewhere unknown. Let the days decide." },
+      { id: "b", text: "Build something. A real project, my own deadline." },
+      { id: "c", text: "Stay home. Slow meals. The same three people." },
+    ],
+  },
+  { kind: "question", qtype: "visual", layer: 3,
+    q: "Lately you have been moving through the world. Like which one?",
+    options: [
+      { id: "a", text: "Hummingbird, wings blurred." },
+      { id: "b", text: "Hawk, circling, sharp." },
+      { id: "c", text: "Bear in early winter." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "You walk into a room where everyone is having a hard day. Before anyone speaks, what happens in you?",
+    options: [
+      { id: "a", text: "I absorb it. Their heaviness becomes mine." },
+      { id: "b", text: "I go colder. I armor up faster than the moment needs." },
+      { id: "c", text: "Something in me goes quiet. I pull back without deciding to." },
+    ],
+  },
+  { kind: "question", layer: 3, q: "The people you love most, all together. Where are you?",
+    options: [
+      { id: "a", text: "There but half gone. My mind has already left the room." },
+      { id: "b", text: "At the center. Talking, connecting, keeping things moving." },
+      { id: "c", text: "Just to the side. Close enough to feel it. Far enough to breathe." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "Something beautiful happens. A sunset, a song, a moment. What do you do with it?",
+    options: [
+      { id: "a", text: "I try to hold it, but it slips." },
+      { id: "b", text: "I feel it fully, then I move on. Beauty does not need to be kept." },
+      { id: "c", text: "I stay in it. Let it fill me. I do not want it to end." },
+    ],
+  },
+  { kind: "question", qtype: "scale2", layer: 3,
+    q: "When something ends. A chapter, a relationship, a phase. How do you leave?",
     poleA: "Quick. Already gone before the goodbye.",
     poleB: "Slowly. I need time to say what it meant.",
   },
-  { kind: "question", layer: 3, q: "The habit I most want to break…", options: [
-    { id: "a", text: "Inconsistency. I cannot sustain what I begin." },
-    { id: "b", text: "Perfectionism. I push until I burn." },
-    { id: "c", text: "Inertia. I'm avoiding what I know I need to do." },
-  ]},
-  { kind: "question", layer: 3, q: "My body is most asking for…", options: [
-    { id: "a", text: "Warmth, grounding, and deep stillness." },
-    { id: "b", text: "Cooling, release, and softness." },
-    { id: "c", text: "Movement, lightness, and stimulation." },
-  ]},
-  /* visual */
-  { kind: "question", qtype: "visual", layer: 3, q: "If your spirit had a texture right now. What would it be?", options: [
-    { id: "a", text: "Silk scarf in wind." },
-    { id: "b", text: "Blade edge, sharp." },
-    { id: "c", text: "Wet clay, dense." },
-  ]},
-  { kind: "question", layer: 3, q: "The inner season I'm living right now is…", options: [
-    { id: "a", text: "Autumn. Unpredictable, transitional, searching for ground." },
-    { id: "b", text: "Summer. Intense, bright, sometimes overwhelming." },
-    { id: "c", text: "Late winter. Slow, heavy, ready to shift." },
-  ]},
+  { kind: "question", layer: 3, q: "What protects you also traps you. What is yours?",
+    options: [
+      { id: "a", text: "Movement. I stay light, stay free. But sometimes I am just running." },
+      { id: "b", text: "Control. I hold things tight. But sometimes I am strangling what I love." },
+      { id: "c", text: "Loyalty. I stay, I commit. But sometimes I stay too long." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "No performance. Just you and an unscheduled hour. Which ritual calls to you most naturally?",
+    options: [
+      { id: "a", text: "Something slow. No clock. Just being in it." },
+      { id: "b", text: "Something focused and precise - a sequence that works because it means something." },
+      { id: "c", text: "Something sensory and grounding - touch, scent, warmth." },
+    ],
+  },
+  { kind: "question", qtype: "visual", layer: 3,
+    q: "If your spirit had a texture right now. What would it be?",
+    options: [
+      { id: "a", text: "Silk scarf in wind." },
+      { id: "b", text: "Blade edge, sharp." },
+      { id: "c", text: "Wet clay, dense." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "You have just finished. Something in what you answered is already true. What do you feel most drawn to do next?",
+    options: [
+      { id: "a", text: "Learn everything. I want to understand the full system." },
+      { id: "b", text: "Take action now. Tell me what to change and I will change it." },
+      { id: "c", text: "Move slowly. I want to feel my way into this before committing." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "No performance. Just the truth. A ritual is waiting for you. How much time can you honestly give it?",
+    options: [
+      { id: "a", text: "Two minutes. That is real." },
+      { id: "b", text: "Five minutes. Before the noise begins." },
+      { id: "c", text: "Fifteen minutes. I want to feel it properly." },
+      { id: "d", text: "Thirty minutes or more. This is something I am ready to commit to." },
+    ],
+  },
+  { kind: "question", layer: 3,
+    q: "One last thing. Not a test. Which of these feels most like your life right now?",
+    options: [
+      { id: "a", text: "Always moving. Work, ambition, deadlines, not enough hours." },
+      { id: "b", text: "Holding everyone. Children, family, others before myself." },
+      { id: "c", text: "In between. Between places, between chapters, between versions of myself." },
+    ],
+  },
   /* open with bonus */
-  { kind: "question", qtype: "open", layer: 3, q: "One sentence. Or skip. If you could tell your younger self one thing about who you are becoming, what would it be?",
+  { kind: "question", qtype: "open", layer: 3,
+    q: "One sentence. Or skip. If you could tell your younger self one thing about who you are becoming, what would it be?",
     placeholder: "You are exactly where you need to be.",
     bonus: { q: "One word for what your spirit needs most right now.", placeholder: "rest, fire, ground, space, permission" },
   },
@@ -413,29 +492,31 @@ const LAYER_ICONS: Record<1|2|3, { viewBox: string; paths: { d: string; sw: numb
 };
 
 /* ── Build step sequence ──
-   Interstitials are injected before each new layer (except the first) — a
-   reassurance beat between BODY→MIND and MIND→SPIRIT. One more interstitial
-   (tempo) lands before the final 5 questions to shift the rhythm. */
-const TRANSITION_COPY: Record<1|2|3, string | null> = {
-  1: null,
-  2: "Your body has shown us its rhythm. Now — your mind.",
-  3: "We see you. One more pass, softer this time.",
+   Interstitials injected before each new layer (transition) and at 3 mid-act
+   beats matching the design doc. */
+const TRANSITION_COPY: Record<2|3, string> = {
+  2: "Your body has said what it needed to say. Now we go somewhere less visible. The place where your thoughts live before they become words. Where your patterns were formed long before you named them. The mind holds a different kind of record. Let us read it together.",
+  3: "Your body spoke. Your mind spoke. One final layer. The deepest one. The place where you already know who you are, even when the world has made you forget. In Ayurveda, this is where your Dosha lives most completely. This is the part most people never reach. But you are here.",
 };
-const TEMPO_COPY = "We have almost finished mapping your rhythm.";
+
+/* Keys are QS indices (0-based) — interstitial injected AFTER that question */
+const MID_ACT_AFTER: Record<number, string> = {
+  8:  "Something is forming. The way you described your mornings, your temperature, your energy - a pattern is becoming visible. We need to look at your digestion to confirm what your body is already telling us. Keep going.",
+  20: "The way your mind handles pressure, and the way it handles stillness - these two things together are pointing clearly. We need one more layer before the picture is complete. Your spirit holds the final answer.",
+  38: "You are almost there. Your body spoke. Your mind spoke. Four questions remain, about what you protect most. Your Dosha is on the other side.",
+};
 
 function buildSteps(): Step[] {
   const steps: Step[] = [];
-  const tempoAt = QS.length - 5; // first of the last 5 questions (in QS)
   let lastLayer = 0;
   QS.forEach((q, qi) => {
     if (q.layer !== lastLayer) {
       const nextLayer = q.layer as 1 | 2 | 3;
-      const copy = TRANSITION_COPY[nextLayer];
-      if (copy) {
+      if (nextLayer > 1) {
         steps.push({
           kind: "interstitial",
           id: `transition-${nextLayer}`,
-          text: copy,
+          text: TRANSITION_COPY[nextLayer as 2|3],
           layer: nextLayer,
           variant: "transition",
         });
@@ -443,16 +524,17 @@ function buildSteps(): Step[] {
       steps.push(LAYER_DEF[nextLayer]);
       lastLayer = q.layer;
     }
-    if (qi === tempoAt) {
+    steps.push(q);
+    const midCopy = MID_ACT_AFTER[qi];
+    if (midCopy) {
       steps.push({
         kind: "interstitial",
-        id: "tempo-final",
-        text: TEMPO_COPY,
+        id: `midact-${qi}`,
+        text: midCopy,
         layer: q.layer as 1 | 2 | 3,
         variant: "tempo",
       });
     }
-    steps.push(q);
   });
   return steps;
 }
@@ -852,12 +934,6 @@ function ScaleNode({ id, text, pos, total, chosen, onPick, entryDelay = 0 }: {
           style={{ minHeight: isFirst ? 0 : 28, opacity: isFirst ? 0 : 1 }}
         />
         <svg width="26" height="26" viewBox="0 0 26 26" fill="none" className="flex-shrink-0 my-1.5">
-          <circle
-            cx="13" cy="13" r="9.5"
-            stroke="#FFEFDE"
-            strokeOpacity={isChosen ? 0.9 : 0.28}
-            strokeWidth="0.85"
-          />
           {isChosen && (
             <circle cx="13" cy="13" r="4.5" fill="#FFEFDE" fillOpacity="0.9" />
           )}
@@ -1579,7 +1655,8 @@ export default function QuizBody() {
   const contentRef   = useRef<HTMLDivElement>(null);
   const advancingRef = useRef(false);
   const stepIdxRef   = useRef(0);
-  const data = useQuizData();
+  const data   = useQuizData();
+  const router = useRouter();
 
   useEffect(() => { stepIdxRef.current = stepIdx; });
 
@@ -1656,7 +1733,16 @@ export default function QuizBody() {
   ) as 1 | 2 | 3;
   const progress = calcProgress(stepIdx, currentLayer);
 
-  if (gateOpen) return <QuizEmailGate />;
+  if (gateOpen) {
+    const result = data.getResult();
+    const dosha  = result?.primary ?? "vata";
+    return (
+      <QuizEmailGate
+        dosha={dosha}
+        onSuccess={() => router.push("/quiz/result")}
+      />
+    );
+  }
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-aubergine select-none">
@@ -1670,7 +1756,7 @@ export default function QuizBody() {
 
       <div
         ref={contentRef}
-        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" ? "items-center" : "items-start pt-40 pb-8 md:pt-44"}`}
+        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" || step.kind === "interstitial" ? "items-center" : "items-start pt-40 pb-8 md:pt-44"}`}
         style={{ opacity: 0 }}
       >
         <div key={stepIdx} className="w-full flex justify-center">

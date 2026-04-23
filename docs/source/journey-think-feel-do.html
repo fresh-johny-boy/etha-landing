@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETHA Journey — Joana Think Feel Do</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #faf9f7; padding: 40px 32px; color: #1a1a1a; }
+  h1 { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #888; margin-bottom: 32px; }
+  .journey { position: relative; }
+  .spine { position: absolute; left: 139px; top: 16px; bottom: 80px; width: 1.5px; background: #e0ddd8; z-index: 0; }
+  .step { display: flex; gap: 0; margin-bottom: 8px; position: relative; z-index: 1; }
+  .step-left { width: 140px; flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; padding-right: 22px; padding-top: 12px; }
+  .node-label { font-size: 11px; font-weight: 600; text-align: right; line-height: 1.4; color: #555; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: #fff; border: 2px solid #aaa; position: absolute; left: 134px; top: 14px; z-index: 2; }
+  .dot-product { background: #BA7517; border-color: #BA7517; }
+  .dot-decision { background: #f0ede8; border-color: #ccc; border-style: dashed; }
+  .card { flex: 1; border: 1px solid #e8e4de; border-radius: 12px; padding: 12px 16px; background: #fff; margin-left: 16px; }
+  .card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .step-label { font-size: 13px; font-weight: 600; color: #1a1a1a; }
+  .badge { font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+  .badge-entry { background: #f0ede8; color: #888; }
+  .badge-email { background: #e1f5ee; color: #085041; }
+  .badge-web { background: #e6f1fb; color: #042C53; }
+  .badge-product { background: #faeeda; color: #633806; }
+  .tfd { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+  .tfd-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; margin-bottom: 3px; }
+  .tfd-text { font-size: 12px; color: #555; line-height: 1.45; }
+  .product-pill { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; background: #faeeda; color: #633806; padding: 3px 10px; border-radius: 20px; margin-top: 8px; font-weight: 600; }
+  .decision-card { flex: 1; border: 1px dashed #ddd; border-radius: 8px; padding: 8px 14px; background: #faf9f7; margin-left: 16px; display: flex; align-items: center; }
+  .decision-label { font-size: 11px; color: #999; font-style: italic; }
+  .divider { margin: 16px 0 10px 156px; font-size: 10px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: #bbb; }
+  .branch-row { display: flex; gap: 8px; margin-left: 156px; margin-bottom: 8px; }
+  .branch-card { flex: 1; border: 1px solid #e8e4de; border-radius: 10px; padding: 10px 12px; background: #fff; }
+  .branch-title { font-size: 11px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; }
+  .btfd { display: flex; flex-direction: column; gap: 5px; }
+  .btfd-row { display: flex; gap: 5px; align-items: flex-start; }
+  .btfd-l { font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #bbb; width: 38px; flex-shrink: 0; padding-top: 1px; }
+  .btfd-v { font-size: 11px; color: #555; line-height: 1.4; }
+</style>
+</head>
+<body>
+<h1>ETHA — Joana's Journey · Think / Feel / Do</h1>
+<div class="journey">
+<div class="spine"></div>
+
+<div class="step">
+  <div class="step-left"><div class="node-label">01<br>Social<br>posts</div></div>
+  <div class="dot"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">10 organic static posts + May calendar</span><span class="badge badge-entry">entry point</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">This speaks to something I feel but cannot name</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Curious — not sold to, not overwhelmed</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Tap through to the quiz</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left"><div class="node-label">02<br>Dosha<br>quiz</div></div>
+  <div class="dot"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">Dosha Quiz — full web experience</span><span class="badge badge-web">web</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">These questions actually understand me</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Engaged — someone is paying real attention</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Answer every question honestly and fully</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left"></div>
+  <div class="dot dot-decision"></div>
+  <div class="decision-card"><span class="decision-label">Quiz completed? → No: Quiz Abandoned Ad Set → Yes: continues below</span></div>
+</div>
+
+<div class="step">
+  <div class="step-left"><div class="node-label">03<br>Dosha<br>card</div></div>
+  <div class="dot dot-product"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">Dosha Card — result screen</span><span class="badge badge-web">×3 dosha</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">This is exactly me — how do they know this?</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Validated — a little emotional, genuinely seen</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Screenshot it. Enter email to get the full report</div></div>
+    </div>
+    <div class="product-pill">📄 Product: Dosha Card</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left"></div>
+  <div class="dot dot-decision"></div>
+  <div class="decision-card"><span class="decision-label">Email provided? → No: Dosha Retargeting Ad Set (×3) → Yes: continues below</span></div>
+</div>
+
+<div class="step">
+  <div class="step-left"><div class="node-label">04<br>Email 1<br>Mirror</div></div>
+  <div class="dot dot-product"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">Email 1: The Mirror — 15 min after quiz</span><span class="badge badge-email">email · dynamic</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">Someone finally described me accurately</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Deeply seen — I want to read everything they send</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Read the full report. Anticipate Email 2</div></div>
+    </div>
+    <div class="product-pill">📄 Product: Full Report PDF</div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left"><div class="node-label">05<br>Email 2<br>Guide</div></div>
+  <div class="dot"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">Email 2: The Guide — day 3</span><span class="badge badge-email">×3 dosha</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">I could actually do this tomorrow morning</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Hopeful and grounded — this fits my real life</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Try the ritual. Click through to the landing page</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <div class="step-left"><div class="node-label">06<br>Ritual<br>landing</div></div>
+  <div class="dot dot-product"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">Ritual Landing Page</span><span class="badge badge-web">×3 dosha</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">This is a whole system designed for exactly me</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Trust building — warm, I want to go deeper</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Explore the ritual. Download the guide. Consider the bundle</div></div>
+    </div>
+    <div class="product-pill">📄 Product: Ritual Guide (generated on page)</div>
+  </div>
+</div>
+
+<div class="divider">Behavior split → Email 3</div>
+
+<div class="branch-row">
+  <div class="branch-card">
+    <div class="branch-title">3A — Academy stream</div>
+    <div class="btfd">
+      <div class="btfd-row"><div class="btfd-l">Think</div><div class="btfd-v">I want to understand this more deeply</div></div>
+      <div class="btfd-row"><div class="btfd-l">Feel</div><div class="btfd-v">Intellectually drawn in</div></div>
+      <div class="btfd-row"><div class="btfd-l">Do</div><div class="btfd-v">Enrol in the first free lesson</div></div>
+    </div>
+  </div>
+  <div class="branch-card">
+    <div class="branch-title">3B — Ritual + Product</div>
+    <div class="btfd">
+      <div class="btfd-row"><div class="btfd-l">Think</div><div class="btfd-v">These products belong to my ritual</div></div>
+      <div class="btfd-row"><div class="btfd-l">Feel</div><div class="btfd-v">Ready — not pressured</div></div>
+      <div class="btfd-row"><div class="btfd-l">Do</div><div class="btfd-v">Click through to the product page</div></div>
+    </div>
+  </div>
+  <div class="branch-card">
+    <div class="branch-title">3C — Full Bundle</div>
+    <div class="btfd">
+      <div class="btfd-row"><div class="btfd-l">Think</div><div class="btfd-v">This completes what I already started</div></div>
+      <div class="btfd-row"><div class="btfd-l">Feel</div><div class="btfd-v">Confident — no buyer anxiety</div></div>
+      <div class="btfd-row"><div class="btfd-l">Do</div><div class="btfd-v">Begin my ritual</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="step" style="margin-top:10px">
+  <div class="step-left"><div class="node-label">08<br>Purchase</div></div>
+  <div class="dot dot-product"></div>
+  <div class="card">
+    <div class="card-head"><span class="step-label">Bundle Pages + Product Pages</span><span class="badge badge-product">conversion</span></div>
+    <div class="tfd">
+      <div><div class="tfd-label">Think</div><div class="tfd-text">This is the natural end of a journey I chose</div></div>
+      <div><div class="tfd-label">Feel</div><div class="tfd-text">Grounded in the decision — not rushed into it</div></div>
+      <div><div class="tfd-label">Do</div><div class="tfd-text">Complete ritual. Open post-purchase onboarding</div></div>
+    </div>
+    <div class="product-pill">📄 Product: Product Guide PDF delivered with purchase</div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
