@@ -24,6 +24,7 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${plantin.variable} ${brandon.variable} antialiased`}
+      suppressHydrationWarning
     >
       <body>
         <SmoothScroll />
