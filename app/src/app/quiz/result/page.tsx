@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { useQuizData } from "@/components/quiz/QuizDataProvider";
+import QuizEmailGate from "@/components/quiz/QuizEmailGate";
+import { writeQuizState, readQuizState } from "@/lib/quizState";
 import type { Archetype } from "@/lib/quizDataContract";
 import {
   DOSHA_THEMES,
@@ -63,8 +66,11 @@ const DOSHAS: Archetype[] = ["vata", "pitta", "kapha"];
 export default function QuizResultPage() {
   const data   = useQuizData();
   const result = data.getResult();
+  const router = useRouter();
 
   const [devDosha, setDevDosha]   = useState<Archetype>(result?.primary ?? "vata");
+  const [showGate, setShowGate]   = useState(false);
+  const [emailDone, setEmailDone] = useState(() => !!readQuizState()?.email);
   const auraRef     = useRef<SVGSVGElement>(null);
   const labelRef    = useRef<HTMLParagraphElement>(null);
   const nameRef     = useRef<HTMLHeadingElement>(null);
@@ -400,8 +406,53 @@ export default function QuizResultPage() {
 
           </div>
         </div>
+
+        {/* Email CTA */}
+        {!emailDone && (
+          <div style={{ marginTop: 64, textAlign: "center", paddingBottom: 80 }}>
+            <p
+              className="font-label"
+              style={{ fontSize: 10, letterSpacing: "0.25em", color: "rgba(255,239,222,0.55)", marginBottom: 20 }}
+            >
+              YOUR FULL REPORT IS WAITING
+            </p>
+            <button
+              onClick={() => setShowGate(true)}
+              className="font-label"
+              style={{
+                fontSize: 11,
+                letterSpacing: "0.22em",
+                color: "rgba(255,239,222,0.92)",
+                border: "1px solid rgba(255,239,222,0.35)",
+                padding: "14px 32px",
+                background: "none",
+                cursor: "pointer",
+              }}
+            >
+              READ MY FULL REPORT
+            </button>
+            <p
+              className="font-serif italic"
+              style={{ marginTop: 14, fontSize: "0.82rem", color: "rgba(255,239,222,0.40)" }}
+            >
+              Private. Never shared. Unsubscribe at any moment.
+            </p>
+          </div>
+        )}
       </section>
 
+      {/* Email gate overlay */}
+      {showGate && (
+        <QuizEmailGate
+          dosha={devDosha}
+          onSuccess={(email) => {
+            writeQuizState({ email });
+            setEmailDone(true);
+            setShowGate(false);
+            router.push("/quiz/sent");
+          }}
+        />
+      )}
     </main>
   );
 }

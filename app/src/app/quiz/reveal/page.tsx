@@ -46,7 +46,7 @@ export default function RevealPage() {
 
   function handleAdvance() {
     pushHistory("reveal");
-    router.push("/quiz/gate");
+    router.push("/quiz/result");
   }
 
   if (!dosha) return null;
