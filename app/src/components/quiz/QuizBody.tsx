@@ -1543,11 +1543,15 @@ function QuestionView({ step, chosen, onPick, onScalePlaced, onAdvance }: {
         >
           {step.q}
         </h2>
-        {/* 3-up row: A/B/C in natural proportions (tall · round · wide) */}
-        <div className="grid grid-cols-[168fr_185fr_248fr] items-end gap-3 sm:gap-5 md:gap-7 lg:gap-9 w-full">
+        {/* Mobile: triangle (A+B top row, C centred below). sm+: 3-up natural-proportion row */}
+        <div className="grid grid-cols-2 sm:grid-cols-[168fr_185fr_248fr] items-end gap-3 sm:gap-5 md:gap-7 lg:gap-9 w-full">
           <VisualCard opt={opts[0]} chosen={chosen} onPick={onPick} entryDelay={0.18} imageOverride={step.images?.a} />
           <VisualCard opt={opts[1]} chosen={chosen} onPick={onPick} entryDelay={0.44} imageOverride={step.images?.b} />
-          <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
+          <div className="col-span-2 sm:col-span-1 flex justify-center sm:block">
+            <div className="w-[62%] sm:w-full">
+              <VisualCard opt={opts[2]} chosen={chosen} onPick={onPick} entryDelay={0.70} imageOverride={step.images?.c} />
+            </div>
+          </div>
         </div>
       </div>
     );

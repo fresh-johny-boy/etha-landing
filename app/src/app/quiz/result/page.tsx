@@ -72,11 +72,13 @@ export default function QuizResultPage() {
   const [devDosha, setDevDosha]   = useState<Archetype>(result?.primary ?? "vata");
   const [showGate, setShowGate]   = useState(false);
   const [emailDone, setEmailDone] = useState(() => !!readQuizState()?.email);
-  const auraRef      = useRef<SVGSVGElement>(null);
-  const labelRef     = useRef<HTMLParagraphElement>(null);
-  const nameRef      = useRef<HTMLHeadingElement>(null);
-  const archetypeRef = useRef<HTMLDivElement>(null);
-  const contentRef   = useRef<HTMLDivElement>(null);
+  const navRef        = useRef<HTMLDivElement>(null);
+  const navAnimated   = useRef(false);
+  const auraRef       = useRef<SVGSVGElement>(null);
+  const labelRef      = useRef<HTMLParagraphElement>(null);
+  const nameRef       = useRef<HTMLHeadingElement>(null);
+  const archetypeRef  = useRef<HTMLDivElement>(null);
+  const contentRef    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!result) return;
@@ -86,6 +88,20 @@ export default function QuizResultPage() {
 
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isFirst = !navAnimated.current;
+
+    /* Nav lives OUTSIDE gsap.context so ctx.revert() on dosha-switch cannot undo it */
+    let navTween: gsap.core.Tween | null = null;
+    if (isFirst && navRef.current) {
+      gsap.set(navRef.current, { opacity: 0, y: -10 });
+      navTween = gsap.to(navRef.current, {
+        opacity: 1, y: 0,
+        duration: reduced ? 0.2 : 0.55,
+        ease: "expo.out",
+        delay: 0.1,
+      });
+      navAnimated.current = true;
+    }
 
     const ctx = gsap.context(() => {
       gsap.set(nameRef.current,    { y: 24, opacity: 0 });
@@ -93,57 +109,58 @@ export default function QuizResultPage() {
 
       if (reduced) {
         const tl = gsap.timeline({ delay: 0.05 });
-        tl.to(auraRef.current,      { opacity: 1, duration: 0.3 }, 0);
-        tl.to(labelRef.current,     { opacity: 1, duration: 0.3 }, 0.1);
-        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.3 }, 0.2);
-        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3 }, 0.3);
-        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.3 }, 0.4);
+        tl.to(auraRef.current,      { opacity: 1, duration: 0.3 }, isFirst ? 0.15 : 0);
+        tl.to(labelRef.current,     { opacity: 1, duration: 0.3 }, isFirst ? 0.25 : 0.05);
+        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.3 }, isFirst ? 0.35 : 0.1);
+        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3 }, isFirst ? 0.45 : 0.15);
+        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.3 }, isFirst ? 0.55 : 0.25);
         return;
       }
 
       /*
-       * Sequential reveal - each group waits for the previous to land.
-       * Eases: power2/power3 for smooth deceleration, no bounce/elastic.
+       * First load — staggered entrance: Nav → aura → label → name → archetype → content
+       * Dosha switch (dev) — quick cross-fade, no nav re-entrance.
        *
-       * 0.0s  aura breathes in (ambient, long)
-       * 0.2s  "YOUR NATURE IS" label
-       * 0.7s  dosha name - the hero moment, given the most space
-       * 2.0s  archetype label
-       * 2.7s  blobs (handled in AuraBubbleChart via startDelay prop)
-       * 4.5s  content (reframe + signals + ritual)
+       * First load timing (all relative to delay: 0.1):
+       * 0.00  Nav (outside context, see above)
+       * 0.30  Aura — long ambient fade (1.4s)
+       * 0.65  "YOUR NATURE IS" label
+       * 0.85  Dosha name — hero moment
+       * 1.75  Archetype label
+       * 2.05  Blobs (via AuraBubbleChart startDelay)
+       * 2.87  Main content
        */
       const tl = gsap.timeline({ delay: 0.1 });
 
-      /*
-       * Waterfall chain - each starts 0.06s before the previous finishes.
-       * Aura runs in parallel (ambient, doesn't block chain).
-       *
-       * label:      0.00 → 0.50
-       * name:       0.44 → 1.34
-       * archetype:  1.28 → 1.73
-       * blob 0:     1.67  (startDelay passed to AuraBubbleChart)
-       * blob 1:     1.95
-       * blob 2:     2.23 → 2.93
-       * content:    2.87
-       */
-      tl.to(auraRef.current,      { opacity: 1, duration: 1.4, ease: "power2.out" }, 0);
-      tl.to(labelRef.current,     { opacity: 1, duration: 0.5, ease: "circ.out" }, 0);
-      tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, "-=0.06");
-      tl.to(archetypeRef.current, { opacity: 1, duration: 0.45, ease: "circ.out" }, "-=0.06");
-      tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 2.87);
+      if (isFirst) {
+        tl.to(auraRef.current,      { opacity: 1, duration: 1.4, ease: "power2.out" }, 0.30);
+        tl.to(labelRef.current,     { opacity: 1, duration: 0.5, ease: "circ.out" }, 0.65);
+        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.9, ease: "expo.out" }, 0.85);
+        tl.to(archetypeRef.current, { opacity: 1, duration: 0.45, ease: "circ.out" }, 1.75);
+        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" }, 2.87);
+      } else {
+        tl.to(auraRef.current,      { opacity: 1, duration: 0.4, ease: "power2.out" }, 0);
+        tl.to(labelRef.current,     { opacity: 1, duration: 0.3, ease: "circ.out" }, 0.05);
+        tl.to(nameRef.current,      { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.1);
+        tl.to(archetypeRef.current, { opacity: 1, duration: 0.3, ease: "circ.out" }, 0.15);
+        tl.to(contentRef.current,   { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, 0.25);
+      }
 
-      /* Aura ambient breathe - starts after initial reveal settles */
+      /* Aura ambient breathe — starts after initial reveal settles */
       gsap.to(auraRef.current, {
         scale: 1.02, duration: 12, ease: "sine.inOut",
-        yoyo: true, repeat: -1, transformOrigin: "center", delay: 2.0,
+        yoyo: true, repeat: -1, transformOrigin: "center", delay: isFirst ? 2.0 : 0.5,
       });
       gsap.to(auraRef.current, {
         y: -10, duration: 16, ease: "sine.inOut",
-        yoyo: true, repeat: -1, delay: 2.0,
+        yoyo: true, repeat: -1, delay: isFirst ? 2.0 : 0.5,
       });
     });
 
-    return () => ctx.revert();
+    return () => {
+      navTween?.kill();
+      ctx.revert();
+    };
   }, [devDosha]);
 
   const primaryDosha = result?.primary ?? devDosha;
@@ -217,7 +234,9 @@ export default function QuizResultPage() {
       style={{ background: theme.bg, minHeight: "100dvh" }}
       className="relative overflow-x-hidden"
     >
-      <Nav variant="light" hideLinks progress={1} />
+      <div ref={navRef}>
+        <Nav variant="light" hideLinks progress={1} />
+      </div>
 
       {/* ── DEV PANEL ─────────────────────────────────────────────── */}
       {process.env.NODE_ENV === "development" && (
@@ -347,7 +366,7 @@ export default function QuizResultPage() {
 
           {/* Composition bubble chart - animates independently, blobs stagger from startDelay */}
           <div style={{ marginTop: 28 }}>
-            <AuraBubbleChart comp={card.comp} startDelay={1.67} />
+            <AuraBubbleChart comp={card.comp} startDelay={2.05} />
           </div>
 
           {/* Main content */}
