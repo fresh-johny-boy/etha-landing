@@ -77,6 +77,7 @@ function StatementScreen({ text, size, entranceDelay = 0 }: { text: string; size
       style={{
         fontSize: size === "massive" ? "clamp(2.8rem,8vw,6.5rem)" : "clamp(2.2rem,5.5vw,4rem)",
         lineHeight: 1.15,
+        textShadow: "0 2px 18px rgba(15,5,15,0.75)",
       }}
     >
       <span ref={l1Ref} className="block opacity-0">{line1}</span>
@@ -102,12 +103,13 @@ function TwoLineStatement({ line1, line2 }: { line1: string; line2: string }) {
   }, []);
 
   const fs = "clamp(2.4rem,7vw,5rem)";
+  const shadow = "0 2px 18px rgba(15,5,15,0.75)";
   return (
     <div className="text-center" style={{ lineHeight: 1.12 }}>
-      <p ref={l1} className="font-serif text-cream/60 opacity-0" style={{ fontSize: fs }}>
+      <p ref={l1} className="font-serif text-cream/60 opacity-0" style={{ fontSize: fs, textShadow: shadow }}>
         {line1}
       </p>
-      <p ref={l2} className="font-serif text-cream opacity-0" style={{ fontSize: fs, fontStyle: "italic" }}>
+      <p ref={l2} className="font-serif text-cream opacity-0" style={{ fontSize: fs, fontStyle: "italic", textShadow: shadow }}>
         {line2}
       </p>
     </div>
@@ -130,7 +132,7 @@ function ReflectionScreen({ text }: { text: string }) {
     <p
       ref={ref}
       className="font-serif text-cream text-center max-w-2xl"
-      style={{ fontSize: "clamp(1.7rem,4.5vw,3rem)", lineHeight: 1.45, opacity: 0 }}
+      style={{ fontSize: "clamp(1.7rem,4.5vw,3rem)", lineHeight: 1.45, opacity: 0, textShadow: "0 2px 18px rgba(15,5,15,0.75)" }}
     >
       {text}
     </p>
@@ -156,15 +158,18 @@ function ValueScreen({ headline, items }: {
 
   return (
     <div className="w-full max-w-lg">
-      <p className="font-label text-[11px] text-cream/65 mb-9">{headline}</p>
-      <ol ref={listRef} className="space-y-8">
-        {items.map((item) => (
-          <li key={item.num} style={{ opacity: 0 }}>
-            <span className="font-serif text-cream leading-snug" style={{ fontSize: "clamp(1.35rem,3.5vw,2rem)" }}>
-              {item.text}
-            </span>
-          </li>
-        ))}
+      <p className="font-serif text-cream mb-12" style={{ fontSize: "clamp(2rem,6vw,3.5rem)", lineHeight: 1.3, textShadow: "0 2px 18px rgba(15,5,15,0.75)" }}>{headline}</p>
+      <ol ref={listRef} className="space-y-20">
+        {items.map((item, idx) => {
+          const align = (["text-left", "text-right", "text-center"] as const)[idx % 3];
+          return (
+            <li key={item.num} className={align} style={{ opacity: 0 }}>
+              <span className="font-serif text-cream leading-snug" style={{ fontSize: "clamp(1.7rem,5vw,2.8rem)", textShadow: "0 2px 18px rgba(15,5,15,0.75)" }}>
+                {item.text}
+              </span>
+            </li>
+          );
+        })}
       </ol>
     </div>
   );
@@ -188,7 +193,7 @@ function GateScreen({ headline }: { headline: string }) {
   return (
     <h2
       className="font-serif text-cream text-center"
-      style={{ fontSize: "clamp(2.8rem,8vw,6.5rem)", lineHeight: 1.06 }}
+      style={{ fontSize: "clamp(2.8rem,8vw,6.5rem)", lineHeight: 1.06, textShadow: "0 2px 18px rgba(15,5,15,0.75)" }}
     >
       <span ref={l1} className="block opacity-0">{words.slice(0, split).join(" ")}</span>
       <span ref={l2} className="block opacity-0">{words.slice(split).join(" ")}</span>
@@ -265,9 +270,11 @@ function makeRippleRing(i: number, rx: number, ry: number, cx: number, cy: numbe
   );
 }
 
-const RING_N = 26;
-const DROP_CX = 50;  /* drop point — dead centre */
-const DROP_CY = 50;
+const RING_N = 14;
+const DROP_CX = 50;
+/* Drop point sits at ~47% of viewport height so ring bullseye aligns
+   with the text, which is centred in the space below Nav (not full screen) */
+const DROP_CY = 47;
 
 const RING_DATA = Array.from({ length: RING_N }, (_, i) => {
   /* Linear spacing = even ripple bands */
@@ -287,7 +294,7 @@ const RING_DATA = Array.from({ length: RING_N }, (_, i) => {
 });
 
 const ARC_PATH_ID  = "etha-arc-text-path";
-const ARC_RING_IDX = 17;
+const ARC_RING_IDX = 10;
 
 function AuraRippleBackground({ rippleTrigger }: { rippleTrigger: number }) {
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
@@ -370,21 +377,32 @@ function AuraRippleBackground({ rippleTrigger }: { rippleTrigger: number }) {
             <stop offset="60%"  stopColor="#3D233B" stopOpacity="0.18" />
             <stop offset="100%" stopColor="#3D233B" stopOpacity="0" />
           </radialGradient>
+          <radialGradient id="ring-fade" cx={DROP_CX} cy={DROP_CY} r="58" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stopColor="white" stopOpacity="1" />
+            <stop offset="40%"  stopColor="white" stopOpacity="0.7" />
+            <stop offset="75%"  stopColor="white" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
+          </radialGradient>
+          <mask id="ring-mask">
+            <rect x="0" y="0" width="100" height="100" fill="url(#ring-fade)" />
+          </mask>
         </defs>
 
-        {RING_DATA.map((r, i) => (
-          <path
-            key={i}
-            ref={el => { pathRefs.current[i] = el; }}
-            d={r.d}
-            fill="none"
-            stroke="#FFEFDE"
-            strokeWidth={r.sw}
-            strokeOpacity={r.sOp}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ))}
+        <g mask="url(#ring-mask)">
+          {RING_DATA.map((r, i) => (
+            <path
+              key={i}
+              ref={el => { pathRefs.current[i] = el; }}
+              d={r.d}
+              fill="none"
+              stroke="#FFEFDE"
+              strokeWidth={r.sw}
+              strokeOpacity={r.sOp}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+        </g>
 
         {/* Darken centre so text pops over rings */}
         <ellipse cx="50" cy="50" rx="52" ry="46" fill="url(#centre-veil)" />

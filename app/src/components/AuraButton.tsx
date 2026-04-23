@@ -137,16 +137,11 @@ export default function AuraButton({
     });
   }, []);
 
-  const handleEnter = useCallback(() => {
-    quizSounds.play("chime", { volume: 0.4 });
-  }, []);
-
   const sharedProps = {
     className: `group relative inline-flex items-center justify-center px-14 py-6 ${className}`,
     style,
     onMouseMove: handleMove,
     onMouseLeave: handleLeave,
-    onMouseEnter: handleEnter,
   };
 
   const inner = (

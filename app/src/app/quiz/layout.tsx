@@ -70,6 +70,7 @@ function ResumeModal({ onContinue, onStartOver }: { onContinue: () => void; onSt
 function QuizLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [showResume, setShowResume] = useState(false);
+  const [restartKey, setRestartKey] = useState(0);
 
   useEffect(() => {
     const prev = document.body.style.backgroundColor;
@@ -87,6 +88,7 @@ function QuizLayoutInner({ children }: { children: React.ReactNode }) {
 
   const handleStartOver = () => {
     clearQuizState();
+    setRestartKey(k => k + 1);
     setShowResume(false);
   };
 
@@ -95,7 +97,9 @@ function QuizLayoutInner({ children }: { children: React.ReactNode }) {
       {showResume && (
         <ResumeModal onContinue={handleContinue} onStartOver={handleStartOver} />
       )}
-      {children}
+      <div key={restartKey} style={{ display: "contents" }}>
+        {children}
+      </div>
     </>
   );
 }
