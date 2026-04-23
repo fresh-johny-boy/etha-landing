@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { quizSounds } from "@/lib/quizSounds";
 import { QuizCTAButton } from "./QuizCTAButton";
+import { QuizBackButton } from "./QuizBackButton";
 import QuizInterstitial from "./QuizInterstitial";
 import { useQuizData } from "./QuizDataProvider";
 
@@ -1722,6 +1723,14 @@ export default function QuizBody() {
     setStepIdx(idx);
   }, []);
 
+  /* Back — prev step, clear chosen + advance guard */
+  const handleBack = useCallback(() => {
+    advancingRef.current = false;
+    setChosen(null);
+    setScalePlacedId(null);
+    setStepIdx((s) => Math.max(0, s - 1));
+  }, []);
+
   /* Derived */
   const step         = STEPS[stepIdx];
   const currentLayer = (
@@ -1739,11 +1748,14 @@ export default function QuizBody() {
         animated
         progress={progress}
         quizMilestones={{ currentLayer }}
+        leftSlot={
+          <QuizBackButton onClick={handleBack} disabled={stepIdx === 0} />
+        }
       />
 
       <div
         ref={contentRef}
-        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" || step.kind === "interstitial" ? "items-center" : "items-start pt-40 pb-8 md:pt-44"}`}
+        className={`relative z-10 flex flex-1 justify-center ${step.kind === "layer" || step.kind === "interstitial" ? "items-center" : "items-start pt-56 pb-8 md:pt-64"}`}
         style={{ opacity: 0 }}
       >
         <div key={stepIdx} className="w-full flex justify-center">

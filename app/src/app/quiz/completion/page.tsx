@@ -13,7 +13,7 @@ export default function CompletionPage() {
   function handleAdvance() {
     pushHistory("completion");
     writeQuizState({ completedAt: Date.now() });
-    router.push("/quiz/reveal");
+    router.push("/quiz/result");
   }
 
   return <QuizCompletion onAdvance={handleAdvance} />;
