@@ -1,0 +1,779 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Source+Sans+3:wght@300;400;500;600&display=swap');
+
+  :root {
+    --plum: #3D1032;
+    --dark-plum-bg: #3A2035;
+    --body-text: #3A3A3A;
+    --light-text: #6B6B6B;
+    --line-color: #5C2040;
+    --page-bg: #FFFFFF;
+    --warm-bg: #F5F0EB;
+    --slider-bg: #F2EDE8;
+    --vata-primary: #E8F4F8;
+    --vata-secondary: #D4C5F9;
+    --vata-accent: #7AA3CC;
+    --vata-deep: #4A7BA8;
+    --pitta-primary: #E8F5E8;
+    --pitta-secondary: #D0EFE8;
+    --pitta-accent: #65B5A3;
+    --pitta-deep: #3D8B78;
+    --kapha-primary: #FDF6E8;
+    --kapha-secondary: #F5E6D8;
+    --kapha-accent: #C4915C;
+    --kapha-deep: #9A7040;
+    --gold: #C4915C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #E8E0D8;
+    color: var(--body-text);
+    line-height: 1.65;
+  }
+
+  .report-container { max-width: 640px; margin: 0 auto; padding: 20px; }
+
+  .page-label {
+    text-align: center; padding: 16px 0 8px;
+    font-family: 'Source Sans 3', sans-serif; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #999;
+  }
+  .page-label .tag { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 8px; }
+  .tag-changed { background: #FFF3E0; color: #E65100; }
+  .tag-new { background: #E3F2FD; color: #1565C0; }
+  .tag-kept { background: #E8F5E9; color: #2E7D32; }
+
+  .page {
+    background: var(--page-bg); aspect-ratio: 210 / 297;
+    padding: 44px 48px; margin-bottom: 12px; border-radius: 4px;
+    box-shadow: 0 2px 20px rgba(0,0,0,0.08); position: relative;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+
+  .section-tag { font-family: 'Source Sans 3'; font-size: 10px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--plum); margin-bottom: 20px; }
+  .etha-logo { font-family: 'Cormorant Garamond', serif; font-size: 28px; letter-spacing: 0.35em; color: var(--plum); text-align: center; margin-bottom: 24px; font-weight: 400; }
+
+  .headline-xl { font-family: 'Cormorant Garamond', serif; font-size: 42px; font-weight: 400; line-height: 1.15; margin-bottom: 8px; }
+  .headline-lg { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 400; line-height: 1.2; margin-bottom: 14px; }
+
+  .color-plum { color: var(--plum); }
+  .color-vata { color: var(--vata-accent); }
+  .color-vata-deep { color: var(--vata-deep); }
+  .color-pitta { color: var(--pitta-accent); }
+  .color-pitta-deep { color: var(--pitta-deep); }
+
+  .sub-heading { font-family: 'Source Sans 3'; font-size: 13px; font-weight: 700; letter-spacing: 0.04em; color: var(--plum); margin-top: 18px; margin-bottom: 6px; }
+  .body-text { font-family: 'Source Sans 3'; font-size: 13px; font-weight: 400; color: var(--body-text); line-height: 1.65; margin-bottom: 10px; }
+  .italic-serif { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 15px; color: var(--light-text); }
+
+  .flow-line { position: absolute; pointer-events: none; }
+
+  .composition-bar { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
+  .comp-label { font-family: 'Source Sans 3'; font-size: 12px; font-weight: 600; width: 80px; }
+  .comp-bar-track { flex: 1; height: 10px; background: var(--slider-bg); border-radius: 5px; overflow: hidden; }
+  .comp-bar-fill { height: 100%; border-radius: 5px; }
+  .fill-vata { background: var(--vata-accent); }
+  .fill-pitta { background: var(--pitta-accent); }
+  .fill-kapha { background: var(--kapha-accent); }
+  .comp-percent { font-family: 'Source Sans 3'; font-size: 13px; font-weight: 700; width: 36px; text-align: right; }
+
+  .bullet-list { list-style: none; padding: 0; margin: 8px 0; }
+  .bullet-list li { font-family: 'Source Sans 3'; font-size: 12.5px; padding: 5px 0 5px 18px; position: relative; line-height: 1.5; }
+  .bullet-list li::before { content: '•'; position: absolute; left: 0; color: var(--plum); font-weight: 700; }
+
+  .toc-list { list-style: none; padding: 0; margin: 20px 0 20px 80px; }
+  .toc-list li { font-family: 'Source Sans 3'; font-size: 11.5px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--plum); padding: 6px 0; display: flex; align-items: center; gap: 10px; }
+  .toc-list li::before { content: '•'; color: var(--plum); }
+  .toc-new { color: var(--vata-deep) !important; font-weight: 700 !important; }
+  .toc-new::before { color: var(--vata-accent) !important; }
+
+  .symptom-row { display: flex; align-items: center; margin-bottom: 16px; gap: 10px; }
+  .symptom-label { font-family: 'Source Sans 3'; font-size: 13px; width: 125px; text-align: right; line-height: 1.3; }
+  .symptom-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+  .dot-vata { background: var(--vata-accent); }
+  .dot-pitta { background: var(--pitta-accent); }
+  .symptom-line { width: 24px; height: 2px; background: var(--plum); flex-shrink: 0; }
+  .symptom-bubble { border: 1.5px solid var(--plum); border-radius: 50%; padding: 8px 12px; font-family: 'Source Sans 3'; font-size: 11.5px; text-align: center; line-height: 1.4; min-width: 110px; }
+  .dosha-tag { display: inline-block; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 1px 6px; border-radius: 6px; margin-left: 3px; }
+  .tag-v { background: var(--vata-primary); color: var(--vata-deep); }
+  .tag-p { background: var(--pitta-primary); color: var(--pitta-deep); }
+
+  .two-col { display: flex; gap: 24px; margin-top: 12px; }
+  .col { flex: 1; }
+  .col-wide { flex: 1.4; }
+  .col-narrow { flex: 0.6; }
+
+  .food-rule { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+  .food-num { font-family: 'Source Sans 3'; font-size: 13px; font-weight: 600; color: var(--plum); flex-shrink: 0; }
+  .food-text { font-family: 'Source Sans 3'; font-size: 13px; line-height: 1.5; }
+  .food-why { font-size: 11px; font-style: italic; margin-left: 4px; }
+  .food-why-vata { color: var(--vata-deep); }
+  .food-why-pitta { color: var(--pitta-deep); }
+
+  .spacer { height: 16px; }
+  .spacer-lg { height: 32px; }
+
+  .summary-card { background: var(--warm-bg); border-radius: 12px; padding: 24px 28px; margin-top: 16px; }
+  .summary-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: var(--plum); margin-bottom: 12px; }
+  .summary-card p { font-size: 13px; margin-bottom: 6px; line-height: 1.6; }
+
+  @media (max-width: 660px) {
+    .report-container { padding: 12px; }
+    .page { padding: 28px 24px; }
+    .headline-xl { font-size: 30px; }
+    .headline-lg { font-size: 24px; }
+    .two-col { flex-direction: column; gap: 14px; }
+    .toc-list { margin-left: 36px; }
+    .symptom-label { width: 90px; font-size: 11px; }
+  }
+
+  .page-dark{background:#3A2035;aspect-ratio:210/297;padding:44px 48px;margin-bottom:12px;border-radius:4px;box-shadow:0 2px 20px rgba(0,0,0,0.08);position:relative;overflow:hidden;display:flex;flex-direction:column;color:#F5F0EB;}
+  .page-dense { padding: 32px 40px; }
+  .page-dense .headline-xl { font-size: 30px !important; margin-bottom: 4px; }
+  .page-dense .headline-lg { font-size: 24px !important; margin-bottom: 8px; }
+  .page-dense .body-text { font-size: 11.5px !important; margin-bottom: 6px; line-height: 1.55; }
+  .page-dense .sub-heading { margin-top: 10px; margin-bottom: 3px; font-size: 11px; }
+  .page-dense .spacer { height: 8px; }
+  .page-dense .spacer-lg { height: 16px; }
+  .page-dense .bullet-list li { font-size: 11.5px; padding: 3px 0 3px 16px; }
+  .page-dense .two-col { margin-top: 8px; gap: 16px; }
+  .page-dense .section-tag { margin-bottom: 10px; }
+  .page-dense [style*="font-size:13px"] { font-size: 11.5px !important; }
+  .page-dense [style*="font-size:12.5px"] { font-size: 11.5px !important; }
+  .page-dense [style*="margin-bottom:10px"] { margin-bottom: 6px !important; }
+  .page-dense [style*="margin-bottom:14px"] { margin-bottom: 8px !important; }
+  .quote-page{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+  .transition-page{display:flex;align-items:center;justify-content:center;}
+  .cta-button{display:inline-flex;align-items:center;gap:10px;background:#3A2035;color:#F5F0EB;padding:14px 28px;border-radius:30px;font-family:'Source Sans 3';font-size:14px;font-weight:600;letter-spacing:0.05em;}
+  .cta-arrow{width:24px;height:24px;border:2px solid #F5F0EB;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;}
+  .engagement-overlay{position:absolute;inset:0;min-height:inherit;background:linear-gradient(180deg,rgba(245,240,235,0) 0%,rgba(245,240,235,0.85) 40%,rgba(245,240,235,0.97) 70%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:48px;z-index:10;}
+
+  /* V8 NEW STYLES */
+  .mirror-quote {
+    background: var(--vata-primary); border-radius: 12px; padding: 14px 18px;
+    border-left: 3px solid var(--vata-accent); margin-bottom: 12px;
+    position: relative;
+  }
+  .mirror-quote::before {
+    content: 'YOU SAID'; font-family: 'Source Sans 3'; font-size: 8px;
+    font-weight: 700; letter-spacing: 0.15em; color: var(--vata-deep);
+    position: absolute; top: -8px; left: 18px;
+    background: var(--page-bg); padding: 0 6px;
+  }
+  .mirror-quote p {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 14px; color: var(--plum); line-height: 1.5; margin: 0;
+  }
+  .mirror-response {
+    font-size: 12px; color: var(--body-text); line-height: 1.6;
+    padding-left: 20px; margin-bottom: 10px;
+  }
+
+  .dosha-card {
+    background: linear-gradient(135deg, #F8F4FF 0%, var(--vata-primary) 50%, var(--pitta-primary) 100%);
+    border-radius: 16px; padding: 32px; text-align: center;
+    border: 2px solid rgba(122,163,204,0.3);
+    margin: 16px 24px;
+  }
+  .archetype-name {
+    font-family: 'Cormorant Garamond', serif; font-size: 32px;
+    font-weight: 600; color: var(--plum); margin-bottom: 4px;
+  }
+  .archetype-sub {
+    font-family: 'Source Sans 3'; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--vata-deep); margin-bottom: 16px;
+  }
+  .card-comp { display: flex; justify-content: center; gap: 20px; margin: 12px 0; }
+  .card-comp-item { text-align: center; }
+  .card-comp-num { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; }
+  .card-comp-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
+  .card-affirmation {
+    font-family: 'Cormorant Garamond', serif; font-style: italic;
+    font-size: 16px; color: var(--plum); margin-top: 16px; line-height: 1.5;
+  }
+  .share-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--plum); color: #F5F0EB; padding: 10px 20px;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.08em; margin-top: 16px;
+  }
+
+  .letter-page { background: #FDFBF8; }
+  .letter-text {
+    font-family: 'Cormorant Garamond', serif; font-size: 15px;
+    line-height: 1.7; color: var(--plum); font-style: italic;
+  }
+  .letter-sig {
+    font-family: 'Cormorant Garamond', serif; font-size: 18px;
+    font-weight: 600; color: var(--vata-deep); margin-top: 16px;
+  }
+
+  .ritual-tool {
+    background: var(--warm-bg); border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 10px; display: flex; gap: 14px; align-items: flex-start;
+  }
+  .tool-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--dark-plum-bg); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .tool-name { font-size: 13px; font-weight: 700; color: var(--plum); margin-bottom: 2px; }
+  .tool-desc { font-size: 11px; color: var(--body-text); line-height: 1.5; }
+  .tool-ritual { font-size: 10px; color: var(--vata-deep); font-style: italic; margin-top: 3px; }
+  .tool-cta {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--plum); margin-top: 4px;
+    display: inline-block; border-bottom: 1px solid var(--plum);
+  }
+
+  .week-day {
+    display: flex; gap: 12px; align-items: flex-start; margin-bottom: 10px;
+  }
+  .week-marker {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif; font-size: 16px; font-weight: 600;
+  }
+  .week-content { flex: 1; }
+  .week-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .week-action { font-size: 12px; line-height: 1.5; }
+
+  .tribe-stat {
+    font-family: 'Cormorant Garamond', serif; font-size: 48px;
+    font-weight: 600; color: var(--vata-deep); text-align: center;
+  }
+  .tribe-label {
+    font-size: 12px; letter-spacing: 0.1em; color: var(--light-text);
+    text-align: center; margin-bottom: 16px;
+  }
+
+  .commitment-option {
+    display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+    background: var(--warm-bg); border-radius: 8px; margin-bottom: 6px;
+  }
+  .commitment-radio {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 2px solid var(--plum); flex-shrink: 0;
+  }
+  .commitment-text { font-size: 12px; line-height: 1.5; }
+
+  /* ── NEW DOSHA CARD LAST PAGE ── */
+  .nc-wrap { border-radius:4px; overflow:hidden; padding:40px 0 44px; margin-bottom:12px; display:flex; flex-direction:column; align-items:center; }
+  .nc-wrap.vata  { background:radial-gradient(ellipse at 30% 20%, rgba(140,80,180,0.18) 0%, #221329 60%); }
+  .nc-wrap.pitta { background:radial-gradient(ellipse at 70% 20%, rgba(60,160,110,0.18) 0%, #0e1f1a 60%); }
+  .nc-wrap.kapha { background:radial-gradient(ellipse at 50% 30%, rgba(180,90,40,0.18) 0%, #1e1008 60%); }
+  .nc-card { width:340px; max-width:92%; border-radius:22px; overflow:hidden; position:relative; padding:34px 22px 28px; }
+  .nc-wrap.vata  .nc-card { background:#2e1a38; box-shadow:0 28px 70px rgba(130,60,180,0.28),0 0 0 1px rgba(255,239,222,0.06); }
+  .nc-wrap.pitta .nc-card { background:#132920; box-shadow:0 28px 70px rgba(40,120,80,0.32),0 0 0 1px rgba(224,248,238,0.06); }
+  .nc-wrap.kapha .nc-card { background:#2a1510; box-shadow:0 28px 70px rgba(160,80,30,0.32),0 0 0 1px rgba(255,240,228,0.06); }
+  .nc-card::before { content:''; position:absolute; top:-60px; left:50%; transform:translateX(-50%); width:200px; height:200px; border-radius:50%; pointer-events:none; filter:blur(48px); opacity:0.5; }
+  .nc-wrap.vata  .nc-card::before { background:rgba(185,138,210,0.18); }
+  .nc-wrap.pitta .nc-card::before { background:rgba(100,200,155,0.15); }
+  .nc-wrap.kapha .nc-card::before { background:rgba(200,120,70,0.18); }
+  .nc-wordmark { font-family:'Source Sans 3',sans-serif; font-size:8px; letter-spacing:0.35em; color:rgba(255,239,222,0.22); text-align:center; text-transform:uppercase; margin-bottom:18px; }
+  .nc-aura { display:flex; justify-content:center; margin-bottom:16px; }
+  .nc-aura svg { width:66px; height:66px; }
+  .nc-persona { font-family:'Source Sans 3',sans-serif; font-size:8px; letter-spacing:0.22em; text-transform:uppercase; text-align:center; margin-bottom:5px; }
+  .nc-wrap.vata  .nc-persona { color:rgba(201,168,124,0.6); }
+  .nc-wrap.pitta .nc-persona { color:rgba(122,191,160,0.6); }
+  .nc-wrap.kapha .nc-persona { color:rgba(201,123,74,0.6); }
+  .nc-name { font-family:'Cormorant Garamond',serif; font-size:54px; font-weight:300; line-height:1; text-align:center; margin-bottom:4px; }
+  .nc-wrap.vata  .nc-name { color:#e8d8f5; }
+  .nc-wrap.pitta .nc-name { color:#cef0e0; }
+  .nc-wrap.kapha .nc-name { color:#f5e0ce; }
+  .nc-archetype { font-family:'Source Sans 3',sans-serif; font-size:9px; letter-spacing:0.18em; text-transform:uppercase; text-align:center; margin-bottom:14px; }
+  .nc-wrap.vata  .nc-archetype { color:rgba(184,154,197,0.5); }
+  .nc-wrap.pitta .nc-archetype { color:rgba(122,191,160,0.5); }
+  .nc-wrap.kapha .nc-archetype { color:rgba(201,123,74,0.5); }
+  .nc-comp { display:flex; justify-content:center; margin-bottom:18px; }
+  .nc-comp-item { text-align:center; flex:1; position:relative; }
+  .nc-comp-item+.nc-comp-item::before { content:''; position:absolute; left:0; top:50%; transform:translateY(-50%); width:1px; height:26px; background:rgba(255,239,222,0.1); }
+  .nc-pct { font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:300; line-height:1; display:block; }
+  .nc-plbl { font-family:'Source Sans 3',sans-serif; font-size:7px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,239,222,0.28); display:block; margin-top:3px; }
+  .nc-rule { width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(255,239,222,0.1),transparent); margin:0 0 16px; }
+  .nc-reframe { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:14.5px; font-weight:300; line-height:1.65; text-align:center; color:rgba(255,239,222,0.72); padding:0 6px; margin-bottom:18px; }
+  .nc-sec-note { background:rgba(255,239,222,0.04); border-left:2px solid; border-radius:0 8px 8px 0; padding:9px 12px; margin-bottom:18px; }
+  .nc-wrap.vata  .nc-sec-note { border-color:rgba(184,154,197,0.35); }
+  .nc-wrap.pitta .nc-sec-note { border-color:rgba(122,191,160,0.35); }
+  .nc-wrap.kapha .nc-sec-note { border-color:rgba(201,123,74,0.35); }
+  .nc-sec-lbl { font-family:'Source Sans 3',sans-serif; font-size:7px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(255,239,222,0.25); margin-bottom:4px; }
+  .nc-sec-txt { font-family:'Cormorant Garamond',serif; font-size:12.5px; font-style:italic; color:rgba(255,239,222,0.6); line-height:1.55; }
+  .nc-blk-lbl { font-family:'Source Sans 3',sans-serif; font-size:7px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,239,222,0.26); margin-bottom:10px; }
+  .nc-sig-row { display:flex; align-items:flex-start; gap:9px; margin-bottom:7px; }
+  .nc-sig-dot { width:3px; height:3px; border-radius:50%; background:rgba(255,239,222,0.22); margin-top:7px; flex-shrink:0; }
+  .nc-sig-txt { font-family:'Cormorant Garamond',serif; font-size:13px; color:rgba(255,239,222,0.68); line-height:1.5; }
+  .nc-ritual { border-radius:10px; padding:12px 14px; margin-bottom:20px; border:1px solid; }
+  .nc-wrap.vata  .nc-ritual { background:rgba(184,154,197,0.08); border-color:rgba(184,154,197,0.15); }
+  .nc-wrap.pitta .nc-ritual { background:rgba(122,191,160,0.08); border-color:rgba(122,191,160,0.15); }
+  .nc-wrap.kapha .nc-ritual { background:rgba(201,123,74,0.08); border-color:rgba(201,123,74,0.15); }
+  .nc-rit-lbl { font-family:'Source Sans 3',sans-serif; font-size:7px; letter-spacing:0.18em; text-transform:uppercase; color:rgba(255,239,222,0.28); margin-bottom:7px; }
+  .nc-rit-txt { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:13px; color:rgba(255,239,222,0.75); line-height:1.6; }
+  .nc-share { width:100%; padding:14px; border-radius:10px; text-align:center; font-family:'Source Sans 3',sans-serif; font-size:11px; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer; border:none; color:#1a0f1e; margin-bottom:7px; }
+  .nc-wrap.vata  .nc-share { background:#e8d8f5; }
+  .nc-wrap.pitta .nc-share { background:#cef0e0; }
+  .nc-wrap.kapha .nc-share { background:#f5e0ce; }
+  .nc-hint { font-family:'Source Sans 3',sans-serif; font-size:8px; color:rgba(255,239,222,0.2); text-align:center; letter-spacing:0.07em; }
+  .nc-teaser { display:flex; justify-content:center; align-items:center; gap:8px; padding-top:14px; border-top:1px solid rgba(255,239,222,0.07); margin-top:4px; }
+  .nc-t-dot { width:3px; height:3px; border-radius:50%; background:rgba(255,239,222,0.14); }
+  .nc-t-txt { font-family:'Source Sans 3',sans-serif; font-size:8px; letter-spacing:0.07em; color:rgba(255,239,222,0.2); text-align:center; line-height:1.5; }
+</style>
+
+<div class="report-container">
+<!-- PAGE 1: COVER -->
+<div class="page">
+  <svg class="flow-line" style="right:-20px;top:20px;width:80px;height:160px;" viewBox="0 0 80 160"><path d="M60 0 Q70 40 40 80 Q10 120 30 160" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.25"/></svg>
+  <div style="position:absolute;top:32px;right:36px;font-size:11px;color:#888;">If this sounds like someone you love - pass it on.</div>
+  <div class="etha-logo">Ē T H A</div>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;text-align:center;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:40px;color:var(--plum);margin-bottom:12px;">Joana you are</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:58px;font-weight:700;color:var(--kapha-deep);margin-bottom:20px;">Kapha</div>
+    <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--plum);line-height:1.5;">You belong to the women<br>who hold everything together -<br>and make it look effortless.<br><br>Your energy is earth - steady,<br>deep, and beautifully<br><em style="color:var(--kapha-accent);font-style:italic;">enduring.</em></div>
+  </div>
+  <div style="text-align:center;font-size:13px;letter-spacing:0.08em;color:var(--light-text);padding-bottom:8px;">
+    YOUR DOSHA IS &nbsp;<span style="color:var(--kapha-deep);font-weight:700;">KAPHA</span>
+  </div>
+  <svg class="flow-line" style="left:-10px;bottom:60px;width:60px;height:280px;" viewBox="0 0 60 280"><path d="M30 0 Q10 60 30 120 Q50 180 20 240 Q10 260 25 280" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.2"/><circle cx="30" cy="120" r="8" fill="#5C2040" opacity="0.15"/></svg>
+</div>
+
+<!-- PAGE 2: MIRROR ECHO -->
+<div class="page page-dense">
+  <div class="section-tag">I N &nbsp; Y O U R &nbsp; O W N &nbsp; W O R D S</div>
+  <div class="headline-xl color-plum" style="font-size:34px;">You told us something.</div>
+  <div class="headline-xl color-plum" style="font-size:44px;font-weight:600;">We listened.</div>
+  <div class="spacer"></div>
+  <div class="mirror-quote">
+    <p>[QUIZ ANSWER 1 - quiz_q1_verbatim_answer]</p>
+  </div>
+  <div class="mirror-response">That feeling of being most yourself when life moves slowly - that's not laziness, Joana. That's your Kapha wisdom. You are built for depth, not speed. The world misreads your rhythm as reluctance. It isn't.</div>
+  <div class="mirror-quote" style="border-left-color:var(--pitta-accent);background:var(--pitta-primary);">
+    <p>[QUIZ ANSWER 2 - quiz_element_choice_verbatim]</p>
+  </div>
+  <div class="mirror-response">You named it clearly. The heaviness - the feeling of being stuck in mud even when you want to move - that's Kapha accumulation. Not a character flaw. A seasonal pattern that your rituals can shift.</div>
+  <div class="mirror-quote">
+    <p>[QUIZ ANSWER 3 - quiz_current_weight_verbatim]</p>
+  </div>
+  <div class="mirror-response">That heaviness between where you are and where you want to be - Kapha experiences that gap differently. Not as urgency, but as weight. The answer isn't to push harder. It's to warm, to lighten, to begin.</div>
+  <div style="flex:1;"></div>
+  <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--plum);font-style:italic;">Everything that follows was mapped from your pattern.</div>
+</div>
+
+<!-- PAGE 4: TABLE OF CONTENTS -->
+<div class="page">
+  <svg class="flow-line" style="left:0;bottom:0;width:100%;height:200px;" viewBox="0 0 500 200"><path d="M0 100 Q120 40 250 100 Q380 160 500 80" stroke="#C0B0B8" stroke-width="1.5" fill="none" opacity="0.4"/></svg>
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+    <div class="headline-lg color-plum" style="font-size:32px;">Everything that follows<br>was mapped from <span style="color:var(--kapha-accent);">your pattern.</span></div>
+    <ul class="toc-list">
+      <li>YOUR DOSHA AURA</li>
+      <li>YOUR DOSHA COMPOSITION</li>
+      <li>WHO ARE YOU?</li>
+      <li>WHERE YOU LOST BALANCE?</li>
+      <li>BODY · MIND · SPIRIT</li>
+      <li>YOUR PATH FORWARD</li>
+      <li>MORNING &amp; EVENING RITUALS</li>
+      <li>NOURISHMENT WISDOM</li>
+    </ul>
+  </div>
+</div>
+
+<!-- PAGE 5: DOSHA AURA -->
+<div class="page">
+  <div class="section-tag">YOUR PATTERN</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--plum);line-height:1.6;">
+    YOUR DOSHA <strong style="font-size:17px;">AURA</strong> <span style="color:var(--kapha-accent);">the energetic signature<br>you've been carrying your whole life.</span>
+  </div>
+  <div style="text-align:center;margin:16px 0;">
+    <svg width="300" height="180" viewBox="0 0 300 180"><circle cx="150" cy="90" r="70" stroke="#C4915C" stroke-width="3" fill="none" opacity="0.9"/><circle cx="150" cy="90" r="45" stroke="#65B5A3" stroke-width="2.5" fill="none" opacity="0.6"/></svg>
+  </div>
+  <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:20px;margin-bottom:12px;">
+    <span style="color:var(--kapha-deep);font-weight:600;">KAPHA</span>
+  </div>
+  <div class="two-col">
+    <div class="col-wide">
+      <div style="font-size:13px;color:var(--kapha-deep);line-height:1.65;">Kapha is the energy of structure. Earth and water. <strong>This is who you are at your core.</strong> The one who remembers, who holds, who makes a room feel safe just by being in it.</div>
+    </div>
+    
+  </div>
+  <div style="flex:1;"></div>
+  <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--plum);line-height:1.5;">Your nature is earth. Your challenge is inertia.</div>
+  <div style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--pitta-deep);font-weight:600;margin-top:6px;">And when earth needs the warmth of fire?</div>
+</div>
+
+<!-- PAGE 6: COMPOSITION -->
+<div class="page">
+  <div class="section-tag">YOUR COMPOSITION</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--plum);margin-bottom:18px;">Your unique <span style="color:var(--kapha-deep);">composition.</span></div>
+  <div class="composition-bar">
+    <div class="comp-label" style="color:var(--kapha-deep);">Kapha<br><span style="font-size:9px;font-weight:400;color:#999;">Earth + Water</span></div>
+    <div class="comp-bar-track"><div class="comp-bar-fill fill-kapha" style="width:60%;"></div></div>
+    <div class="comp-percent" style="color:var(--kapha-deep);">60%</div>
+  </div>
+  <div class="composition-bar">
+    <div class="comp-label" style="color:var(--pitta-deep);">Pitta<br><span style="font-size:9px;font-weight:400;color:#999;">Fire + Water</span></div>
+    <div class="comp-bar-track"><div class="comp-bar-fill fill-pitta" style="width:28%;"></div></div>
+    <div class="comp-percent" style="color:var(--pitta-deep);">28%</div>
+  </div>
+  <div class="composition-bar">
+    <div class="comp-label" style="color:var(--vata-deep);">Vata<br><span style="font-size:9px;font-weight:400;color:#999;">Air + Space</span></div>
+    <div class="comp-bar-track"><div class="comp-bar-fill fill-vata" style="width:12%;"></div></div>
+    <div class="comp-percent" style="color:var(--vata-deep);">12%</div>
+  </div>
+  <div class="body-text" style="margin-top:14px;font-size:13px;">Everyone carries all three doshas. What makes you unique is the ratio. Your <strong style="color:var(--kapha-deep);">Kapha leads</strong> - it's your nature, the energy you were born with. Your <strong style="color:var(--imbalance-color);">{{imbalance_dosha}}</strong> is elevated - it's your current imbalance, where your system is asking for attention.</div>
+  <div style="background:var(--kapha-primary);border-radius:10px;padding:14px 18px;margin:16px 0;border-left:3px solid var(--kapha-accent);">
+    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--plum);margin-bottom:4px;">Think of it like soil.</div>
+    <div style="font-size:13px;line-height:1.6;"><strong style="color:var(--kapha-deep);">Kapha is your soil</strong> - the deep, fertile ground that holds everything. <strong style="color:var(--imbalance-color);">{{imbalance_dosha}} is what activates it</strong> - the energy that allows what's inside you to actually grow.</div>
+  </div>
+  <div style="flex:1;"></div>
+  <svg class="flow-line" style="right:-10px;top:20px;width:50px;height:280px;" viewBox="0 0 50 280"><path d="M0 0 Q35 55 18 110 Q0 165 25 220 Q45 260 25 280" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.15"/></svg>
+</div>
+
+<!-- PAGE 7: CURRENT IMBALANCE - DYNAMIC -->
+<div class="page page-dense">
+  <div class="section-tag">YOUR CURRENT IMBALANCE</div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--plum);line-height:1.2;margin-bottom:20px;">This is not<br>who you are.<br><span style="font-weight:600;color:var(--kapha-accent);">This is a season.</span></div>
+  <div style="background:var(--kapha-primary);border-radius:12px;padding:20px 22px;border-left:3px solid var(--kapha-accent);margin-bottom:0;">
+    <div style="font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--kapha-deep);margin-bottom:10px;">WHAT'S HAPPENING RIGHT NOW</div>
+    <div style="font-size:13px;line-height:1.7;"><!-- inject: imbalance_paragraph -->{{imbalance_paragraph}}</div>
+  </div>
+  <div class="sub-heading" style="margin-top:16px;color:var(--imbalance-color);font-size:12px;">{{imbalance_feels_like_heading}}</div>
+  <div class="two-col" style="gap:16px;margin-top:8px;">
+    <div class="col">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--imbalance-color);margin-bottom:4px;">In your body</div>
+      <div style="font-size:12px;line-height:1.55;color:var(--body-text);">{{imbalance_in_body}}</div>
+    </div>
+    <div class="col">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--imbalance-color);margin-bottom:4px;">In your mind</div>
+      <div style="font-size:12px;line-height:1.55;color:var(--body-text);">{{imbalance_in_mind}}</div>
+    </div>
+    <div class="col">
+      <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--imbalance-color);margin-bottom:4px;">In your energy</div>
+      <div style="font-size:12px;line-height:1.55;color:var(--body-text);">{{imbalance_in_energy}}</div>
+    </div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--light-text);text-align:center;line-height:1.6;">Your nature is permanent. Your imbalance is not.</div>
+  <svg class="flow-line" style="right:-10px;bottom:20px;width:50px;height:200px;" viewBox="0 0 50 200"><path d="M25 0 Q40 50 20 100 Q0 150 30 200" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.15"/></svg>
+</div>
+
+<!-- PAGE 8: WHO ARE YOU -->
+<div class="page page-dense">
+  <div class="section-tag">WHO ARE YOU?</div>
+  <div class="headline-xl color-plum" style="font-size:36px;">The warmth you give<br><span style="color:var(--kapha-accent);">everyone else</span></div>
+  <div class="headline-xl color-plum" style="font-size:32px;text-align:right;">is rarely what you<br><span style="color:var(--pitta-accent);">give yourself.</span></div>
+  <svg class="flow-line" style="right:30px;top:70px;width:50px;height:220px;" viewBox="0 0 50 220"><path d="M25 0 Q45 50 25 110 Q5 170 35 220" stroke="#C0B0B8" stroke-width="1.5" fill="none" opacity="0.35"/></svg>
+  <div class="two-col" style="margin-top:16px;">
+    <div class="col">
+      <div class="sub-heading" style="color:var(--kapha-deep);">YOUR SUPERPOWER</div>
+      <div class="body-text" style="font-size:12.5px;">Joana, you are the woman people call when things fall apart. You hold steady when others scatter. Your presence is grounding - people feel safer just because you're there. Your loyalty runs deeper than most people's love.</div>
+      <div class="spacer"></div>
+      <div class="sub-heading">THIS IS YOU</div>
+      <div class="body-text" style="font-size:12.5px;">Joana, you are a woman with cold tea you forgot to drink, a hundred things you've done for others, and a dream you've been meaning to begin for longer than you'd like to admit.</div>
+    </div>
+    <div class="col">
+      <div class="sub-heading" style="color:var(--imbalance-color);">YOUR KRYPTONITE</div>
+        <div class="body-text" style="font-size:12.5px;">{{kryptonite_paragraph}}</div>
+      <div class="spacer"></div>
+      <div class="sub-heading">WISDOM</div>
+      <div class="body-text" style="font-size:12.5px;">Nature works in patterns.<br>So do you.<br>Your pattern is the oldest, the most enduring. Ayurveda has 5,000 years of wisdom on how to warm the earth without burning it.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 9: EXPERT QUOTE - DEEPAK CHOPRA - STATIC -->
+<div class="page quote-page"><div style="font-family:'Cormorant Garamond',serif;font-size:72px;color:#C0B0B8;line-height:1;margin-bottom:16px;">&#x201C;&#x201C;</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--plum);line-height:1.6;max-width:420px;margin-bottom:32px;">"Joy is a return to the deep harmony of body, mind and spirit that was yours at birth and that can be yours again."</div><div style="display:flex;align-items:center;gap:16px;margin-top:8px;"><div style="width:80px;height:80px;background:var(--slider-bg);border-radius:50%;flex-shrink:0;"></div><div><div style="font-family:'Source Sans 3';font-size:14px;font-weight:700;color:var(--plum);letter-spacing:0.08em;">DEEPAK CHOPRA</div><div style="font-family:'Source Sans 3';font-size:11px;letter-spacing:0.15em;color:var(--light-text);margin-top:4px;">Physician, author and Ayurvedic educator</div></div></div></div>
+
+
+<!-- PAGE 10: WHERE YOU LOST BALANCE -->
+<div class="page page-dense">
+  <div class="section-tag">WHERE YOU LOST BALANCE?</div>
+  <div class="headline-xl color-plum" style="font-size:36px;">What does your<br><span style="color:var(--kapha-accent);">steadiness</span> <span style="color:var(--pitta-accent);">cost</span> you?</div>
+  <div class="spacer"></div>
+  <div class="two-col">
+    <div class="col">
+      <div class="sub-heading">WHAT NOBODY TELLS YOU?</div>
+      <div class="body-text" style="font-size:12.5px;">The same depth that makes you irreplaceable is the same depth that makes starting - anything - feel like moving a mountain.</div>
+      <div class="spacer"></div>
+      <div class="sub-heading" style="color:var(--pitta-deep);">WHY?</div>
+      <div class="body-text" style="font-size:12.5px;">Kapha accumulates. It doesn't crash - it settles. Layer by layer, the heaviness builds until the morning feels like a negotiation and the dream feels unreachable.</div>
+      <div class="body-text" style="font-size:12.5px;">{{imbalance_cascade}}<br>Steady strength → immovable inertia.</div>
+    </div>
+    <div class="col">
+      <div style="margin-bottom:14px;">
+        <div style="text-align:center;font-weight:700;font-size:13px;margin-bottom:3px;">Body</div>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 2 Q13 5 9 9 Q5 13 9 16" stroke="--kapha-accent" stroke-width="1.8" fill="none"/></svg>
+          <div style="flex:1;height:9px;background:var(--slider-bg);border-radius:5px;position:relative;">
+            <div style="position:absolute;right:25%;top:-2px;width:13px;height:13px;background:var(--pitta-accent);border-radius:50%;"></div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 14 Q5 10 7 7 Q9 4 11 7 Q13 10 9 14Z" fill="var(--pitta-accent)" opacity="0.7"/></svg>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="text-align:center;font-weight:700;font-size:13px;margin-bottom:3px;">Mind</div>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 14 Q5 10 7 7 Q9 4 11 7 Q13 10 9 14Z" fill="var(--pitta-accent)" opacity="0.7"/></svg>
+          <div style="flex:1;height:9px;background:var(--slider-bg);border-radius:5px;position:relative;">
+            <div style="position:absolute;right:20%;top:-2px;width:13px;height:13px;background:var(--kapha-accent);border-radius:50%;"></div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 2 Q13 5 9 9 Q5 13 9 16" stroke="--kapha-accent" stroke-width="1.8" fill="none"/></svg>
+        </div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="text-align:center;font-weight:700;font-size:13px;margin-bottom:3px;">Spirit</div>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 2 Q13 5 9 9 Q5 13 9 16" stroke="--kapha-accent" stroke-width="1.8" fill="none"/></svg>
+          <div style="flex:1;height:9px;background:var(--slider-bg);border-radius:5px;position:relative;">
+            <div style="position:absolute;left:30%;top:-2px;width:13px;height:13px;background:var(--kapha-accent);border-radius:50%;"></div>
+          </div>
+          <svg width="18" height="18" viewBox="0 0 18 18"><polygon points="9,4 13,14 5,14" fill="var(--pitta-accent)" opacity="0.6"/></svg>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="sub-heading">WISDOM</div>
+      <div class="body-text" style="font-size:12.5px;">There is a way to warm the earth without burning what matters.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 12: WHAT YOUR BODY TELLS -->
+<div class="page page-dense">
+  <div class="section-tag">WHAT YOUR BODY TELLS?</div>
+  <div class="headline-xl color-plum" style="font-size:40px;">Heaviness,</div>
+  <div class="headline-lg color-plum" style="font-style:italic;font-size:26px;margin-top:-4px;">disguised as loyalty</div>
+  <div class="spacer"></div>
+  <div class="sub-heading">YOUR BODY TALKS</div>
+  <div class="body-text">Joana, your body is sending you very specific clues that it is <span style="color:var(--kapha-accent);">out of rhythm</span>.</div>
+  <div style="font-size:12px;color:var(--kapha-deep);font-style:italic;background:var(--kapha-primary);padding:8px 12px;border-radius:8px;border-left:3px solid var(--kapha-accent);margin-bottom:12px;">{{imbalance_body_signal}}</div>
+  <ul class="bullet-list">
+    <li>Your <strong style="color:var(--kapha-deep);">digestion</strong> moves slowly. Heavy after meals, a sluggishness that sits in the body long after eating, a preference for comfort food over nourishment.</li>
+    <li>Your <strong style="color:var(--kapha-deep);">body</strong> holds water and weight easily - not from excess, but from stillness. Kapha needs movement to metabolise both food and emotion.</li>
+  </ul>
+  <div class="sub-heading">THE PATTERN UNDERNEATH</div>
+  <div class="body-text" style="font-size:12.5px;">You've made rest a refuge. And rest is sacred - Kapha needs it. But when rest becomes avoidance, when the couch becomes the safest place, your body starts to store what it should be releasing.</div>
+  <div class="sub-heading">THE TRUTH</div>
+  <div class="body-text" style="font-size:12.5px;">You're not failing at motivation. You're asking a river to run without any gradient. Give your body warmth. Give it movement. It will remember what it knows how to do.</div>
+  <svg class="flow-line" style="right:-10px;top:10px;width:60px;height:180px;" viewBox="0 0 60 180"><path d="M0 0 Q35 45 25 90 Q15 135 50 180" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.15"/></svg>
+</div>
+
+<!-- PAGE 13: TRANSITION -->
+<div class="page transition-page"><svg class="flow-line" style="right:0;top:0;width:120px;height:300px;" viewBox="0 0 120 300"><path d="M60 0 Q100 60 80 120 Q60 180 100 240 Q110 270 90 300" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.15"/><circle cx="100" cy="240" r="10" fill="#5C2040" opacity="0.12"/></svg><div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--plum);text-align:center;">Your body spoke. Now listen to what your mind<br>has been whispering.</div></div>
+
+
+<!-- PAGE 14: WHAT YOUR MIND KNOWS -->
+<div class="page page-dense">
+  <div class="section-tag">WHAT YOUR MIND KNOWS?</div>
+  <div class="headline-xl color-plum" style="font-size:34px;">Your <span style="color:var(--kapha-accent);">deep knowing</span></div>
+  <div class="headline-xl" style="font-size:30px;text-align:right;">became a <span style="color:var(--pitta-accent);">comfortable</span><br>waiting</div>
+  <div style="text-align:center;margin:14px 0;">
+    <div style="font-weight:700;font-size:13px;margin-bottom:3px;">Mind</div>
+    <div style="display:flex;align-items:center;gap:5px;max-width:300px;margin:0 auto;">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 14 Q5 10 7 7 Q9 4 11 7 Q13 10 9 14Z" fill="var(--pitta-accent)" opacity="0.7"/></svg>
+      <div style="flex:1;height:9px;background:var(--slider-bg);border-radius:5px;position:relative;">
+        <div style="position:absolute;right:20%;top:-2px;width:13px;height:13px;background:var(--kapha-accent);border-radius:50%;"></div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 2 Q13 5 9 9 Q5 13 9 16" stroke="--kapha-accent" stroke-width="1.8" fill="none"/></svg>
+    </div>
+  </div>
+  <div class="sub-heading">THE NOISE</div>
+  <div class="body-text">Your mind doesn't race. It settles - into patterns, into comfort, into the familiar. The noise is quiet. But underneath the quiet is a thought you keep postponing.</div>
+  <div class="sub-heading">THE PATTERN UNDERNEATH</div>
+  <div class="body-text">Without warmth and activation, your Kapha mind retreats into the known. The new idea gets a 'tomorrow.' The conversation gets a 'later.' The dream gets a 'when I'm ready.'</div>
+  <div class="sub-heading">THE TRUTH</div>
+  <div class="body-text">Warm the body first. Movement creates heat. Heat creates clarity. You don't think your way into action - you move your way into thought.</div>
+</div>
+
+<!-- PAGE 15: WHAT YOUR SPIRIT FEELS -->
+<div class="page page-dense">
+  <div class="section-tag">WHAT YOUR SPIRIT FEELS?</div>
+  <div class="headline-xl color-plum" style="font-size:36px;">The bloom that<br>waits for spring</div>
+  <div style="text-align:center;margin:12px 0;">
+    <div style="font-weight:700;font-size:13px;margin-bottom:3px;">Spirit</div>
+    <div style="display:flex;align-items:center;gap:5px;max-width:300px;margin:0 auto;">
+      <svg width="18" height="18" viewBox="0 0 18 18"><path d="M9 2 Q13 5 9 9 Q5 13 9 16" stroke="--kapha-accent" stroke-width="1.8" fill="none"/></svg>
+      <div style="flex:1;height:9px;background:var(--slider-bg);border-radius:5px;position:relative;">
+        <div style="position:absolute;left:30%;top:-2px;width:13px;height:13px;background:var(--kapha-accent);border-radius:50%;"></div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 18 18"><polygon points="9,4 13,14 5,14" fill="var(--pitta-accent)" opacity="0.6"/></svg>
+    </div>
+  </div>
+  <div class="sub-heading">YOU'VE FELT THIS</div>
+  <div class="body-text">You feel like you are waiting for something - permission, the right moment, enough energy - before you begin what you actually want.</div>
+  <div class="body-text">There is something in you that knows exactly what it wants. It's just buried under a winter's worth of "not yet."</div>
+  <div class="sub-heading">THE PATTERN UNDERNEATH</div>
+  <div class="body-text">Your spirit isn't absent. It's dormant. Kapha spirits don't evaporate - they wait. But waiting too long becomes its own kind of loss. The seeds are still there. They need warmth, not more time.</div>
+  <div class="sub-heading">THE TRUTH</div>
+  <div class="body-text">You don't need to be transformed. You need to be thawed. One small act of warmth - for yourself, by yourself - and your spirit will remember that it was never gone.</div>
+</div>
+
+<!-- PAGE 16: AYURVEDA DEFINITION - STATIC -->
+<div class="page-dark" style="justify-content:center;text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:28px;line-height:1.5;"><em>T</em>he word 'Ayurveda' translates literally as 'the science of life.'<br><br>Not the science of supplements. Not the science of illness.<br><strong>The science of living well.</strong></div></div>
+
+
+<!-- PAGE 17: YOUR PATH FORWARD -->
+<div class="page page-dense">
+  <div class="section-tag">YOUR PATH FORWARD</div>
+  <div class="headline-xl color-plum" style="font-size:42px;">What keeps you<br><span style="color:var(--kapha-deep);">steady.</span></div>
+  <div class="spacer-lg"></div>
+  <div style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--kapha-deep);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--kapha-primary);">What your Kapha nature always needs</div>
+  <ul class="bullet-list"><li><strong>Move before you think:</strong> Kapha wakes slowly. Don't negotiate with the morning - just begin. Five minutes of movement before the mind has a chance to say no.</li><li><strong>Warmth and stimulation:</strong> Kapha runs cool and slow. Warm water, warming spices, brisk walks. Your system needs a gentle push - not force, but forward motion.</li><li><strong>Light over heavy:</strong> Kapha already carries density. Your meals, your schedule, your commitments - lighter is medicine. Not deprivation. Relief.</li></ul>
+  <div class="spacer"></div>
+  <div style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--pitta-deep);margin-bottom:8px;padding-bottom:4px;border-bottom:2px solid var(--pitta-primary);">What will ease your {{imbalance_dosha}} imbalance right now</div>
+  <ul class="bullet-list"><li><strong>Begin before ready:</strong> {{imbalance_path_bullet}}</li><li><strong>Small fire, daily:</strong> {{imbalance_warmth_note}}</li><li><strong>Honour completion:</strong> {{imbalance_focus_note}}</li></ul>
+  <svg class="flow-line" style="right:0;bottom:40px;width:110px;height:140px;" viewBox="0 0 110 140"><path d="M110 0 Q75 35 90 70 Q110 110 55 140" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.15"/></svg>
+</div>
+
+<!-- PAGE 18: UNDERSTANDING BALANCE -->
+<div class="page page-dense">
+  <div class="section-tag">UNDERSTANDING BALANCE</div>
+  <div class="headline-lg color-plum">How to keep the<br><span style="color:var(--kapha-deep);">balance</span> ongoing?</div>
+  <div class="spacer"></div>
+  <div style="font-size:11px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:var(--plum);">SYMPTOMS</div>
+  <div style="font-size:10px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--light-text);margin-top:10px;margin-bottom:6px;text-align:right;padding-right:16px;">RETURN TO RHYTHM WITH:</div>
+  
+    <div class="symptom-row">
+      <div class="symptom-label">Heaviness,<br>sluggish morning <span class="dosha-tag tag-k">KAPHA</span></div>
+      <div class="symptom-dot dot-kapha"></div>
+      <div class="symptom-line"></div>
+      <div class="symptom-bubble">Move before breakfast. Even five minutes. Warm ginger tea, drunk standing.</div>
+    </div>
+    <div class="symptom-row">
+      <div class="symptom-label">Water retention,<br>puffiness <span class="dosha-tag tag-k">KAPHA</span></div>
+      <div class="symptom-dot dot-kapha"></div>
+      <div class="symptom-line"></div>
+      <div class="symptom-bubble">Dry brush before showering. Warm, light meals. Less salt. Less sitting.</div>
+    </div>
+    <div class="symptom-row">
+      <div class="symptom-label">Low motivation,<br>postponing <span class="dosha-tag tag-k">KAPHA</span></div>
+      <div class="symptom-dot dot-kapha"></div>
+      <div class="symptom-line"></div>
+      <div class="symptom-bubble">One small beginning. Not a plan - an action. The warmth follows the movement.</div>
+    </div>
+    <div class="symptom-row">
+      <div class="symptom-label">Congestion,<br>heavy sinuses <span class="dosha-tag tag-k">KAPHA</span></div>
+      <div class="symptom-dot dot-kapha"></div>
+      <div class="symptom-line"></div>
+      <div class="symptom-bubble">Steam with eucalyptus. Warming spices. Let the body clear what it's been holding.</div>
+    </div>
+    <div class="symptom-row">
+      <div class="symptom-label">Emotional<br>attachment, heaviness <span class="dosha-tag tag-k">KAPHA</span></div>
+      <div class="symptom-dot dot-kapha"></div>
+      <div class="symptom-line"></div>
+      <div class="symptom-bubble">Something new today. A different path. A different tea. Kapha heals through gentle novelty.</div>
+    </div>
+  <svg class="flow-line" style="right:-10px;top:20px;width:50px;height:280px;" viewBox="0 0 50 280"><path d="M0 0 Q35 55 18 110 Q0 165 25 220 Q45 260 25 280" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.15"/></svg>
+</div>
+
+<!-- PAGE 19: EXPERT QUOTE - VASANT LAD - STATIC -->
+<div class="page quote-page"><div style="font-family:'Cormorant Garamond',serif;font-size:72px;color:#C0B0B8;line-height:1;margin-bottom:16px;">&#x201C;&#x201C;</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--plum);line-height:1.5;max-width:420px;margin-bottom:24px;">"Ayurveda doesn't give you a personality type. It gives you a user manual for the body you were born with. That's why it's lasted 5,000 years - it's not psychology dressed in Sanskrit. It's biology you can actually feel."</div><div style="width:80px;height:80px;background:var(--slider-bg);border-radius:50%;margin-bottom:16px;"></div><div style="font-family:'Source Sans 3';font-size:14px;font-weight:700;color:var(--plum);letter-spacing:0.08em;">VASANT LAD</div><div style="font-family:'Source Sans 3';font-size:11px;letter-spacing:0.15em;color:var(--light-text);margin-top:4px;">Ayurvedic physician, educator, and author</div></div>
+
+
+<!-- PAGE 20: MORNING RITUALS -->
+<div class="page page-dense">
+  <div class="section-tag">MORNING RITUALS</div>
+  <div style="text-align:center;margin-bottom:8px;"><svg width="60" height="60" viewBox="0 0 60 60" style="opacity:0.3;"><circle cx="30" cy="30" r="18" fill="#C0B0B8"/><line x1="30" y1="4" x2="30" y2="12" stroke="#C0B0B8" stroke-width="2.5"/><line x1="30" y1="48" x2="30" y2="56" stroke="#C0B0B8" stroke-width="2.5"/><line x1="4" y1="30" x2="12" y2="30" stroke="#C0B0B8" stroke-width="2.5"/><line x1="48" y1="30" x2="56" y2="30" stroke="#C0B0B8" stroke-width="2.5"/></svg></div>
+  <div class="headline-lg color-plum" style="text-align:center;">Morning<br>(The Warming Hour)</div>
+  <div class="spacer"></div>
+  <div class="body-text">Before anything else - move. Not exercise. Just movement. Your arms, your legs, your spine. Tell your body the day has genuinely arrived. Kapha will not wake from rest alone.</div><div class="body-text">Warm ginger tea, drunk standing. Not sitting - standing. The posture matters. This is not relaxation. This is activation. Let the warmth travel down.</div><div class="body-text">Something light to eat - spiced porridge, warm broth, anything that wakes your Agni without weighing you down. Kapha's digestion is slow in the morning. Meet it where it is.</div><div class="body-text">A dry brush or a brisk oil massage before you dress. Your Kapha skin and lymph need movement - this is medicine disguised as a ritual. Spend three minutes. Your body will remember.</div>
+</div>
+
+<!-- PAGE 21: EVENING RITUALS -->
+<div class="page-dark page-dense">
+  <div class="section-tag" style="color:#C0B0B8;">EVENING RITUALS</div>
+  <div style="text-align:center;margin-bottom:8px;"><svg width="60" height="60" viewBox="0 0 60 60" style="opacity:0.3;"><path d="M35 10 Q50 20 50 35 Q50 50 35 55 Q20 60 12 48 Q25 55 35 45 Q45 35 40 20 Q38 14 35 10Z" fill="#C0B0B8"/></svg></div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:34px;text-align:center;margin-bottom:14px;">Evening<br>(The Lightening Hour)</div>
+  <div class="spacer"></div>
+  <div style="font-size:13px;line-height:1.65;margin-bottom:10px;">A warm shower - but lighter than your day. Let the water carry what you've been holding. You've held a lot today. You don't need to carry it to bed.</div><div style="font-size:13px;line-height:1.65;margin-bottom:10px;">Something light and warm for the evening meal. No heavy proteins, no dense carbohydrates after 7pm. Kapha's digestion slows with the sun. Honour that rhythm.</div><div style="font-size:13px;line-height:1.65;margin-bottom:10px;">One window open. Kapha runs cool but heavy - fresh air before sleep helps your body lighten. Not cold. Just open. Let the room breathe.</div><div style="font-size:13px;line-height:1.65;margin-bottom:10px;">Before you sleep - write one thing you'll begin tomorrow. Not a list. One thing. Kapha sleeps deeply; plant the seed before you rest, and your body will warm it through the night.</div>
+</div>
+
+<!-- PAGE 22: TESTIMONIALS -->
+<div class="page">
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px;">
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+      <div style="width:70px;height:70px;background:var(--dark-plum-bg);border-radius:50%;flex-shrink:0;"></div>
+      <div>
+        <div class="body-text" style="font-size:12.5px;line-height:1.6;margin-bottom:4px;">I've always been the steady one - for my family, my students, my friends. ETHA was the first thing that told me my steadiness was a gift, not a given. The morning ritual - five minutes of movement before anything else - changed my mornings completely.</div>
+        <div style="font-family:'Source Sans 3';font-size:12px;font-weight:700;color:var(--plum);">NADIA P.</div>
+        <div style="font-family:'Source Sans 3';font-size:10px;letter-spacing:0.08em;color:var(--light-text);">Teacher, mom of 3, Plovdiv</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:20px;align-items:flex-start;">
+      <div style="width:70px;height:70px;background:var(--kapha-primary);border-radius:50%;flex-shrink:0;"></div>
+      <div>
+        <div class="body-text" style="font-size:12.5px;line-height:1.6;margin-bottom:4px;">{{testimonial_2_quote}} The trikatu tea alone made me feel like I'd woken up for the first time in years.</div>
+        <div style="font-family:'Source Sans 3';font-size:12px;font-weight:700;color:var(--plum);">VESNA K.</div>
+        <div style="font-family:'Source Sans 3';font-size:10px;letter-spacing:0.08em;color:var(--light-text);">Creative director, Kapha/{{imbalance_dosha}}, 36</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 23: NOURISHMENT WISDOM -->
+<div class="page page-dense">
+  <div class="section-tag">NOURISHMENT WISDOM</div>
+  <div class="headline-lg color-plum" style="font-size:32px;">Food,<span style="font-size:26px;"> which helps</span><br>you <span style="color:var(--kapha-deep);">stay in balance</span></div>
+  <div class="spacer"></div>
+  <div class="food-rule"><div class="food-num">1.</div><div class="food-text">Choose light, warm, and drying foods over heavy, cold, or oily ones <span class="food-why food-why-kapha">- {{imbalance_food_note_1}}</span></div></div>
+<div class="food-rule"><div class="food-num">2.</div><div class="food-text">Favor pungent, bitter, and astringent tastes - spices, greens, legumes <span class="food-why food-why-kapha">- {{imbalance_food_note_2}}</span></div></div>
+<div class="food-rule"><div class="food-num">3.</div><div class="food-text">Avoid heavy dairy, excess sweets, fried food, and cold drinks <span class="food-why food-why-kapha">- {{imbalance_food_note_3}}</span></div></div>
+<div class="food-rule"><div class="food-num">4.</div><div class="food-text">Eat less than you think you need - and never eat when not truly hungry <span class="food-why food-why-pitta">- {{imbalance_food_note_4}}</span></div></div>
+
+  <div class="spacer-lg"></div>
+  <div style="font-family:'Cormorant Garamond',serif;font-size:24px;text-align:center;color:var(--plum);">YOUR DOSHA <span style="color:var(--kapha-deep);font-weight:600;">HERBS</span></div>
+  <div class="spacer"></div>
+  <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <div style="text-align:center;flex:1;min-width:110px;">
+        <div style="font-weight:700;font-size:13px;color:var(--plum);">Trikatu</div>
+        <div style="font-size:10px;color:var(--light-text);font-style:italic;">Three-spice fire - ginger, pepper, pippali</div>
+        <div style="font-size:11.5px;margin-top:5px;line-height:1.5;">The classic Kapha activator in Ayurveda - a warming blend that kindles <span style="color:var(--kapha-accent);">digestive fire</span>, burns accumulated heaviness, and wakes the metabolism from its winter.</div>
+      </div>
+      <div style="text-align:center;flex:1;min-width:110px;">
+        <div style="font-weight:700;font-size:13px;color:var(--plum);">Brahmi</div>
+        <div style="font-size:10px;color:var(--light-text);font-style:italic;">Water Hyssop - the mind's oldest ally</div>
+        <div style="font-size:11.5px;margin-top:5px;line-height:1.5;">A revered nervine that gently lifts <span style="color:var(--kapha-accent);">Kapha's</span> mental fog - bringing clarity and motivation without the overstimulation that a Kapha system can't sustain.</div>
+      </div>
+      <div style="text-align:center;flex:1;min-width:110px;">
+        <div style="font-weight:700;font-size:13px;color:var(--plum);">Triphala</div>
+        <div style="font-size:10px;color:var(--light-text);font-style:italic;">three-fruit formula - Ayurveda's oldest act of care</div>
+        <div style="font-size:11.5px;margin-top:5px;line-height:1.5;">Ayurveda's foundational formula for Kapha - gentle, consistent, and deeply cleansing. It moves what Kapha has accumulated without force, restoring lightness over time.</div>
+      </div></div>
+</div>
+
+<!-- CLOSING PAGE - STATIC -->
+<div class="page"><svg class="flow-line" style="left:-10px;top:0;width:60px;height:300px;" viewBox="0 0 60 300"><path d="M30 0 Q50 60 30 120 Q10 180 40 240 Q50 270 30 300" stroke="#5C2040" stroke-width="2.5" fill="none" opacity="0.2"/></svg><div style="text-align:center;margin-top:20px;"><div class="etha-logo">Ē T H A</div></div><div style="flex:1;display:flex;flex-direction:column;justify-content:center;"><div class="body-text" style="font-size:14px;line-height:1.7;">You've just seen your pattern - the one you were born with, and the one you're living right now.</div><div class="body-text" style="font-size:14px;line-height:1.7;">The distance between those two? That's not a problem.</div><div class="body-text" style="font-size:14px;line-height:1.7;">That's a path. And you don't have to walk it alone.</div><div class="spacer-lg"></div><div style="text-align:center;"><div style="font-family:'Cormorant Garamond',serif;font-size:38px;font-style:italic;color:var(--plum);line-height:1.3;">This isn't a rebuild.</div><div style="font-family:'Cormorant Garamond',serif;font-size:44px;font-weight:600;color:var(--plum);line-height:1.3;">It's a return.</div></div></div><div style="text-align:center;padding-bottom:16px;"><button style="display:inline-flex;align-items:center;gap:10px;background:var(--plum);color:white;font-family:'Source Sans 3',sans-serif;font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;padding:16px 32px;border-radius:40px;border:none;cursor:pointer;" onclick="window.print()">Save your pattern as PDF</button></div></div>
+
+
+<!-- LAST PAGE: DOSHA CARD -->
+<div class="nc-wrap kapha">
+  <div class="nc-card">
+    <div class="nc-wordmark">E T H A</div>
+    <div class="nc-aura"><svg viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="20" stroke="rgba(125,158,125,0.5)" stroke-width="1" fill="none"/><circle cx="36" cy="36" r="14" stroke="rgba(201,123,74,0.4)" stroke-width="0.8" fill="none"/><circle cx="36" cy="36" r="4" fill="rgba(125,158,125,0.15)"/><circle cx="36" cy="36" r="1.5" fill="rgba(125,158,125,0.5)"/></svg></div>
+    <div class="nc-persona">JOANA, YOU ARE</div>
+    <div class="nc-name">Kapha</div>
+    <div class="nc-archetype">The Grounded Core</div>
+    <div class="nc-comp"><div class="nc-comp-item"><span class="nc-pct" style="color:#7d9e7d;">60%</span><span class="nc-plbl">Kapha</span></div><div class="nc-comp-item"><span class="nc-pct" style="color:#d97b58;">28%</span><span class="nc-plbl">Pitta</span></div><div class="nc-comp-item"><span class="nc-pct" style="color:#c4b2c2;">12%</span><span class="nc-plbl">Vata</span></div></div>
+    <div class="nc-rule"></div>
+    <div class="nc-reframe">"You are not stuck.<br>You are Kapha - and the bloom<br>is already there. It simply needs the right conditions."</div>
+    <div class="nc-sec-note">
+      <div class="nc-sec-lbl">Your secondary nature</div>
+      <div class="nc-sec-txt">{{nc_secondary_note}}</div>
+    </div>
+    <div class="nc-blk-lbl">What your answers revealed</div>
+    <div class="nc-sig-row"><div class="nc-sig-dot"></div><div class="nc-sig-txt">Your mornings need more than one reason to begin</div></div><div class="nc-sig-row"><div class="nc-sig-dot"></div><div class="nc-sig-txt">You carry what others put down</div></div><div class="nc-sig-row"><div class="nc-sig-dot"></div><div class="nc-sig-txt">Your energy arrives slowly - and lasts the longest</div></div>
+    <div style="height:10px;"></div>
+    <div class="nc-ritual">
+      <div class="nc-rit-lbl">One thing for tomorrow morning</div>
+      <div class="nc-rit-txt">Before anything else - five minutes of movement. Brisk, warm, arms and legs. Then fresh ginger tea, drunk standing. Kapha wakes from the inside out - and you already know this.</div>
+    </div>
+    <button class="nc-share">SHARE YOUR DOSHA ↗</button>
+    <div class="nc-hint">Your complete Kapha profile is waiting</div>
+    <div class="nc-teaser">
+      <div class="nc-t-dot"></div>
+      <div class="nc-t-txt">Includes the sacred plant that tells Kapha the morning has genuinely arrived</div>
+      <div class="nc-t-dot"></div>
+    </div>
+  </div>
+</div>
+</div>

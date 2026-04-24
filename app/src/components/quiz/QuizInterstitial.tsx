@@ -17,7 +17,7 @@ const AURA_B =
 export default function QuizInterstitial({
   text,
   onAdvance,
-  autoHoldMs = 4500,
+  autoHoldMs = 7500,
 }: {
   text: string;
   onAdvance: () => void;
@@ -64,7 +64,11 @@ export default function QuizInterstitial({
   }, []);
 
   return (
-    <div className="relative flex items-center justify-center w-full" style={{ minHeight: "60vh" }}>
+    <div
+      className="relative flex items-center justify-center w-full select-none"
+      style={{ minHeight: "60vh", cursor: "pointer" }}
+      onClick={go}
+    >
       {/* Balanced aura ring - static position, path breathes */}
       <svg
         className="pointer-events-none absolute"

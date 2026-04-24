@@ -1457,7 +1457,7 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
           {/* SKIP - small aura pill, consistent with button system */}
           <button
             onClick={onAdvance}
-            className="relative font-label text-[9px] text-cream/62 hover:text-cream/85 focus-visible:text-cream/85 transition-colors cursor-pointer min-h-[48px] px-7 py-4"
+            className="relative font-label text-[11px] text-cream/72 hover:text-cream/90 focus-visible:text-cream/90 transition-colors cursor-pointer min-h-[48px] px-7 py-4"
           >
             <svg
               className="absolute inset-0 w-full h-full overflow-visible pointer-events-none"
@@ -1469,8 +1469,8 @@ function OpenQuestion({ step, onAdvance }: { step: OpenQ; onAdvance: () => void 
               <path
                 d={OPEN_SKIP_AURA}
                 stroke="#FFEFDE"
-                strokeWidth="0.7"
-                strokeOpacity="0.38"
+                strokeWidth="0.8"
+                strokeOpacity="0.52"
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />

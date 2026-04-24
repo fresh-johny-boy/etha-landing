@@ -46,9 +46,6 @@ const SENT_COPY: Record<Archetype, { headline: string; lines: [string, string, s
 function validEmail(e: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
 }
-function validFirstName(n: string): boolean {
-  return n.trim().length > 0;
-}
 
 export default function QuizEmailGate({
   dosha,
@@ -65,12 +62,10 @@ export default function QuizEmailGate({
   const theme    = DOSHA_THEMES[dosha];
   const archetype = result ? ARCHETYPES[result.primary] : ARCHETYPES[dosha];
 
-  const [firstName, setFirstName]   = useState("");
   const [email, setEmail]           = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState<string | null>(null);
   const [emailFocus, setEmailFocus] = useState(false);
-  const [nameFocus, setNameFocus]   = useState(false);
   const [sent, setSent]             = useState(false);
 
   const overlayRef    = useRef<HTMLDivElement>(null);
@@ -210,10 +205,6 @@ export default function QuizEmailGate({
 
   const onSubmit = async () => {
     if (submitting) return;
-    if (!validFirstName(firstName)) {
-      setError("Please enter your first name.");
-      return;
-    }
     if (!validEmail(email.trim())) {
       setError("A complete email, please.");
       return;
@@ -228,7 +219,7 @@ export default function QuizEmailGate({
       return;
     }
 
-    writeQuizState({ firstName: firstName.trim(), email: email.trim() });
+    writeQuizState({ email: email.trim() });
     emailValRef.current = email.trim();
 
     /* Transition to sent state within the same overlay */
@@ -408,55 +399,8 @@ export default function QuizEmailGate({
               color: "rgba(255,239,222,0.90)",
             }}
           >
-            Your complete rhythm map, your daily ritual, and your botanical recommendations, written for you alone. Enter your name and email to read it in full.
+            Your complete rhythm map, your daily ritual, and your botanical recommendations, written for you alone. Enter your email to read it in full.
           </p>
-
-          {/* First name input */}
-          <div className="relative mb-6">
-            <svg
-              className="pointer-events-none absolute overflow-visible"
-              viewBox="0 0 360 58"
-              preserveAspectRatio="none"
-              fill="none"
-              aria-hidden="true"
-              style={{ left: "-10px", top: "-8px", width: "calc(100% + 20px)", height: "calc(100% + 16px)" }}
-            >
-              <path d={EMAIL_AURA} fill="rgba(255,239,222,0.07)" stroke="none" />
-              <path
-                d={EMAIL_AURA}
-                fill="none"
-                stroke="#FFEFDE"
-                strokeWidth="0.9"
-                strokeOpacity={nameFocus ? 0.65 : 0.22}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            <input
-              id="quiz-firstname"
-              type="text"
-              autoComplete="given-name"
-              maxLength={80}
-              value={firstName}
-              onChange={(e) => { setFirstName(e.target.value); if (error) setError(null); }}
-              onFocus={() => setNameFocus(true)}
-              onBlur={() => setNameFocus(false)}
-              placeholder="Your first name"
-              className="w-full bg-transparent font-serif text-center py-5 px-6 outline-none"
-              style={{
-                fontSize: "clamp(1rem, 2.5vw, 1.15rem)",
-                color: "rgba(255,239,222,0.90)",
-                colorScheme: "dark",
-                borderRadius: 0,
-                border: "none",
-                appearance: "none",
-                WebkitAppearance: "none",
-                WebkitBoxShadow: `0 0 0 100px ${bgRgba[dosha]} inset`,
-                WebkitTextFillColor: "rgba(255,239,222,0.90)",
-              }}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
 
           {/* Email input */}
           <div className="relative">
@@ -538,7 +482,7 @@ export default function QuizEmailGate({
           <QuizCTAButton
             label={submitting ? "SENDING" : "SEND MY FULL REPORT"}
             onClick={onSubmit}
-            disabled={submitting || !validFirstName(firstName) || !validEmail(email.trim())}
+            disabled={submitting || !validEmail(email.trim())}
             strokeColor={theme.nameColor}
           />
         </div>

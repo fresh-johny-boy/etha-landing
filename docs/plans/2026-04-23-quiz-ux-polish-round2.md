@@ -1,7 +1,7 @@
 # Quiz UX Polish — Round 2
 
 Created: 2026-04-23
-Status: PENDING
+Status: COMPLETE
 Approved: Yes
 Iterations: 0
 Worktree: No
@@ -171,10 +171,10 @@ Three independent point-fixes. No shared logic between them.
 ## Progress Tracking
 
 - [x] ~~Task 1: `/quiz/sent` tap-to-advance hint~~ — DROPPED (owner resolved P1 differently; `/quiz/sent` bypassed in main flow)
-- [ ] Task 2: Bubble chart startDelay 2.45 → 3.5
-- [ ] Task 3: Remove first-name field
+- [x] Task 2: Bubble chart startDelay 2.45 → 3.5
+- [x] Task 3: Remove first-name field
 
-**Total Tasks:** 2 | **Completed:** 0 | **Remaining:** 2
+**Total Tasks:** 2 | **Completed:** 2 | **Remaining:** 0
 
 ---
 
